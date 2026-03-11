@@ -1,6 +1,10 @@
 # Netlify config for the Parchment docs site (Next.js + Fumadocs).
 # When linking this repo, set "Base directory" to "docs" in the Netlify UI.
 # The Essential Next.js plugin auto-detects and sets the publish directory.
+#
+# Required for build: set OPENAPI_SPEC_URL in Netlify UI (Site settings → Environment variables)
+# to your Parchment instance's OpenAPI spec, e.g. https://your-parchment.example.com/docs/json
+# The API reference pages fetch this at build time to render; localhost is not available on Netlify.
 
 [build]
   command = "bun run build"
