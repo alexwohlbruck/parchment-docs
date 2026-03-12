@@ -1,22 +1,12 @@
 ---
 title: API Reference
-description: Auto-generated API reference for the Parchment REST API.
+description: Reference for the Parchment REST API.
 ---
 
-This section is generated automatically from the OpenAPI specification served by your Parchment instance.
+The Parchment API is a REST API that powers the Parchment map and trip-planning app. All responses are JSON.
 
-## Generating the API Docs
+In development the API is at `http://localhost:5000`. In production, use your instance’s base URL.
 
-Run the following command to regenerate these pages from your running server:
+## Authentication
 
-```bash
-cd docs && bun run generate:api
-```
-
-With the shared `.env` at the monorepo root (so `SERVER_ORIGIN` is set):
-
-```bash
-cd docs && bun run generate:api
-```
-
-The script reads `SERVER_ORIGIN` from the environment (or falls back to `http://localhost:5000`) and fetches the spec from `{SERVER_ORIGIN}/docs/json`.
+Most endpoints require authentication. Send credentials as a **session cookie** or an **API token** in the `Authorization: Bearer <token>` header. See [Auth](/docs/api/auth) for details.
