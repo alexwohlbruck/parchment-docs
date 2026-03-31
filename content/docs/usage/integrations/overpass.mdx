@@ -1,0 +1,33 @@
+---
+title: Overpass API
+description: OSM category search and place lookup via the Overpass API.
+---
+
+The Overpass API allows querying OpenStreetMap data directly. This integration is used as a fallback for category-based place search when Barrelman is not configured.
+
+---
+
+## Capabilities
+
+| Capability | Description |
+|---|---|
+| **Search Category** | Query OSM places by tag/category |
+| **Place Info** | Fetch an OSM element by type and ID |
+
+---
+
+## Configuration
+
+In **Settings → Integrations**, click the settings icon on the Overpass API card.
+
+| Field | Value |
+|---|---|
+| **Host** | Base URL of the Overpass instance. Use `https://overpass-api.de/api` for the public instance, or your self-hosted URL. |
+
+No API key is required for the public instance. Click **Test Connection** before saving.
+
+---
+
+## Notes
+
+The public Overpass API has rate limits and is not suitable for high-traffic production use. For better performance, self-host Overpass using [overpass-api.de/no_frills.html](https://overpass-api.de/no_frills.html) or use [Barrelman](barrelman) which provides the same capabilities with a faster, purpose-built index.

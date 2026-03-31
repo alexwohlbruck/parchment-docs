@@ -1,0 +1,34 @@
+---
+title: Axiom
+description: Observability and log export via Axiom.
+---
+
+Axiom is a cloud observability platform. When configured, Parchment exports logs and traces to Axiom via OTLP, making it easy to search and monitor server activity in production.
+
+---
+
+## Capabilities
+
+| Capability | Description |
+|---|---|
+| **Logging** | OTLP log and trace export to Axiom |
+
+---
+
+## Configuration
+
+This integration is system-level and is configured in **Settings → System**, not in the general Integrations panel.
+
+| Field | Value |
+|---|---|
+| **API Token** | Your Axiom API token. Create one under **Settings → API Tokens** in your Axiom workspace. |
+| **Dataset** | The Axiom dataset to write logs into. Create a dataset in your Axiom workspace before connecting. |
+| **Endpoint** | OTLP endpoint URL. Defaults to `https://api.axiom.co`. Only change this for self-hosted Axiom deployments. |
+
+Click **Test Connection** before saving.
+
+---
+
+## Notes
+
+Axiom offers a free tier with 500GB/month of data ingest, suitable for most self-hosted Parchment deployments. See [axiom.co/pricing](https://axiom.co/pricing) for details.

@@ -1,0 +1,34 @@
+---
+title: Nominatim
+description: Open-source geocoding, search, and place detail via Nominatim.
+---
+
+Nominatim is the geocoding and search engine that powers OpenStreetMap.org. It can be used via the public OSM instance or self-hosted.
+
+---
+
+## Capabilities
+
+| Capability | Description |
+|---|---|
+| **Search** | Place text search over OSM data |
+| **Geocoding** | Address-to-coordinate and reverse geocoding |
+| **Place Info** | Fetch place detail by OSM ID |
+
+---
+
+## Configuration
+
+In **Settings → Integrations**, click the settings icon on the Nominatim card.
+
+| Field | Value |
+|---|---|
+| **Host** | Base URL of the Nominatim instance. Defaults to `https://nominatim.openstreetmap.org` (public OSM server). For self-hosted use your instance URL, e.g. `http://localhost:8080`. |
+
+No API key is required for the public OSM instance. Click **Test Connection** before saving.
+
+---
+
+## Notes
+
+The [public Nominatim instance](https://nominatim.org/release-docs/latest/api/Overview/) enforces a usage policy — maximum 1 request/second, no bulk geocoding. For production use, self-host Nominatim or use a hosted provider. See [nominatim.org](https://nominatim.org) for self-hosting instructions.

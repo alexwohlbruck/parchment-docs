@@ -1,0 +1,40 @@
+---
+title: Valhalla
+description: Self-hosted routing with advanced costing models via Valhalla.
+---
+
+Valhalla is an open-source routing engine from Mapbox with advanced costing models, multimodal routing support, and accessibility preferences. It is self-hosted only.
+
+---
+
+## Capabilities
+
+| Capability | Description |
+|---|---|
+| **Routing** | Turn-by-turn directions with advanced preference support |
+
+### Supported travel modes
+
+Driving, walking, cycling, motorcycle.
+
+### Supported route preferences
+
+Avoid highways, avoid tolls, avoid ferries, avoid unpaved roads, avoid hills, prefer paved paths, prefer lit paths, wheelchair accessible routing, maximum walk distance.
+
+---
+
+## Configuration
+
+In **Settings → Integrations**, click the settings icon on the Valhalla card.
+
+| Field | Value |
+|---|---|
+| **Host** | Base URL of your Valhalla instance, e.g. `http://localhost:8002`. |
+
+No API key is required for self-hosted instances. Click **Test Connection** before saving.
+
+---
+
+## Self-hosting
+
+See the [Valhalla Docker documentation](https://github.com/valhalla/valhalla) for setup. Pre-built images are available at `ghcr.io/valhalla/valhalla`.

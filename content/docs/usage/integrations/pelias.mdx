@@ -1,0 +1,34 @@
+---
+title: Pelias
+description: Open-source geocoding and autocomplete via Pelias.
+---
+
+Pelias is an open-source geocoding engine. It can be self-hosted or used via a hosted provider such as Geocode.earth.
+
+---
+
+## Capabilities
+
+| Capability | Description |
+|---|---|
+| **Geocoding** | Address-to-coordinate and reverse geocoding |
+| **Autocomplete** | Address and place typeahead suggestions |
+
+---
+
+## Configuration
+
+In **Settings → Integrations**, click the settings icon on the Pelias card.
+
+| Field | Value |
+|---|---|
+| **Host** | Base URL of your Pelias instance, e.g. `https://api.geocode.earth` for Geocode.earth or `http://localhost:4000` for self-hosted. |
+| **API Key** | Required for hosted providers like Geocode.earth. Leave blank for self-hosted instances without auth. |
+
+Click **Test Connection** before saving.
+
+---
+
+## Self-hosting
+
+Pelias can be run locally using Docker. See the [Pelias Docker documentation](https://github.com/pelias/docker) for setup instructions.

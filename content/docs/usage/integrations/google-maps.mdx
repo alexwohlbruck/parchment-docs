@@ -1,0 +1,34 @@
+---
+title: Google Maps
+description: Place search, place detail, and geocoding via the Google Places API.
+---
+
+The Google Maps integration uses the Google Places API (v1) to search for places, fetch place detail, and geocode addresses.
+
+---
+
+## Capabilities
+
+| Capability | Description |
+|---|---|
+| **Search** | Place text search via the Places API |
+| **Place Info** | Fetch full place detail by Google Place ID |
+| **Geocoding** | Address-to-coordinate and reverse geocoding |
+
+---
+
+## Configuration
+
+In **Settings → Integrations**, click the settings icon on the Google Maps card.
+
+| Field | Value |
+|---|---|
+| **API Key** | A Google Cloud API key with the **Places API (New)** and **Geocoding API** enabled. Create one in the [Google Cloud Console](https://console.cloud.google.com/apis/credentials). |
+
+Click **Test Connection** before saving.
+
+---
+
+## Notes
+
+Google Places API usage is billed per request. Enable billing on your Google Cloud project and set a budget alert before enabling this integration in production. See [Google Maps Platform pricing](https://developers.google.com/maps/billing-and-pricing/pricing).

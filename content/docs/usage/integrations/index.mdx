@@ -1,0 +1,89 @@
+---
+title: Overview
+description: Connect and configure external services in Parchment through the Settings UI.
+---
+
+Parchment connects to external services — maps, search engines, geocoders, routing engines, and more — through a unified integrations system. All integrations are configured through the UI rather than environment variables, making it easy to swap providers or adjust capabilities without restarting the server.
+
+---
+
+## Managing integrations
+
+Go to **Settings → Integrations** to see all available integrations. Each card shows:
+
+- The integration's name and description
+- Which **capabilities** it is currently fulfilling (shown as blue badges when active)
+- Action buttons to edit settings or remove the integration
+
+---
+
+## Configuring an integration
+
+Click the settings icon on any integration card to open the edit dialog. Every integration has the following fields:
+
+| Field | Description |
+|---|---|
+| **Host** | Base URL of the service (e.g. `http://localhost:3002`). Required for self-hosted services. |
+| **API Key** | Bearer token or API key used to authenticate requests. Leave blank if the service is open. |
+| **Enabled** | Toggle to activate or deactivate the integration without removing it. |
+| **Capabilities** | Per-feature toggles that control which Parchment features this integration handles. |
+
+### Test Connection
+
+Before saving, click **Test Connection** to verify that Parchment can reach the service with the credentials provided. You must pass this check to save the configuration.
+
+---
+
+## Capabilities
+
+Capabilities map Parchment features to integration providers. Multiple integrations can be configured for the same capability — Parchment will try them in priority order and fall back gracefully if one is unavailable.
+
+| Capability | Description |
+|---|---|
+| **Search** | Text and semantic place search |
+| **Autocomplete** | Low-latency typeahead suggestions |
+| **Search Category** | Browsing places by OSM category |
+| **Place Info** | Fetching full place detail by ID |
+| **Geocoding** | Address-to-coordinate lookup |
+| **Routing** | Turn-by-turn directions |
+| **Map Engine** | Base map tile rendering |
+| **Map Layer** | Overlay tile layers |
+| **Transit Data** | Public transit routes and stops |
+| **Street View** | Street-level imagery |
+| **Spatial Contains** | Find which areas contain a coordinate |
+| **Spatial Children** | List POIs inside a venue or area |
+| **Weather** | Current conditions and forecasts |
+| **Logging** | Telemetry and observability export |
+
+Not all integrations support every capability — the edit dialog only shows toggles for capabilities the integration actually provides.
+
+---
+
+## Degraded mode
+
+If a capability has no active integration (or all configured integrations fail their health checks), Parchment degrades gracefully:
+
+- Search falls back to remaining active search providers
+- Map tiles fall back to the next configured map engine
+- Features with no provider available are hidden from the UI rather than surfacing errors
+
+---
+
+## Available integrations
+
+| Integration | Capabilities |
+|---|---|
+| [Barrelman](integrations/barrelman) | Search, Autocomplete, Search Category, Place Info, Spatial Contains, Spatial Children |
+| [Mapbox](integrations/mapbox) | Map Engine |
+| [Google Maps](integrations/google-maps) | Search, Place Info, Geocoding |
+| [Pelias](integrations/pelias) | Geocoding, Autocomplete |
+| [Nominatim](integrations/nominatim) | Search, Geocoding, Place Info |
+| [GraphHopper](integrations/graphhopper) | Routing |
+| [Valhalla](integrations/valhalla) | Routing |
+| [Geoapify](integrations/geoapify) | Search Category, Autocomplete, Geocoding, Place Info, Routing |
+| [Mapillary](integrations/mapillary) | Map Layer, Street View |
+| [Transitland](integrations/transitland) | Map Layer, Transit Data, Place Info |
+| [Overpass](integrations/overpass) | Search Category, Place Info |
+| [Wikidata](integrations/wikidata) | Place Info |
+| [OpenWeatherMap](integrations/openweathermap) | Weather |
+| [Axiom](integrations/axiom) | Logging |

@@ -1,0 +1,41 @@
+---
+title: GraphHopper
+description: Fast and efficient routing via the GraphHopper routing engine.
+---
+
+GraphHopper is a routing engine built on OpenStreetMap data. It supports multiple travel modes and routing preferences, and can be self-hosted or used via the GraphHopper Directions API.
+
+---
+
+## Capabilities
+
+| Capability | Description |
+|---|---|
+| **Routing** | Turn-by-turn directions with elevation data and alternative routes |
+
+### Supported travel modes
+
+Driving, walking, cycling, motorcycle, truck.
+
+### Supported route preferences
+
+Avoid highways, avoid tolls, avoid ferries, avoid unpaved roads, avoid hills, prefer paved paths, safety vs. efficiency balance.
+
+---
+
+## Configuration
+
+In **Settings → Integrations**, click the settings icon on the GraphHopper card.
+
+| Field | Value |
+|---|---|
+| **Host** | Base URL of a self-hosted GraphHopper instance, e.g. `http://localhost:8989`. Leave blank when using the GraphHopper Directions API. |
+| **API Key** | Your [GraphHopper API key](https://www.graphhopper.com/dashboard/). Required when using the hosted Directions API; leave blank for self-hosted. |
+
+Either a host or an API key is required. Click **Test Connection** before saving.
+
+---
+
+## Self-hosting
+
+GraphHopper can be run as a Docker container. See the [GraphHopper documentation](https://github.com/graphhopper/graphhopper) for setup instructions. Pre-built Docker images are available at `graphhopper/graphhopper`.

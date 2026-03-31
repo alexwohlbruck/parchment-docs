@@ -1,0 +1,20 @@
+{
+  "title": "Integrations",
+  "pages": [
+    "index",
+    "barrelman",
+    "mapbox",
+    "google-maps",
+    "pelias",
+    "nominatim",
+    "graphhopper",
+    "valhalla",
+    "geoapify",
+    "mapillary",
+    "transitland",
+    "overpass",
+    "wikidata",
+    "openweathermap",
+    "axiom"
+  ]
+}
