@@ -1,0 +1,47 @@
+---
+title: Connecting to Parchment
+description: Configure Barrelman as an integration in Parchment's Settings UI.
+---
+
+Once Barrelman is running and data is imported, connect it to Parchment through **Settings → Integrations**. Find the Barrelman card, click the settings icon, and enter:
+
+| Field | Value |
+|---|---|
+| **Host** | Base URL of your Barrelman instance — `http://localhost:3001` for local dev, or the public URL (e.g. `https://barrelman.example.com`) for a deployed instance. |
+| **API Key** | The value of `BARRELMAN_API_KEY` from Barrelman's `.env`. Leave blank if no key is set. |
+
+Click **Test Connection**, then **Save**.
+
+<Callout type="warn">
+If Barrelman isn't running or the host/key don't match, Parchment degrades gracefully — search still works via other configured providers, but OSM place search and spatial features will be unavailable.
+</Callout>
+
+See the [Barrelman integration reference](/docs/usage/integrations/barrelman) for a full list of capabilities.
+
+---
+
+## API authentication
+
+All Barrelman endpoints require a Bearer token when `BARRELMAN_API_KEY` is set:
+
+```
+Authorization: Bearer <your-api-key>
+```
+
+In development the default key `brm_dev_changeme` is fine. Change it before any public deployment.
+
+---
+
+## Running the full stack locally
+
+```bash
+# Terminal 1 — Parchment
+cd parchment
+./start.sh dev
+
+# Terminal 2 — Barrelman (from cloned repo)
+cd barrelman
+bun run dev
+```
+
+Parchment connects to Barrelman at `http://localhost:3001`. Configure this URL in **Settings → Integrations → Barrelman**.

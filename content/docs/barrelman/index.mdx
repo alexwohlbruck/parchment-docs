@@ -1,0 +1,43 @@
+---
+title: Overview
+description: Self-hosted OSM search and spatial engine for Parchment.
+---
+
+Barrelman is the self-hosted OSM search and spatial engine that powers Parchment's place search, category lookup, and spatial queries. It runs as a set of Docker containers and communicates with Parchment over HTTP.
+
+Source: [github.com/alexwohlbruck/barrelman](https://github.com/alexwohlbruck/barrelman)
+
+---
+
+## What Barrelman provides
+
+Barrelman ingests an OSM PBF extract from [Geofabrik](https://download.geofabrik.de) into PostGIS and exposes a REST API for:
+
+- **Text + semantic search** — full-text, fuzzy, abbreviation, and vector search layers
+- **Nearby search** — find places within a radius, filtered by category
+- **Spatial containment** — find parent areas (city/county/state) for a point
+- **Children lookup** — list POIs inside a venue or area (e.g. shops inside a mall)
+- **Place detail** — fetch a single OSM element by type + ID
+
+Parchment's `BarrelmanIntegration` handles all communication and maps responses to Parchment's unified `Place` model.
+
+---
+
+## Services
+
+| Service | Image | Port | Description |
+|---------|-------|------|-------------|
+| `barrelman` | `alexwohlbruck/barrelman` | 3001 | REST API (Elysia/Bun) |
+| `barrelman-db` | `alexwohlbruck/barrelman-db` | 5433 | PostgreSQL + PostGIS + pgvector |
+| `martin` | `ghcr.io/maplibre/martin` | 3002 | Vector tile server |
+| `graphhopper` | `israelhikingmap/graphhopper` | 8990 | Routing engine |
+
+All images are published to Docker Hub / GHCR. No build step is required — `docker compose up -d` pulls everything automatically.
+
+---
+
+## Getting started
+
+1. [Set up Barrelman](setup) — create a config directory, write `.env`, and start the containers
+2. [Import OSM data](import) — download a region and build the search indexes
+3. [Connect to Parchment](connecting) — configure the integration through the Settings UI

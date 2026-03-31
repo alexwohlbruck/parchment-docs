@@ -1,0 +1,97 @@
+---
+title: Setup
+description: Deploy Barrelman using Docker — no build or clone required.
+---
+
+Barrelman is distributed as pre-built Docker images. You do not need to clone the repository or install any language runtimes to run it in production.
+
+---
+
+## Prerequisites
+
+- [Docker](https://docker.com) + Docker Compose v2
+- A reverse proxy (Caddy, Traefik, nginx) if you want HTTPS
+
+---
+
+## 1. Create a config directory
+
+```bash
+mkdir -p /opt/barrelman
+cd /opt/barrelman
+```
+
+---
+
+## 2. Write a `docker-compose.yml`
+
+Copy the canonical compose file directly from the repo:
+
+```bash
+curl -o docker-compose.yml \
+  https://raw.githubusercontent.com/alexwohlbruck/barrelman/main/docker-compose.yml
+```
+
+---
+
+## 3. Create a `.env` file
+
+```dotenv
+BARRELMAN_API_KEY=brm_changeme_use_a_strong_key
+BARRELMAN_DB_PASSWORD=changeme
+OLLAMA_HOST=http://ollama:11434   # point at your Ollama instance if you have one
+```
+
+<Callout type="warn">
+Change `BARRELMAN_API_KEY` and `BARRELMAN_DB_PASSWORD` before exposing Barrelman publicly.
+</Callout>
+
+---
+
+## 4. Start the containers
+
+```bash
+docker compose up -d
+```
+
+Docker pulls all images automatically. After a few seconds, verify it's running:
+
+```bash
+curl http://localhost:3001/health
+# {"status":"ok","database":"connected"}
+```
+
+Swagger UI is available at `http://localhost:3001/swagger`.
+
+Next: [import OSM data](import) to populate the database.
+
+---
+
+## Updating
+
+Barrelman uses [Watchtower](https://containrrr.dev/watchtower/) or manual pulls for updates. When a new image is pushed to Docker Hub, pull and restart:
+
+```bash
+docker compose pull && docker compose up -d
+```
+
+---
+
+## Local development
+
+If you're modifying Barrelman's source code, clone the repo and run it directly:
+
+```bash
+git clone https://github.com/alexwohlbruck/barrelman.git
+cd barrelman
+cp .env.example .env
+bun install
+
+# Start the database container
+docker compose up -d barrelman-db
+
+# Run the dev server with hot reload
+bun run dev
+```
+
+Barrelman runs at `http://localhost:3001`. Swagger UI is at `http://localhost:3001/swagger`.

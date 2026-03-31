@@ -1,0 +1,129 @@
+---
+title: Importing data
+description: Download an OSM region and build the Barrelman search indexes.
+---
+
+Barrelman's import pipeline downloads an OSM PBF extract from Geofabrik, loads it into PostGIS via osm2pgsql, and builds the search indexes needed for full-text, fuzzy, and spatial queries.
+
+All import tools (`osm2pgsql`, scripts, Lua styles) are baked into the `barrelman-db` image — nothing needs to be installed on the host.
+
+---
+
+## 1. Download a PBF extract
+
+Copy an OSM PBF file into the `barrelman_barrelman-osm-data` Docker volume. The easiest way is to download directly inside the running container:
+
+```bash
+# North Carolina (~400 MB)
+docker exec barrelman-db bash -c '
+  wget -O /data/region.osm.pbf \
+    https://download.geofabrik.de/north-america/us/north-carolina-latest.osm.pbf
+'
+```
+
+Other region examples:
+
+```bash
+# Germany
+https://download.geofabrik.de/europe/germany-latest.osm.pbf
+
+# France
+https://download.geofabrik.de/europe/france-latest.osm.pbf
+
+# Full United States
+https://download.geofabrik.de/north-america/us-latest.osm.pbf
+```
+
+Find all regions at [download.geofabrik.de](https://download.geofabrik.de).
+
+---
+
+## 2. Run the import
+
+Execute the import script inside the `barrelman-db` container. Use `-d` to detach so it survives SSH disconnects:
+
+```bash
+docker exec -d barrelman-db bash -c '
+  osm2pgsql \
+    --create --slim \
+    --output=flex \
+    --style=/app/import/osm2pgsql-flex.lua \
+    -d "$DATABASE_URL" \
+    /data/region.osm.pbf \
+  && psql "$DATABASE_URL" -f /app/import/post-import.sql \
+  && echo IMPORT_COMPLETE \
+  || echo IMPORT_FAILED
+' > /tmp/import.log 2>&1
+```
+
+Monitor progress:
+
+```bash
+# Watch the log
+tail -f /tmp/import.log
+
+# Check row count once the import commits
+docker exec barrelman-db psql -U barrelman -d barrelman \
+  -c "SELECT count(*) FROM geo_places;"
+```
+
+Import time depends on region size. A US state (~400 MB PBF) takes roughly 20–40 minutes.
+
+<Callout type="info">
+Avoid `--flat-nodes` unless importing a full planet extract. For regional files it creates a ~31 GB sparse file unnecessarily.
+</Callout>
+
+---
+
+## 3. Generate embeddings (optional)
+
+Semantic search uses Ollama vector embeddings. All other search layers (full-text, fuzzy, abbreviation) work without this step.
+
+```bash
+# From the cloned repo (local dev only)
+bun run import:embed
+```
+
+<Callout type="info">
+Embedding generation requires Ollama with `nomic-embed-text` pulled. Set `OLLAMA_HOST` in `.env` to point at your Ollama instance. Barrelman silently skips the semantic layer when Ollama is unreachable.
+</Callout>
+
+---
+
+## Import pipeline details
+
+The import runs these steps in sequence:
+
+| Step | Tool | Description |
+|------|------|-------------|
+| 1 | osm2pgsql | Imports all OSM nodes/ways/relations via flex Lua style into `geo_places` |
+| 2 | post-import.sql | Extracts structured address/contact fields, builds GiST + GIN indexes, computes `area_m2` |
+| 3 | generate-abbreviations.ts | Pre-computes `name_abbrev` for autocomplete (e.g. UNCC → UNC Charlotte) |
+| 4 | tsvector rebuild | Rebuilds full-text search vectors to include abbreviations |
+
+After import, the `geo_places` table contains all importable OSM objects with:
+
+| Column | Description |
+|--------|-------------|
+| `centroid` | Point geometry for distance queries and spatial indexing |
+| `geom` | Full geometry (polygon/linestring/point) for containment queries |
+| `tags` | Raw OSM tag dictionary (JSONB) |
+| `categories` | Array of `id-tagging-schema` category IDs |
+| `address` | Structured address extracted from `addr:*` tags |
+| `area_m2` | Geographic area in square metres (for administrative areas) |
+| `ts` | Pre-computed `tsvector` for full-text search |
+| `embedding` | Vector for semantic search (populated by `import:embed`) |
+
+---
+
+## Re-importing
+
+To replace existing data with a fresh PBF:
+
+```bash
+# Drop and re-import (destructive)
+docker exec barrelman-db psql -U barrelman -d barrelman \
+  -c "DROP TABLE IF EXISTS geo_places CASCADE;"
+
+# Then re-run step 2 above
+```

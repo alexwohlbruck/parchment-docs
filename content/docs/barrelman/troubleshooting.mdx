@@ -1,0 +1,81 @@
+---
+title: Troubleshooting
+description: Common Barrelman issues and how to fix them.
+---
+
+## Container fails to start
+
+Check logs for the failing service:
+
+```bash
+docker compose logs barrelman-db
+docker compose logs barrelman
+```
+
+Ensure the `.env` file exists alongside `docker-compose.yml` with at least `BARRELMAN_API_KEY` and `BARRELMAN_DB_PASSWORD` set.
+
+---
+
+## Import fails with PostGIS connection error
+
+Ensure the `barrelman-db` container is running and fully initialised:
+
+```bash
+docker compose ps barrelman-db   # should show "healthy"
+docker compose logs barrelman-db
+```
+
+Wait ~15 seconds after first starting the container before running the import — PostGIS runs its init scripts on first boot.
+
+---
+
+## Import fills disk with a large `nodes.cache` file
+
+Do **not** pass `--flat-nodes` to osm2pgsql unless you're importing a full planet extract. The flat-nodes file is ~31 GB regardless of region size. Remove it if it was created:
+
+```bash
+docker run --rm -v barrelman_barrelman-osm-data:/data alpine \
+  rm -f /data/nodes.cache
+```
+
+---
+
+## No search results in Parchment
+
+Check that:
+
+1. Barrelman is running: `curl http://localhost:3001/health`
+2. The host and API key in **Settings → Integrations → Barrelman** match the values in `.env`
+3. The Barrelman integration is enabled and Test Connection passes
+4. The import completed — check row count:
+   ```bash
+   docker exec barrelman-db psql -U barrelman -d barrelman \
+     -c "SELECT count(*) FROM geo_places;"
+   ```
+
+---
+
+## Semantic search not working
+
+Ollama may not be running or the model isn't pulled. Check `OLLAMA_HOST` in `.env`, then:
+
+```bash
+curl ${OLLAMA_HOST}/api/tags   # should return model list including nomic-embed-text
+```
+
+Barrelman silently skips the semantic layer when Ollama is unreachable — full-text, fuzzy, and abbreviation search continue to work.
+
+---
+
+## Extensions missing (`postgis`, `vector`, etc.)
+
+If PostGIS extensions were not initialised (e.g. the volume was pre-existing from a different image), create them manually:
+
+```bash
+docker exec barrelman-db psql -U barrelman -d barrelman -c "
+  CREATE EXTENSION IF NOT EXISTS postgis;
+  CREATE EXTENSION IF NOT EXISTS vector;
+  CREATE EXTENSION IF NOT EXISTS pg_trgm;
+  CREATE EXTENSION IF NOT EXISTS unaccent;
+"
+```
