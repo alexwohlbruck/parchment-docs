@@ -5,7 +5,7 @@ import {
   DocsPage,
   DocsTitle,
 } from 'fumadocs-ui/page'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { getMDXComponents } from '@/components/mdx'
 import { createRelativeLink } from 'fumadocs-ui/mdx'
 import type { Metadata } from 'next'
@@ -16,6 +16,9 @@ interface PageProps {
 
 export default async function Page(props: PageProps) {
   const params = await props.params
+  if (!params.slug || params.slug.length === 0) {
+    redirect('/introduction')
+  }
   const page = source.getPage(params.slug)
   if (!page) notFound()
 

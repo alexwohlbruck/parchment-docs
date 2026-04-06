@@ -2,6 +2,7 @@
   "title": "Integrations",
   "pages": [
     "index",
+    "---System Integrations---",
     "barrelman",
     "mapbox",
     "google-maps",
@@ -15,6 +16,9 @@
     "overpass",
     "wikidata",
     "openweathermap",
-    "axiom"
+    "axiom",
+    "openstreetmap",
+    "---User Integrations---",
+    "openstreetmap-account"
   ]
 }

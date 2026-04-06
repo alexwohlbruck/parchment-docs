@@ -2,6 +2,6 @@ import { docs } from 'collections/index'
 import { loader } from 'fumadocs-core/source'
 
 export const source = loader({
-  baseUrl: '/docs',
+  baseUrl: '/',
   source: docs.toFumadocsSource(),
 })

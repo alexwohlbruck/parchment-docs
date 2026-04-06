@@ -1,0 +1,49 @@
+---
+title: OpenStreetMap Account
+description: Connect your OSM account to create notes, add comments, and make quick map edits.
+---
+
+The OpenStreetMap Account integration connects your personal OSM account to Parchment via OAuth2. This lets you create notes, comment on existing notes, and make quick map edits — all attributed to your own OSM identity.
+
+This integration requires the [OpenStreetMap](openstreetmap) system integration to be configured first by an admin.
+
+---
+
+## Capabilities
+
+| Capability | Description |
+|---|---|
+| **Edit Map** | Create and manage OSM notes, comment on notes, and submit map edits |
+
+---
+
+## Connecting your account
+
+1. In **Settings → Integrations**, click the **OpenStreetMap Account** card.
+2. A popup window opens to the OSM authorization page.
+3. Review the requested permissions and click **Authorize**.
+4. The popup closes and your account is connected. Your OSM display name and profile image will appear on the integration card.
+
+To disconnect, click the **OpenStreetMap Account** card again and select **Disconnect**.
+
+---
+
+## Development mode
+
+OSM requires HTTPS for redirect URIs, so the popup-based flow won't work when running locally over HTTP. Parchment detects this automatically and switches to a console-based workaround:
+
+1. Click the **OpenStreetMap Account** tile. The OSM authorization page opens in a new tab (not a popup).
+2. After clicking **Authorize** on OSM, the browser redirects to `https://localhost:5000/...` which will fail to load since your local server runs on HTTP.
+3. **Copy the full URL** from the browser's address bar. It contains `?code=...&state=...` parameters.
+4. Switch to the Parchment tab, open the browser console, and run:
+   ```
+   window.__osmDevCallback('PASTE_FULL_URL_HERE')
+   ```
+5. The console will show a green checkmark message if the connection succeeded.
+
+---
+
+## Notes
+
+- Each user connects their own OSM account individually. Actions like creating notes are attributed to the connected user's OSM account, not to the Parchment application.
+- OSM access tokens do not expire automatically, but users can revoke access from their [OSM authorized applications page](https://www.openstreetmap.org/oauth2/authorized_applications).

@@ -1,0 +1,61 @@
+---
+title: OpenStreetMap
+description: Configure OSM OAuth2 application credentials so users can connect their accounts.
+---
+
+The OpenStreetMap system integration stores the OAuth2 application credentials that the Parchment server needs to authenticate users with OSM. An admin must configure this before any user can connect their OpenStreetMap account.
+
+This integration has no capabilities of its own — it is configuration-only. Once set up, it unlocks the [OpenStreetMap Account](openstreetmap-account) user integration.
+
+---
+
+## Creating an OAuth2 application on OpenStreetMap
+
+Before configuring the integration in Parchment, you need to register an OAuth2 application on the OpenStreetMap website.
+
+1. Go to your OSM account's OAuth2 applications page:
+   - **Production:** [openstreetmap.org/oauth2/applications](https://www.openstreetmap.org/oauth2/applications)
+   - **Sandbox:** [master.apis.dev.openstreetmap.org/oauth2/applications](https://master.apis.dev.openstreetmap.org/oauth2/applications)
+2. Click **Register new application**.
+3. Fill in the form:
+   - **Name:** A descriptive name (e.g. "Parchment" or "Parchment Dev")
+   - **Redirect URIs:** `https://your-server-domain.com/integrations/osm/callback` — this must use HTTPS and match your Parchment server's public URL
+   - **Confidential application:** Check this box. Parchment's server-side flow requires a client secret.
+   - **Permissions:** Check the following:
+     - **Read user preferences** (required for fetching the user's display name during login)
+     - **Modify notes** (required for creating and commenting on notes)
+     - **Modify the map** (required for quick edits)
+4. Click **Register**.
+5. Copy the **Client ID** and **Client Secret** from the resulting page. The client secret is only shown once — save it somewhere safe.
+
+---
+
+## Configuration
+
+In **Settings → Integrations**, find the **OpenStreetMap** card and click it.
+
+| Field | Value |
+|---|---|
+| **Server** | Which OSM instance to connect to: **Production**, **Sandbox**, or **Custom**. |
+| **Custom Server URL** | Only shown when Server is set to Custom. Enter the base URL of your OSM instance. |
+| **Client ID** | The Client ID from your OAuth2 application. |
+| **Client Secret** | The Client Secret from your OAuth2 application. |
+| **Redirect URI** | Must match the redirect URI registered in your OAuth2 app. Defaults to `https://your-server/integrations/osm/callback`. |
+
+Click **Save**. Once configured, the **OpenStreetMap Account** tile will appear in the available integrations list for all users.
+
+---
+
+## Development mode
+
+OSM requires HTTPS for OAuth2 redirect URIs, which creates a challenge when developing locally over HTTP. During development, use the **Sandbox** server option and register your OAuth app on the [OSM dev server](https://master.apis.dev.openstreetmap.org/oauth2/applications).
+
+Set the redirect URI to `https://localhost:5000/integrations/osm/callback` (note HTTPS, even though your server runs on HTTP). The dev-mode workaround in the [OpenStreetMap Account](openstreetmap-account) integration handles the mismatch automatically.
+
+---
+
+## Notes
+
+- The system integration stores no user data — only the OAuth application credentials needed to initiate the login flow.
+- If the system integration is removed or reconfigured, existing user connections remain valid until their access tokens expire.
+- The **Server** setting determines which OSM instance all API calls use, including note fetching and map edits. Switching from Sandbox to Production (or vice versa) affects all users.

@@ -53,6 +53,7 @@ Capabilities map Parchment features to integration providers. Multiple integrati
 | **Spatial Contains** | Find which areas contain a coordinate |
 | **Spatial Children** | List POIs inside a venue or area |
 | **Weather** | Current conditions and forecasts |
+| **Edit Map** | Create OSM notes, comment on notes, and submit map edits |
 | **Logging** | Telemetry and observability export |
 
 Not all integrations support every capability — the edit dialog only shows toggles for capabilities the integration actually provides.
@@ -71,6 +72,13 @@ If a capability has no active integration (or all configured integrations fail t
 
 ## Available integrations
 
+Parchment has two types of integrations:
+
+- **System integrations** are configured once by an admin and apply to the entire instance. These provide backend capabilities like map rendering, search, and geocoding.
+- **User integrations** are connected individually by each user. These grant Parchment permission to act on the user's behalf with an external service.
+
+### System integrations
+
 | Integration | Capabilities |
 |---|---|
 | [Barrelman](integrations/barrelman) | Search, Autocomplete, Search Category, Place Info, Spatial Contains, Spatial Children |
@@ -87,3 +95,12 @@ If a capability has no active integration (or all configured integrations fail t
 | [Wikidata](integrations/wikidata) | Place Info |
 | [OpenWeatherMap](integrations/openweathermap) | Weather |
 | [Axiom](integrations/axiom) | Logging |
+| [OpenStreetMap](integrations/openstreetmap) | *(configuration only — stores OAuth credentials for user authentication)* |
+
+### User integrations
+
+Some integrations require a corresponding system integration to be configured first. For example, users can only connect their OpenStreetMap account after an admin has set up the OpenStreetMap system integration with OAuth credentials.
+
+| Integration | Capabilities | Requires |
+|---|---|---|
+| [OpenStreetMap Account](integrations/openstreetmap-account) | Edit Map | OpenStreetMap (system) |
