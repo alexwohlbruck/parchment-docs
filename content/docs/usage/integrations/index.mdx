@@ -5,6 +5,8 @@ description: Connect and configure external services in Parchment through the Se
 
 Parchment connects to external services — maps, search engines, geocoders, routing engines, and more — through a unified integrations system. All integrations are configured through the UI rather than environment variables, making it easy to swap providers or adjust capabilities without restarting the server.
 
+Some user integrations are **end-to-end encrypted**: your credentials are encrypted on your device before upload, and the Parchment server can't read them. These are the right choice for integrations that touch personal data like location history.
+
 ---
 
 ## Managing integrations
@@ -106,7 +108,4 @@ Some integrations require a corresponding system integration to be configured fi
 | [OpenStreetMap Account](integrations/openstreetmap-account) | Edit Map | Server-stored | OpenStreetMap (system) |
 | [Dawarich](integrations/dawarich) | *(plumbing only — no capabilities yet)* | End-to-end | Identity setup |
 
-User integrations come in two encryption flavors:
-
-- **Server-stored** — the server encrypts credentials at rest under its master key. Necessary for integrations where Parchment must call the third party without you present (e.g. scheduled fetches, OAuth refresh flows).
-- **End-to-end** — credentials are encrypted on your device under your personal key before upload. The Parchment server stores only opaque ciphertext. Used for integrations that touch sensitive personal data (location history, private self-hosted URLs) and don't need the server to act on a schedule.
+**End-to-end** integrations require identity setup (Settings → Encryption keys) so your device has a key to encrypt with. **Server-stored** integrations work without it, since the server holds the key.
