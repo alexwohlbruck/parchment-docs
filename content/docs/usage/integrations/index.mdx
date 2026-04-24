@@ -101,6 +101,12 @@ Parchment has two types of integrations:
 
 Some integrations require a corresponding system integration to be configured first. For example, users can only connect their OpenStreetMap account after an admin has set up the OpenStreetMap system integration with OAuth credentials.
 
-| Integration | Capabilities | Requires |
-|---|---|---|
-| [OpenStreetMap Account](integrations/openstreetmap-account) | Edit Map | OpenStreetMap (system) |
+| Integration | Capabilities | Encryption | Requires |
+|---|---|---|---|
+| [OpenStreetMap Account](integrations/openstreetmap-account) | Edit Map | Server-stored | OpenStreetMap (system) |
+| [Dawarich](integrations/dawarich) | *(plumbing only — no capabilities yet)* | End-to-end | Identity setup |
+
+User integrations come in two encryption flavors:
+
+- **Server-stored** — the server encrypts credentials at rest under its master key. Necessary for integrations where Parchment must call the third party without you present (e.g. scheduled fetches, OAuth refresh flows).
+- **End-to-end** — credentials are encrypted on your device under your personal key before upload. The Parchment server stores only opaque ciphertext. Used for integrations that touch sensitive personal data (location history, private self-hosted URLs) and don't need the server to act on a schedule.

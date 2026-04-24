@@ -1,0 +1,73 @@
+---
+title: Dawarich
+description: Connect your self-hosted Dawarich location-history instance — encrypted end-to-end on your device.
+---
+
+[Dawarich](https://dawarich.app) is a self-hosted location-history service — an open-source alternative to Google Maps Timeline. The Dawarich integration connects Parchment to your personal Dawarich instance so your location history stays on infrastructure you control.
+
+Unlike most integrations, Dawarich is **end-to-end encrypted**. Your Dawarich URL and API token are encrypted on your device under your personal encryption key *before* they reach the Parchment server. Parchment stores only opaque ciphertext — the server can never read your credentials.
+
+<Callout type="info" title="Phase 1: plumbing only">
+  Today you can connect + disconnect Dawarich and the encrypted credentials round-trip correctly. Actual capabilities — importing points, visualizing your history on the map, showing recent visits on place detail pages — are not yet shipped. They will land in follow-up releases, capability by capability.
+</Callout>
+
+---
+
+## How the encryption works
+
+Most Parchment integrations use the **server-stored** scheme: the server encrypts the credentials at rest under its own master key so it can decrypt them on a schedule (for background fetches, transforms, etc.).
+
+Dawarich uses the **end-to-end** scheme instead:
+
+| Scheme | Who holds the key | Where the ciphertext lives | Used by |
+|---|---|---|---|
+| Server-stored | Parchment server | `integrations.config_ciphertext` | Mapbox, OpenStreetMap, etc. |
+| End-to-end | Only your devices | `encrypted_user_blobs` (opaque to server) | Dawarich |
+
+Your Dawarich config is wrapped in a crypto envelope keyed on your personal encryption key, which is derived from your identity seed (the thing behind your recovery key + passkeys). Every device signed into your account can decrypt it; no one else can — not other users, not Parchment operators, not anyone with a database dump.
+
+When you rotate your encryption keys (Settings → Encryption keys → Rotate), your Dawarich config is automatically re-encrypted under the new key alongside every other personal blob.
+
+---
+
+## Requirements
+
+- A running [Dawarich](https://dawarich.app) instance reachable from your browser (self-hosted or at a URL you control).
+- An API token from your Dawarich account.
+- **Identity setup completed** in Parchment — the integration form is disabled until you've set up your encryption keys (Settings → Encryption keys). Without a seed, there's nothing to encrypt the config under.
+
+---
+
+## Connecting
+
+1. Go to **Settings → Integrations** and click the **Dawarich** card.
+2. Enter:
+   - **URL** — the base URL of your Dawarich instance, e.g. `https://dawarich.example.com`.
+   - **API token** — generate one from your Dawarich account settings.
+3. Click **Test Connection**, then **Save**.
+4. The card turns green ("Connected"). Your encrypted config persists across page reloads and signs into every device you've added to your account.
+
+To disconnect, open the card again and click **Disconnect**. Both the metadata row and the encrypted config blob are removed atomically — nothing is left behind.
+
+---
+
+## Troubleshooting
+
+**"Set up your encryption keys…" hint on the tile.**
+You haven't completed identity setup. Go to **Settings → Encryption keys** and follow the flow to generate your seed and recovery key, then return to the Dawarich tile.
+
+**Connection fails after signing in on a new device.**
+End-to-end configs require the seed to decrypt. If this is a brand-new device that hasn't finished restoring your identity (via passkey or recovery key), the config won't unwrap. Complete identity restore first, then reload.
+
+**Lost access after a key rotation on another device.**
+Reload the page. The client re-fetches integration configs on every load and decrypts them under the current key.
+
+---
+
+## Limits today
+
+- **No data fetching yet.** Importing points, visits, or trips from Dawarich is not yet shipped.
+- **No map visualization.** Location-history overlays on the map will arrive with the corresponding capabilities.
+- **No place-detail integration.** "Recent visits here" on a place card is on the roadmap once the underlying capability lands.
+
+If you want to track when these ship, watch the [Parchment changelog](https://github.com/alexwohlbruck/parchment/blob/main/CHANGELOG.md).
