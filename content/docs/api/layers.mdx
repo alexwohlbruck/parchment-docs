@@ -4,67 +4,97 @@ full: true
 _openapi:
   toc:
     - depth: 2
-      title: Get all layers
-      url: '#get-all-layers'
+      title: Get user-owned layers
+      url: '#get-user-owned-layers'
     - depth: 2
-      title: Create a layer
-      url: '#create-a-layer'
+      title: Create a custom layer
+      url: '#create-a-custom-layer'
     - depth: 2
-      title: Delete a layer
-      url: '#delete-a-layer'
+      title: Delete a user-owned layer
+      url: '#delete-a-user-owned-layer'
     - depth: 2
-      title: Update a layer
-      url: '#update-a-layer'
+      title: Update a user-owned layer
+      url: '#update-a-user-owned-layer'
     - depth: 2
-      title: Get all layer groups
-      url: '#get-all-layer-groups'
+      title: Get user-owned layer groups
+      url: '#get-user-owned-layer-groups'
     - depth: 2
-      title: Create a layer group
-      url: '#create-a-layer-group'
+      title: Create a custom layer group
+      url: '#create-a-custom-layer-group'
     - depth: 2
-      title: Delete a layer group
-      url: '#delete-a-layer-group'
+      title: Delete a user-owned layer group
+      url: '#delete-a-user-owned-layer-group'
     - depth: 2
-      title: Update a layer group
-      url: '#update-a-layer-group'
+      title: Update a user-owned layer group
+      url: '#update-a-user-owned-layer-group'
     - depth: 2
-      title: Move a layer
-      url: '#move-a-layer'
+      title: Move a user-owned layer
+      url: '#move-a-user-owned-layer'
     - depth: 2
-      title: Move a layer group
-      url: '#move-a-layer-group'
+      title: Move a user-owned layer group
+      url: '#move-a-user-owned-layer-group'
     - depth: 2
-      title: Reorder layers
-      url: '#reorder-layers'
+      title: Bulk reorder user-owned rows
+      url: '#bulk-reorder-user-owned-rows'
     - depth: 2
-      title: Restore default layers
-      url: '#restore-default-layers'
+      title: Get default layer templates
+      url: '#get-default-layer-templates'
+    - depth: 2
+      title: Get user state for default layers/groups
+      url: '#get-user-state-for-default-layersgroups'
+    - depth: 2
+      title: Clear user state for a default template
+      url: '#clear-user-state-for-a-default-template'
+    - depth: 2
+      title: Upsert user state for a default template
+      url: '#upsert-user-state-for-a-default-template'
+    - depth: 2
+      title: Clone a default layer into a user-owned layer
+      url: '#clone-a-default-layer-into-a-user-owned-layer'
+    - depth: 2
+      title: Clone a default group into a user-owned group
+      url: '#clone-a-default-group-into-a-user-owned-group'
+    - depth: 2
+      title: Restore default layers (clears state; clones remain)
+      url: '#restore-default-layers-clears-state-clones-remain'
   structuredData:
     headings:
-      - content: Get all layers
-        id: get-all-layers
-      - content: Create a layer
-        id: create-a-layer
-      - content: Delete a layer
-        id: delete-a-layer
-      - content: Update a layer
-        id: update-a-layer
-      - content: Get all layer groups
-        id: get-all-layer-groups
-      - content: Create a layer group
-        id: create-a-layer-group
-      - content: Delete a layer group
-        id: delete-a-layer-group
-      - content: Update a layer group
-        id: update-a-layer-group
-      - content: Move a layer
-        id: move-a-layer
-      - content: Move a layer group
-        id: move-a-layer-group
-      - content: Reorder layers
-        id: reorder-layers
-      - content: Restore default layers
-        id: restore-default-layers
+      - content: Get user-owned layers
+        id: get-user-owned-layers
+      - content: Create a custom layer
+        id: create-a-custom-layer
+      - content: Delete a user-owned layer
+        id: delete-a-user-owned-layer
+      - content: Update a user-owned layer
+        id: update-a-user-owned-layer
+      - content: Get user-owned layer groups
+        id: get-user-owned-layer-groups
+      - content: Create a custom layer group
+        id: create-a-custom-layer-group
+      - content: Delete a user-owned layer group
+        id: delete-a-user-owned-layer-group
+      - content: Update a user-owned layer group
+        id: update-a-user-owned-layer-group
+      - content: Move a user-owned layer
+        id: move-a-user-owned-layer
+      - content: Move a user-owned layer group
+        id: move-a-user-owned-layer-group
+      - content: Bulk reorder user-owned rows
+        id: bulk-reorder-user-owned-rows
+      - content: Get default layer templates
+        id: get-default-layer-templates
+      - content: Get user state for default layers/groups
+        id: get-user-state-for-default-layersgroups
+      - content: Clear user state for a default template
+        id: clear-user-state-for-a-default-template
+      - content: Upsert user state for a default template
+        id: upsert-user-state-for-a-default-template
+      - content: Clone a default layer into a user-owned layer
+        id: clone-a-default-layer-into-a-user-owned-layer
+      - content: Clone a default group into a user-owned group
+        id: clone-a-default-group-into-a-user-owned-group
+      - content: Restore default layers (clears state; clones remain)
+        id: restore-default-layers-clears-state-clones-remain
     contents: []
 ---
 
@@ -72,4 +102,4 @@ _openapi:
 
 Map layers and style management
 
-<APIPage document={"http://localhost:5000/docs/json"} operations={[{"path":"/library/layers","method":"get"},{"path":"/library/layers","method":"post"},{"path":"/library/layers/{id}","method":"delete"},{"path":"/library/layers/{id}","method":"put"},{"path":"/library/layers/groups","method":"get"},{"path":"/library/layers/groups","method":"post"},{"path":"/library/layers/groups/{id}","method":"delete"},{"path":"/library/layers/groups/{id}","method":"put"},{"path":"/library/layers/{id}/move","method":"put"},{"path":"/library/layers/groups/{id}/move","method":"put"},{"path":"/library/layers/reorder","method":"put"},{"path":"/library/layers/restore-defaults","method":"post"}]} webhooks={[]} hasHead={true} />
+<APIPage document={"http://localhost:5000/docs/json"} operations={[{"path":"/library/layers","method":"get"},{"path":"/library/layers","method":"post"},{"path":"/library/layers/{id}","method":"delete"},{"path":"/library/layers/{id}","method":"put"},{"path":"/library/layers/groups","method":"get"},{"path":"/library/layers/groups","method":"post"},{"path":"/library/layers/groups/{id}","method":"delete"},{"path":"/library/layers/groups/{id}","method":"put"},{"path":"/library/layers/{id}/move","method":"put"},{"path":"/library/layers/groups/{id}/move","method":"put"},{"path":"/library/layers/reorder","method":"put"},{"path":"/library/layers/defaults","method":"get"},{"path":"/library/layers/default-state","method":"get"},{"path":"/library/layers/default-state","method":"delete"},{"path":"/library/layers/default-state","method":"put"},{"path":"/library/layers/default-clone/layer","method":"post"},{"path":"/library/layers/default-clone/group","method":"post"},{"path":"/library/layers/restore-defaults","method":"post"}]} webhooks={[]} hasHead={true} />

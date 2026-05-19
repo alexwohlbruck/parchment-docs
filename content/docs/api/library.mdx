@@ -22,8 +22,8 @@ _openapi:
       title: Create a new collection
       url: '#create-a-new-collection'
     - depth: 2
-      title: Get the default collection
-      url: '#get-the-default-collection'
+      title: List collections shared to the caller
+      url: '#list-collections-shared-to-the-caller'
     - depth: 2
       title: Get a collection by ID
       url: '#get-a-collection-by-id'
@@ -36,6 +36,21 @@ _openapi:
     - depth: 2
       title: Toggle sensitive mode for a collection
       url: '#toggle-sensitive-mode-for-a-collection'
+    - depth: 2
+      title: Change a collection's encryption scheme
+      url: '#change-a-collections-encryption-scheme'
+    - depth: 2
+      title: >-
+        Rotate the collection key: re-encrypt content, rewrap remaining shares,
+        drop revoked
+      url: >-
+        #rotate-the-collection-key-re-encrypt-content-rewrap-remaining-shares-drop-revoked
+    - depth: 2
+      title: Mint a public-link token for this collection
+      url: '#mint-a-public-link-token-for-this-collection'
+    - depth: 2
+      title: Revoke the public-link token for this collection
+      url: '#revoke-the-public-link-token-for-this-collection'
     - depth: 2
       title: Get encrypted points in a collection
       url: '#get-encrypted-points-in-a-collection'
@@ -62,8 +77,8 @@ _openapi:
         id: get-all-collections
       - content: Create a new collection
         id: create-a-new-collection
-      - content: Get the default collection
-        id: get-the-default-collection
+      - content: List collections shared to the caller
+        id: list-collections-shared-to-the-caller
       - content: Get a collection by ID
         id: get-a-collection-by-id
       - content: Delete a collection
@@ -72,6 +87,17 @@ _openapi:
         id: update-a-collection
       - content: Toggle sensitive mode for a collection
         id: toggle-sensitive-mode-for-a-collection
+      - content: Change a collection's encryption scheme
+        id: change-a-collections-encryption-scheme
+      - content: >-
+          Rotate the collection key: re-encrypt content, rewrap remaining
+          shares, drop revoked
+        id: >-
+          rotate-the-collection-key-re-encrypt-content-rewrap-remaining-shares-drop-revoked
+      - content: Mint a public-link token for this collection
+        id: mint-a-public-link-token-for-this-collection
+      - content: Revoke the public-link token for this collection
+        id: revoke-the-public-link-token-for-this-collection
       - content: Get encrypted points in a collection
         id: get-encrypted-points-in-a-collection
       - content: Create an encrypted point
@@ -87,4 +113,4 @@ _openapi:
 
 Libraries, collections, and bookmarks
 
-<APIPage document={"http://localhost:5000/docs/json"} operations={[{"path":"/library/bookmarks/","method":"post"},{"path":"/library/bookmarks/{id}","method":"delete"},{"path":"/library/bookmarks/{id}","method":"put"},{"path":"/library/bookmarks/{id}/collections","method":"get"},{"path":"/library/collections/","method":"get"},{"path":"/library/collections/","method":"post"},{"path":"/library/collections/default","method":"get"},{"path":"/library/collections/{id}","method":"get"},{"path":"/library/collections/{id}","method":"delete"},{"path":"/library/collections/{id}","method":"put"},{"path":"/library/collections/{id}/sensitive","method":"put"},{"path":"/library/collections/{id}/encrypted-points","method":"get"},{"path":"/library/collections/{id}/encrypted-points","method":"post"},{"path":"/library/collections/{id}/encrypted-points/{pointId}","method":"delete"},{"path":"/library/collections/{id}/encrypted-points/{pointId}","method":"put"}]} webhooks={[]} hasHead={true} />
+<APIPage document={"http://localhost:5000/docs/json"} operations={[{"path":"/library/bookmarks/","method":"post"},{"path":"/library/bookmarks/{id}","method":"delete"},{"path":"/library/bookmarks/{id}","method":"put"},{"path":"/library/bookmarks/{id}/collections","method":"get"},{"path":"/library/collections/","method":"get"},{"path":"/library/collections/","method":"post"},{"path":"/library/collections/shared-with-me","method":"get"},{"path":"/library/collections/{id}","method":"get"},{"path":"/library/collections/{id}","method":"delete"},{"path":"/library/collections/{id}","method":"put"},{"path":"/library/collections/{id}/sensitive","method":"put"},{"path":"/library/collections/{id}/change-scheme","method":"post"},{"path":"/library/collections/{id}/rotate-key","method":"post"},{"path":"/library/collections/{id}/public-link","method":"post"},{"path":"/library/collections/{id}/public-link","method":"delete"},{"path":"/library/collections/{id}/encrypted-points","method":"get"},{"path":"/library/collections/{id}/encrypted-points","method":"post"},{"path":"/library/collections/{id}/encrypted-points/{pointId}","method":"delete"},{"path":"/library/collections/{id}/encrypted-points/{pointId}","method":"put"}]} webhooks={[]} hasHead={true} />

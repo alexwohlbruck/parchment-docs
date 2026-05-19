@@ -13,14 +13,11 @@ _openapi:
       title: Disable location sharing with a friend
       url: '#disable-location-sharing-with-a-friend'
     - depth: 2
-      title: 'Update location: broadcast to friends and store in history'
-      url: '#update-location-broadcast-to-friends-and-store-in-history'
+      title: Broadcast encrypted location to friends
+      url: '#broadcast-encrypted-location-to-friends'
     - depth: 2
       title: Get encrypted locations from friends
       url: '#get-encrypted-locations-from-friends'
-    - depth: 2
-      title: Get encrypted location history
-      url: '#get-encrypted-location-history'
   structuredData:
     headings:
       - content: Get location sharing configuration for all friends
@@ -29,12 +26,10 @@ _openapi:
         id: set-location-sharing-configuration-for-a-friend
       - content: Disable location sharing with a friend
         id: disable-location-sharing-with-a-friend
-      - content: 'Update location: broadcast to friends and store in history'
-        id: update-location-broadcast-to-friends-and-store-in-history
+      - content: Broadcast encrypted location to friends
+        id: broadcast-encrypted-location-to-friends
       - content: Get encrypted locations from friends
         id: get-encrypted-locations-from-friends
-      - content: Get encrypted location history
-        id: get-encrypted-location-history
     contents: []
 ---
 
@@ -42,4 +37,4 @@ _openapi:
 
 User location and history
 
-<APIPage document={"http://localhost:5000/docs/json"} operations={[{"path":"/location/e2ee/config","method":"get"},{"path":"/location/e2ee/config","method":"post"},{"path":"/location/e2ee/config/{friendHandle}","method":"delete"},{"path":"/location/e2ee/update","method":"post"},{"path":"/location/e2ee/friends","method":"get"},{"path":"/location/e2ee/history","method":"get"}]} webhooks={[]} hasHead={true} />
+<APIPage document={"http://localhost:5000/docs/json"} operations={[{"path":"/location/e2ee/config","method":"get"},{"path":"/location/e2ee/config","method":"post"},{"path":"/location/e2ee/config/{friendHandle}","method":"delete"},{"path":"/location/e2ee/update","method":"post"},{"path":"/location/e2ee/friends","method":"get"}]} webhooks={[]} hasHead={true} />

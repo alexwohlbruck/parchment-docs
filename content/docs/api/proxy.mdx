@@ -15,6 +15,9 @@ _openapi:
     - depth: 2
       title: Proxy Transitland stop tiles
       url: '#proxy-transitland-stop-tiles'
+    - depth: 2
+      title: Proxy Barrelman tile requests
+      url: '#proxy-barrelman-tile-requests'
   structuredData:
     headings:
       - content: Proxy Loom tile service
@@ -25,6 +28,8 @@ _openapi:
         id: proxy-transitland-route-tiles
       - content: Proxy Transitland stop tiles
         id: proxy-transitland-stop-tiles
+      - content: Proxy Barrelman tile requests
+        id: proxy-barrelman-tile-requests
     contents: []
 ---
 
@@ -32,4 +37,4 @@ _openapi:
 
 Proxy endpoints
 
-<APIPage document={"http://localhost:5000/docs/json"} operations={[{"path":"/proxy/loom/{service}/geo/{z}/{x}/{y}","method":"get"},{"path":"/proxy/mapillary/{dataset}/{version}/{z}/{x}/{y}","method":"get"},{"path":"/proxy/transitland/routes/{z}/{x}/{y}","method":"get"},{"path":"/proxy/transitland/stops/{z}/{x}/{y}","method":"get"}]} webhooks={[]} hasHead={true} />
+<APIPage document={"http://localhost:5000/docs/json"} operations={[{"path":"/proxy/loom/{service}/geo/{z}/{x}/{y}","method":"get"},{"path":"/proxy/mapillary/{dataset}/{version}/{z}/{x}/{y}","method":"get"},{"path":"/proxy/transitland/routes/{z}/{x}/{y}","method":"get"},{"path":"/proxy/transitland/stops/{z}/{x}/{y}","method":"get"},{"path":"/proxy/barrelman/{source}/{z}/{x}/{y}","method":"get"}]} webhooks={[]} hasHead={true} />

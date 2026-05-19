@@ -4,17 +4,14 @@ full: true
 _openapi:
   toc:
     - depth: 2
-      title: Get public integrations (safe subset)
-      url: '#get-public-integrations-safe-subset'
+      title: Get configured integrations with public config fields only
+      url: '#get-configured-integrations-with-public-config-fields-only'
     - depth: 2
       title: Get all available integrations (metadata only)
       url: '#get-all-available-integrations-metadata-only'
     - depth: 2
-      title: Get configured integrations for user with capability metadata
-      url: '#get-configured-integrations-for-user-with-capability-metadata'
-    - depth: 2
-      title: Get a specific integration
-      url: '#get-a-specific-integration'
+      title: Get a specific integration with full config (requires write permission)
+      url: '#get-a-specific-integration-with-full-config-requires-write-permission'
     - depth: 2
       title: Delete an integration
       url: '#delete-an-integration'
@@ -25,26 +22,51 @@ _openapi:
       title: Create a new integration
       url: '#create-a-new-integration'
     - depth: 2
+      title: Get integrations that depend on this one
+      url: '#get-integrations-that-depend-on-this-one'
+    - depth: 2
       title: Test an integration configuration
       url: '#test-an-integration-configuration'
+    - depth: 2
+      title: Get OSM OAuth2 authorization URL
+      url: '#get-osm-oauth2-authorization-url'
+    - depth: 2
+      title: OSM OAuth2 callback
+      url: '#osm-oauth2-callback'
+    - depth: 2
+      title: Get fresh OSM profile data
+      url: '#get-fresh-osm-profile-data'
+    - depth: 2
+      title: Disconnect OSM account
+      url: '#disconnect-osm-account'
   structuredData:
     headings:
-      - content: Get public integrations (safe subset)
-        id: get-public-integrations-safe-subset
+      - content: Get configured integrations with public config fields only
+        id: get-configured-integrations-with-public-config-fields-only
       - content: Get all available integrations (metadata only)
         id: get-all-available-integrations-metadata-only
-      - content: Get configured integrations for user with capability metadata
-        id: get-configured-integrations-for-user-with-capability-metadata
-      - content: Get a specific integration
-        id: get-a-specific-integration
+      - content: >-
+          Get a specific integration with full config (requires write
+          permission)
+        id: get-a-specific-integration-with-full-config-requires-write-permission
       - content: Delete an integration
         id: delete-an-integration
       - content: Update an integration
         id: update-an-integration
       - content: Create a new integration
         id: create-a-new-integration
+      - content: Get integrations that depend on this one
+        id: get-integrations-that-depend-on-this-one
       - content: Test an integration configuration
         id: test-an-integration-configuration
+      - content: Get OSM OAuth2 authorization URL
+        id: get-osm-oauth2-authorization-url
+      - content: OSM OAuth2 callback
+        id: osm-oauth2-callback
+      - content: Get fresh OSM profile data
+        id: get-fresh-osm-profile-data
+      - content: Disconnect OSM account
+        id: disconnect-osm-account
     contents: []
 ---
 
@@ -52,4 +74,4 @@ _openapi:
 
 Third-party integrations
 
-<APIPage document={"http://localhost:5000/docs/json"} operations={[{"path":"/integrations/public","method":"get"},{"path":"/integrations/available","method":"get"},{"path":"/integrations/configured","method":"get"},{"path":"/integrations/{id}","method":"get"},{"path":"/integrations/{id}","method":"delete"},{"path":"/integrations/{id}","method":"put"},{"path":"/integrations/","method":"post"},{"path":"/integrations/test","method":"post"}]} webhooks={[]} hasHead={true} />
+<APIPage document={"http://localhost:5000/docs/json"} operations={[{"path":"/integrations/configured","method":"get"},{"path":"/integrations/available","method":"get"},{"path":"/integrations/{id}","method":"get"},{"path":"/integrations/{id}","method":"delete"},{"path":"/integrations/{id}","method":"put"},{"path":"/integrations/","method":"post"},{"path":"/integrations/{id}/dependents","method":"get"},{"path":"/integrations/test","method":"post"},{"path":"/integrations/osm/authorize","method":"get"},{"path":"/integrations/osm/callback","method":"get"},{"path":"/integrations/osm/profile","method":"get"},{"path":"/integrations/osm/disconnect","method":"post"}]} webhooks={[]} hasHead={true} />

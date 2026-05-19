@@ -16,6 +16,12 @@ _openapi:
       title: Revoke a share
       url: '#revoke-a-share'
     - depth: 2
+      title: Replace an existing share envelope (metadata refresh)
+      url: '#replace-an-existing-share-envelope-metadata-refresh'
+    - depth: 2
+      title: Update an existing share's role
+      url: '#update-an-existing-shares-role'
+    - depth: 2
       title: Delete a share
       url: '#delete-a-share'
     - depth: 2
@@ -43,6 +49,10 @@ _openapi:
         id: share-a-resource-with-a-friend
       - content: Revoke a share
         id: revoke-a-share
+      - content: Replace an existing share envelope (metadata refresh)
+        id: replace-an-existing-share-envelope-metadata-refresh
+      - content: Update an existing share's role
+        id: update-an-existing-shares-role
       - content: Delete a share
         id: delete-a-share
       - content: Get all incoming shares
@@ -62,4 +72,4 @@ _openapi:
 
 Sharing and invitations
 
-<APIPage document={"http://localhost:5000/docs/json"} operations={[{"path":"/sharing/outgoing","method":"get"},{"path":"/sharing/outgoing/{resourceType}/{resourceId}","method":"get"},{"path":"/sharing/","method":"post"},{"path":"/sharing/{shareId}/revoke","method":"post"},{"path":"/sharing/{shareId}","method":"delete"},{"path":"/sharing/incoming","method":"get"},{"path":"/sharing/incoming/pending","method":"get"},{"path":"/sharing/incoming/{shareId}/accept","method":"post"},{"path":"/sharing/incoming/{shareId}/reject","method":"post"},{"path":"/sharing/incoming/{shareId}","method":"delete"}]} webhooks={[]} hasHead={true} />
+<APIPage document={"http://localhost:5000/docs/json"} operations={[{"path":"/sharing/outgoing","method":"get"},{"path":"/sharing/outgoing/{resourceType}/{resourceId}","method":"get"},{"path":"/sharing/","method":"post"},{"path":"/sharing/{shareId}/revoke","method":"post"},{"path":"/sharing/envelope","method":"put"},{"path":"/sharing/{shareId}","method":"patch"},{"path":"/sharing/{shareId}","method":"delete"},{"path":"/sharing/incoming","method":"get"},{"path":"/sharing/incoming/pending","method":"get"},{"path":"/sharing/incoming/{shareId}/accept","method":"post"},{"path":"/sharing/incoming/{shareId}/reject","method":"post"},{"path":"/sharing/incoming/{shareId}","method":"delete"}]} webhooks={[]} hasHead={true} />

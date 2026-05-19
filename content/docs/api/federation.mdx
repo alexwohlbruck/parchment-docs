@@ -4,6 +4,18 @@ full: true
 _openapi:
   toc:
     - depth: 2
+      title: Post Users Me Identity Reset
+      url: '#post-users-me-identity-reset'
+    - depth: 2
+      title: Get Users Me Revocations Pending
+      url: '#get-users-me-revocations-pending'
+    - depth: 2
+      title: Post Users Me Revocations Flush
+      url: '#post-users-me-revocations-flush'
+    - depth: 2
+      title: Delete Users Me Revocations Pending By Peer Handle
+      url: '#delete-users-me-revocations-pending-by-peer-handle'
+    - depth: 2
       title: Get Users Me Identity
       url: '#get-users-me-identity'
     - depth: 2
@@ -17,6 +29,14 @@ _openapi:
       url: '#post-federation-inbox'
   structuredData:
     headings:
+      - content: Post Users Me Identity Reset
+        id: post-users-me-identity-reset
+      - content: Get Users Me Revocations Pending
+        id: get-users-me-revocations-pending
+      - content: Post Users Me Revocations Flush
+        id: post-users-me-revocations-flush
+      - content: Delete Users Me Revocations Pending By Peer Handle
+        id: delete-users-me-revocations-pending-by-peer-handle
       - content: Get Users Me Identity
         id: get-users-me-identity
       - content: Patch Users Me Alias
@@ -26,6 +46,20 @@ _openapi:
       - content: Post Federation Inbox
         id: post-federation-inbox
     contents:
+      - content: >-
+          Last-resort: wipe all of this user's encrypted data and clear the
+          federation identity so they can re-run identity setup. Session +
+          passkeys survive; everything encrypted under the old seed is gone.
+          Irreversible.
+        heading: post-users-me-identity-reset
+      - content: List peer handles queued for revocation after an identity reset.
+        heading: get-users-me-revocations-pending
+      - content: >-
+          Deliver client-signed RELATIONSHIP_REVOKE envelopes to their peers.
+          Rows that deliver are dropped; failures stay queued for retry.
+        heading: post-users-me-revocations-flush
+      - content: Drop a queued revocation without delivering it.
+        heading: delete-users-me-revocations-pending-by-peer-handle
       - content: Get current user federation identity (handle, keys)
         heading: get-users-me-identity
       - content: Update current user alias (username for federation)
@@ -40,4 +74,4 @@ _openapi:
 
 Federation and external identity
 
-<APIPage document={"http://localhost:5000/docs/json"} operations={[{"path":"/users/me/identity","method":"get"},{"path":"/users/me/alias","method":"patch"},{"path":"/users/me/keys","method":"put"},{"path":"/federation/inbox","method":"post"}]} webhooks={[]} hasHead={true} />
+<APIPage document={"http://localhost:5000/docs/json"} operations={[{"path":"/users/me/identity/reset","method":"post"},{"path":"/users/me/revocations/pending","method":"get"},{"path":"/users/me/revocations/flush","method":"post"},{"path":"/users/me/revocations/pending/{peerHandle}","method":"delete"},{"path":"/users/me/identity","method":"get"},{"path":"/users/me/alias","method":"patch"},{"path":"/users/me/keys","method":"put"},{"path":"/federation/inbox","method":"post"}]} webhooks={[]} hasHead={true} />

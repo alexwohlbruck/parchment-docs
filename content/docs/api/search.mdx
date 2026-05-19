@@ -10,8 +10,14 @@ _openapi:
       title: Execute advanced Overpass query
       url: '#execute-advanced-overpass-query'
     - depth: 2
+      title: Search along a route corridor
+      url: '#search-along-a-route-corridor'
+    - depth: 2
       title: Search by category/preset
       url: '#search-by-categorypreset'
+    - depth: 2
+      title: Get PlaceCategory definitions (labels + colors)
+      url: '#get-placecategory-definitions-labels--colors'
     - depth: 2
       title: Get all categories/presets
       url: '#get-all-categoriespresets'
@@ -24,8 +30,12 @@ _openapi:
         id: search-for-places
       - content: Execute advanced Overpass query
         id: execute-advanced-overpass-query
+      - content: Search along a route corridor
+        id: search-along-a-route-corridor
       - content: Search by category/preset
         id: search-by-categorypreset
+      - content: Get PlaceCategory definitions (labels + colors)
+        id: get-placecategory-definitions-labels--colors
       - content: Get all categories/presets
         id: get-all-categoriespresets
       - content: Get a specific category by ID
@@ -37,4 +47,4 @@ _openapi:
 
 Search endpoints
 
-<APIPage document={"http://localhost:5000/docs/json"} operations={[{"path":"/search/","method":"get"},{"path":"/search/advanced","method":"post"},{"path":"/search/category","method":"post"},{"path":"/search/categories","method":"get"},{"path":"/search/categories/{categoryId}","method":"get"}]} webhooks={[]} hasHead={true} />
+<APIPage document={"http://localhost:5000/docs/json"} operations={[{"path":"/search/","method":"get"},{"path":"/search/advanced","method":"post"},{"path":"/search/route","method":"post"},{"path":"/search/category","method":"post"},{"path":"/search/categories/palette","method":"get"},{"path":"/search/categories","method":"get"},{"path":"/search/categories/{categoryId}","method":"get"}]} webhooks={[]} hasHead={true} />
