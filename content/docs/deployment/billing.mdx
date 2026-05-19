@@ -39,7 +39,12 @@ For development and testing, use the **Polar Sandbox** at [sandbox.polar.sh](htt
 1. Go to **Settings → Developers → Access Tokens**
 2. Click **New Token**
 3. Give it a descriptive name (e.g. "Parchment Server")
-4. Copy the token — this is your `POLAR_ACCESS_TOKEN`
+4. Select the following permissions:
+   - `checkouts:write` — create checkout sessions
+   - `customers:read` — look up customers by ID
+   - `customer_sessions:write` — generate customer portal links
+   - `subscriptions:read` — read subscription status
+5. Copy the token — this is your `POLAR_ACCESS_TOKEN`
 
 ### 3. Configure the webhook
 
