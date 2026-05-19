@@ -95,13 +95,15 @@ The output is a `PARCHMENT_LICENSE` token to set in your environment.
 
 | Variable | Description | Required |
 |---|---|---|
-| `PARCHMENT_LICENSE` | Signed license token (from the generate script) | Yes |
-| `POLAR_ACCESS_TOKEN` | Polar API access token | Yes |
-| `POLAR_WEBHOOK_SECRET` | Polar webhook signing secret | Yes |
-| `POLAR_ORGANIZATION_ID` | Your Polar organization ID | Yes |
-| `POLAR_PREMIUM_PRODUCT_ID` | The Polar product ID for the Premium tier | Yes |
+| `PARCHMENT_LICENSE` | Signed license token (from the generate script) | Production only |
+| `POLAR_ACCESS_TOKEN` | Polar API access token | No |
+| `POLAR_WEBHOOK_SECRET` | Polar webhook signing secret | No |
+| `POLAR_ORGANIZATION_ID` | Your Polar organization ID | No |
+| `POLAR_PREMIUM_PRODUCT_ID` | The Polar product ID for the Premium tier | No |
 | `POLAR_SANDBOX` | Set to `true` to use Polar's sandbox environment for testing | No |
 | `REGISTRATION_MODE` | `invite` (default) or `open` — controls whether new users can self-register | No |
+
+All Polar variables are optional — when omitted, billing is disabled and all features are unlocked (self-hosted mode). The license token is only required in production; in development (`NODE_ENV=development`) the license check is skipped.
 
 Add these to your `.env` file alongside the existing configuration.
 
