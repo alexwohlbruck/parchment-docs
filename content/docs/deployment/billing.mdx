@@ -52,7 +52,7 @@ Polar uses webhooks to notify your server when a subscription changes. The endpo
 
 1. Go to **Settings → Developers → Webhooks**
 2. Click **Add Endpoint**
-3. Set the **URL** to your server's webhook path: `https://your-domain.com/subscriptions/webhook`
+3. Set the **URL** to your **server's** (`SERVER_ORIGIN`) webhook path: `https://api.your-domain.com/subscriptions/webhook`
 4. Under **Events**, subscribe to:
    - `subscription.active`
    - `subscription.canceled`
