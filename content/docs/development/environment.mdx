@@ -65,6 +65,7 @@ Billing is powered by [Polar](https://polar.sh) and gated by a signed license to
 | `POLAR_WEBHOOK_SECRET` | Polar webhook signing secret | Yes |
 | `POLAR_ORGANIZATION_ID` | Your Polar organization ID | Yes |
 | `POLAR_PREMIUM_PRODUCT_ID` | Polar product ID for the Premium tier | Yes |
+| `POLAR_SANDBOX` | Set to `true` to use Polar's sandbox environment | No |
 | `REGISTRATION_MODE` | `invite` (default) or `open` | No |
 
 In development (`NODE_ENV=development`), the license check is skipped — only the Polar credentials are needed.

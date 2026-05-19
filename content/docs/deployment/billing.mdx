@@ -22,14 +22,42 @@ In development (`NODE_ENV=development`), the license check is skipped. Only the 
 
 ## Polar setup
 
-Create a Polar organization at [polar.sh](https://polar.sh) and configure a product:
+Create a Polar organization at [polar.sh](https://polar.sh) and configure a product and webhook.
+
+<Callout type="info">
+For development and testing, use the **Polar Sandbox** at [sandbox.polar.sh](https://sandbox.polar.sh). It mirrors the full Polar environment with test payments — no real charges. Set `POLAR_SANDBOX=true` in your `.env` and use credentials from the sandbox dashboard.
+</Callout>
+
+### 1. Create an organization and product
 
 1. Create an organization (or use an existing one)
 2. Create a **Premium** product with monthly recurring pricing
-3. Generate an **API access token** (Settings → Developers → Access Tokens)
-4. Note your **organization ID** and **product ID** from the Polar dashboard
-5. Configure a **webhook endpoint** pointing to your server's `/subscriptions/webhook` path
-6. Copy the **webhook signing secret** from the webhook configuration
+3. Note your **organization ID** (Settings → Organization) and **product ID** (click the product → URL contains the ID)
+
+### 2. Generate an API access token
+
+1. Go to **Settings → Developers → Access Tokens**
+2. Click **New Token**
+3. Give it a descriptive name (e.g. "Parchment Server")
+4. Copy the token — this is your `POLAR_ACCESS_TOKEN`
+
+### 3. Configure the webhook
+
+Polar uses webhooks to notify your server when a subscription changes. The endpoint must be publicly reachable.
+
+1. Go to **Settings → Developers → Webhooks**
+2. Click **Add Endpoint**
+3. Set the **URL** to your server's webhook path: `https://your-domain.com/subscriptions/webhook`
+4. Under **Events**, subscribe to:
+   - `subscription.active`
+   - `subscription.canceled`
+   - `subscription.revoked`
+5. Click **Create**
+6. Copy the **Signing Secret** — this is your `POLAR_WEBHOOK_SECRET`
+
+<Callout type="warn">
+For local development, your webhook URL must be reachable from the internet. Use a tunnel like [ngrok](https://ngrok.com) or [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/): `ngrok http 5000`, then use the generated URL as the webhook endpoint (e.g. `https://abc123.ngrok.io/subscriptions/webhook`).
+</Callout>
 
 ## License key
 
@@ -67,6 +95,7 @@ The output is a `PARCHMENT_LICENSE` token to set in your environment.
 | `POLAR_WEBHOOK_SECRET` | Polar webhook signing secret | Yes |
 | `POLAR_ORGANIZATION_ID` | Your Polar organization ID | Yes |
 | `POLAR_PREMIUM_PRODUCT_ID` | The Polar product ID for the Premium tier | Yes |
+| `POLAR_SANDBOX` | Set to `true` to use Polar's sandbox environment for testing | No |
 | `REGISTRATION_MODE` | `invite` (default) or `open` — controls whether new users can self-register | No |
 
 Add these to your `.env` file alongside the existing configuration.
