@@ -1,0 +1,105 @@
+---
+title: Billing & Subscriptions
+description: Set up Polar-powered subscription billing for your Parchment instance.
+---
+
+Parchment supports a two-tier subscription model (Free and Premium) powered by [Polar](https://polar.sh). Billing is optional — when not configured, all users get every feature for free.
+
+## How it works
+
+Premium features are gated by the existing role and permission system. When a user subscribes through Polar, a webhook assigns them the `premium` role. Cancellation removes it. No separate subscription table is needed.
+
+The billing system requires two things to activate:
+
+1. A **signed license token** (`PARCHMENT_LICENSE`) — proves the instance is authorized to run billing
+2. **Polar API credentials** — connects to your Polar organization for checkout and webhooks
+
+If either is missing, billing is disabled and all features are unlocked for every user (self-hosted mode).
+
+<Callout type="info">
+In development (`NODE_ENV=development`), the license check is skipped. Only the Polar credentials are needed.
+</Callout>
+
+## Polar setup
+
+Create a Polar organization at [polar.sh](https://polar.sh) and configure a product:
+
+1. Create an organization (or use an existing one)
+2. Create a **Premium** product with monthly recurring pricing
+3. Generate an **API access token** (Settings → Developers → Access Tokens)
+4. Note your **organization ID** and **product ID** from the Polar dashboard
+5. Configure a **webhook endpoint** pointing to your server's `/subscriptions/webhook` path
+6. Copy the **webhook signing secret** from the webhook configuration
+
+## License key
+
+Billing requires a cryptographically signed license token. This prevents unauthorized instances from enabling the billing system.
+
+### Generate a keypair (one-time)
+
+```bash
+cd server
+bun scripts/generate-license.ts --keygen
+```
+
+This outputs a private key and a public key. Keep the private key secret. The public key is embedded in `server/src/lib/license.ts` — replace the placeholder with your real public key.
+
+### Issue a license
+
+```bash
+LICENSE_PRIVATE_KEY=<your-private-key> bun scripts/generate-license.ts
+```
+
+To set an expiration date:
+
+```bash
+LICENSE_PRIVATE_KEY=<your-private-key> bun scripts/generate-license.ts --exp 2027-01-01
+```
+
+The output is a `PARCHMENT_LICENSE` token to set in your environment.
+
+## Environment variables
+
+| Variable | Description | Required |
+|---|---|---|
+| `PARCHMENT_LICENSE` | Signed license token (from the generate script) | Yes |
+| `POLAR_ACCESS_TOKEN` | Polar API access token | Yes |
+| `POLAR_WEBHOOK_SECRET` | Polar webhook signing secret | Yes |
+| `POLAR_ORGANIZATION_ID` | Your Polar organization ID | Yes |
+| `POLAR_PREMIUM_PRODUCT_ID` | The Polar product ID for the Premium tier | Yes |
+| `REGISTRATION_MODE` | `invite` (default) or `open` — controls whether new users can self-register | No |
+
+Add these to your `.env` file alongside the existing configuration.
+
+## Webhook events
+
+The server handles these Polar webhook events:
+
+| Event | Action |
+|---|---|
+| `subscription.active` | Links the Polar customer to the Parchment user, assigns the `premium` role |
+| `subscription.canceled` | Removes the `premium` role |
+| `subscription.revoked` | Removes the `premium` role |
+
+All other events are acknowledged with a `200` response and ignored.
+
+## Verifying the setup
+
+After configuring all variables and restarting the server:
+
+1. Check the server logs for `Valid license detected — billing features available`
+2. Visit `GET /subscriptions/config` — should return `{ "billingEnabled": true }`
+3. The **Subscription** page should appear in Settings
+4. Free users see an "Upgrade to Premium" button that redirects to Polar checkout
+5. After checkout, the Polar webhook fires and the user gains premium features
+
+## Self-hosted mode
+
+When billing is not configured, Parchment runs in self-hosted mode:
+
+- All users receive every permission (including premium features)
+- The Subscription settings page is hidden
+- Polar SDK code is never loaded
+- The `/subscriptions/config` endpoint returns `{ "billingEnabled": false }`
+
+This is the default for self-hosted instances. No configuration is needed to run in this mode.

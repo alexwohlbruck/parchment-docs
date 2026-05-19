@@ -22,6 +22,22 @@ All configuration is done via environment variables. Copy `.env.example` to `.en
 
 The `CLIENT_ORIGIN` variable controls which origins the API allows requests from. In production, set it to your exact frontend domain.
 
+## Security keys
+
+These two keys **must** be independent random 32-byte values. Generate them separately:
+
+```bash
+openssl rand -base64 32   # → SERVER_IDENTITY_PRIVATE_KEY
+openssl rand -base64 32   # → PARCHMENT_INTEGRATION_ENCRYPTION_KEY
+```
+
+| Variable | Description |
+|---|---|
+| `SERVER_IDENTITY_PRIVATE_KEY` | Ed25519 seed for federation server identity. Persist across restarts — rotation breaks TOFU pinning on peers. |
+| `PARCHMENT_INTEGRATION_ENCRYPTION_KEY` | AES-256 master key for encrypting third-party API keys stored in the integrations table. |
+
+Both are **required** — the server refuses to start without them.
+
 ## Email
 
 Used for account verification and password resets. Parchment uses Gmail with an [app password](https://support.google.com/accounts/answer/185833).
@@ -37,6 +53,21 @@ Used for account verification and password resets. Parchment uses Gmail with an 
 | Variable | Description | Default |
 |---|---|---|
 | `NEXT_PUBLIC_CLIENT_ORIGIN` | App URL shown in the docs header | `http://localhost:5173` |
+
+## Billing (optional)
+
+Billing is powered by [Polar](https://polar.sh) and gated by a signed license token. When these variables are not set, all features are unlocked for every user. See [Billing & Subscriptions](/docs/deployment/billing) for full setup instructions.
+
+| Variable | Description | Required |
+|---|---|---|
+| `PARCHMENT_LICENSE` | Signed license token (Ed25519) | Yes |
+| `POLAR_ACCESS_TOKEN` | Polar API access token | Yes |
+| `POLAR_WEBHOOK_SECRET` | Polar webhook signing secret | Yes |
+| `POLAR_ORGANIZATION_ID` | Your Polar organization ID | Yes |
+| `POLAR_PREMIUM_PRODUCT_ID` | Polar product ID for the Premium tier | Yes |
+| `REGISTRATION_MODE` | `invite` (default) or `open` | No |
+
+In development (`NODE_ENV=development`), the license check is skipped — only the Polar credentials are needed.
 
 ## Integrations
 
