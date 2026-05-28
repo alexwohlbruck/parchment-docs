@@ -18,6 +18,8 @@ Barrelman ingests an OSM PBF extract from [Geofabrik](https://download.geofabrik
 - **Spatial containment** — find parent areas (city/county/state) for a point
 - **Children lookup** — list POIs inside a venue or area (e.g. shops inside a mall)
 - **Place detail** — fetch a single OSM element by type + ID
+- **Transit routing** — stop-to-stop transit itineraries via MOTIS (RAPTOR algorithm)
+- **Transit data** — nearby stops, routes serving a stop, GTFS feed management
 
 Parchment's `BarrelmanIntegration` handles all communication and maps responses to Parchment's unified `Place` model.
 
@@ -31,6 +33,7 @@ Parchment's `BarrelmanIntegration` handles all communication and maps responses 
 | `barrelman-db` | `alexwohlbruck/barrelman-db` | 5433 | PostgreSQL + PostGIS + pgvector |
 | `martin` | `ghcr.io/maplibre/martin` | 3002 | Vector tile server |
 | `graphhopper` | `israelhikingmap/graphhopper` | 8990 | Routing engine |
+| `motis` | `ghcr.io/motis-project/motis` | 8080 | Transit routing engine (RAPTOR) |
 
 All images are published to Docker Hub / GHCR. No build step is required — `docker compose up -d` pulls everything automatically.
 

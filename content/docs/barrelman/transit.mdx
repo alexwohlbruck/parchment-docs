@@ -1,0 +1,187 @@
+---
+title: Transit Routing
+description: GTFS import and MOTIS transit routing in Barrelman.
+---
+
+Barrelman includes a transit routing pipeline that downloads GTFS feeds, imports
+stop and route data into PostGIS, pre-computes walking transfers via GraphHopper,
+and proxies transit itinerary requests to a co-deployed MOTIS instance.
+
+---
+
+## How it works
+
+MOTIS runs in **transit-only mode** (`street_routing: false`). It loads GTFS data
+and runs the RAPTOR algorithm for stop-to-stop routing. All street-level routing
+(walking to/from stops) stays in GraphHopper, and Parchment's trip planner
+composes the full trip.
+
+```
+Transitland API
+  |
+  v
+download GTFS ZIPs
+  |
+  v
+parse stops / routes --> PostGIS (gtfs_stops, gtfs_routes, gtfs_stop_routes)
+  |
+  v
+find nearby stop pairs (ST_DWithin, 500m)
+  |
+  v
+compute walking transfers (GraphHopper pedestrian point-to-point)
+  |
+  v
+inject transfers.txt into each feed
+  |
+  v
+MOTIS loads processed GTFS
+```
+
+---
+
+## Environment variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `GTFS_REGION` | `nc` | Region code: `nc` for North Carolina dev feeds, `global` for all Transitland feeds |
+| `TRANSITLAND_API_KEY` | — | API key for the Transitland Atlas feed API |
+| `MOTIS_URL` | `http://motis:8080` | Internal URL of the MOTIS container |
+
+---
+
+## GTFS import
+
+Run the import pipeline to download and process GTFS feeds:
+
+```bash
+bun run import:gtfs
+```
+
+Or via the shell wrapper:
+
+```bash
+./scripts/download-gtfs.sh
+```
+
+### What the import does
+
+1. Fetches the feed list from Transitland for the configured region
+2. Downloads each GTFS ZIP
+3. Parses `stops.txt`, `routes.txt`, `agency.txt` from each feed
+4. Imports stops (with PostGIS POINT geometry), routes, and stop-route
+   associations into the database
+5. Finds all stop pairs within 500 meters using a spatial self-join
+6. Queries GraphHopper for walking time between each pair
+7. Generates `transfers.txt` and injects it into each feed ZIP
+8. The processed feeds are available to MOTIS on restart
+
+### Region bounding boxes
+
+- `nc` (dev): North Carolina — `(-84.5, 33.7, -75.3, 36.6)`
+- `global` (prod): all Transitland feeds (no bbox filter)
+
+---
+
+## API endpoints
+
+### `POST /transit/route`
+
+Plan a transit trip via MOTIS.
+
+**Request body:**
+
+```json
+{
+  "fromLat": 35.2094,
+  "fromLng": -80.8605,
+  "toLat": 35.2271,
+  "toLng": -80.8431,
+  "time": "2026-01-15T08:00:00Z",
+  "arriveBy": false,
+  "numItineraries": 3
+}
+```
+
+**Response:** MOTIS OTPAPI v2 itineraries adapted to Parchment format.
+
+### `GET /transit/stops`
+
+Find transit stops near a point.
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `lat` | number | required | Latitude |
+| `lng` | number | required | Longitude |
+| `radius` | number | `500` | Search radius in meters |
+| `limit` | number | `20` | Max results |
+
+### `GET /transit/routes`
+
+Get routes serving a specific stop.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `feedId` | string | GTFS feed ID |
+| `stopId` | string | GTFS stop ID |
+
+---
+
+## Health check
+
+The `/health` endpoint includes MOTIS status:
+
+```json
+{
+  "status": "ok",
+  "database": "connected",
+  "motis": "ok"
+}
+```
+
+- `status: "ok"` — database and MOTIS both reachable
+- `status: "degraded"` — database up, MOTIS down (transit routing unavailable but other features work)
+- `status: "error"` — database unreachable
+
+---
+
+## Database schema
+
+The GTFS import creates four tables:
+
+| Table | Description |
+|-------|-------------|
+| `gtfs_feeds` | Feed metadata (ID, name, URL) |
+| `gtfs_stops` | Stops with PostGIS POINT geometry and spatial index |
+| `gtfs_routes` | Routes with type, color, agency info |
+| `gtfs_stop_routes` | Many-to-many: which routes serve which stops |
+
+Tables are created automatically at startup via `ensureGtfsSchema()`.
+
+---
+
+## Docker setup
+
+MOTIS is added as a service in `docker-compose.yml`:
+
+```yaml
+motis:
+  image: ghcr.io/motis-project/motis:latest
+  working_dir: /data
+  volumes:
+    - ./motis/config.yml:/data/config.yml:ro
+    - barrelman-gtfs-data:/data/gtfs
+  ports:
+    - "8080:8080"
+```
+
+The MOTIS config at `motis/config.yml` disables street routing:
+
+```yaml
+import:
+  paths:
+    - gtfs/
+```
+
+The `barrelman-gtfs-data` volume is shared between the Barrelman API (which
+writes processed GTFS feeds during import) and MOTIS (which reads them).
