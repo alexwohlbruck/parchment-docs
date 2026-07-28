@@ -62,11 +62,13 @@ Configure these in **Settings → Secrets and variables → Actions**. See [iOS 
 
 **Version:** The app version lives in `web/package.json` and is synced to `server/package.json`, `web/src-tauri/tauri.conf.json`, and `web/src-tauri/Cargo.toml` by `deploy.sh`.
 
-**Release notes:** `CHANGELOG.md` is a cumulative [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) file — an `## [Unreleased]` section on top, then `## [X.Y.Z] - DATE` sections newest-first.
+**Release notes:** `CHANGELOG.md` holds the current release only, in [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format — an `## [Unreleased]` section above the most recent `## [X.Y.Z] - DATE` one. It never grows beyond those two sections.
 
 Entries are written **progressively**: when a user-facing change is complete, add a bullet under `## [Unreleased]` beneath `### Added`, `### Changed`, or `### Fixed`. Don't wait for release time — that's how things get forgotten. Skip internal-only work.
 
-Cutting a release retitles `[Unreleased]` as the new version and opens a fresh empty one, both in the release commit. `deploy.sh` shows you the accumulated notes first and offers an edit pass, since entries are written one at a time and the release is the first chance to read them together.
+Cutting a release retitles `[Unreleased]` as the new version, drops the previous one, and opens a fresh empty `[Unreleased]` — all in the release commit. `deploy.sh` shows you the accumulated notes first and offers an edit pass, since entries are written one at a time and the release is the first chance to read them together.
+
+Past release notes aren't kept in the file. They live in [GitHub Releases](https://github.com/alexwohlbruck/parchment/releases) and, for every tag, in git itself: `git show vX.Y.Z:CHANGELOG.md`.
 
 All reads and rewrites of the file go through **`scripts/changelog.sh`** (`unreleased`, `latest`, `latest --plain`, `release X.Y.Z`) so the format lives in one place. It feeds the release PR description, the GitHub Release body, and the Google Play "what's new" text. Play's field is plain text capped at 500 characters and is truncated by whole entries, so put the notable changes first.
 
