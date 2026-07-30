@@ -57,11 +57,11 @@ docker compose up -d
 Docker pulls all images automatically. After a few seconds, verify it's running:
 
 ```bash
-curl http://localhost:3001/health
+curl http://localhost:5001/health
 # {"status":"ok","database":"connected"}
 ```
 
-Swagger UI is available at `http://localhost:3001/swagger`.
+Swagger UI is available at `http://localhost:5001/swagger`.
 
 Next: [import OSM data](import) to populate the database.
 
@@ -94,4 +94,4 @@ docker compose up -d barrelman-db
 bun run dev
 ```
 
-Barrelman runs at `http://localhost:3001`. Swagger UI is at `http://localhost:3001/swagger`.
+Barrelman runs at `http://localhost:5001`. Swagger UI is at `http://localhost:5001/swagger`.

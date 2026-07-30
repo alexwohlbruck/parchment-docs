@@ -13,6 +13,9 @@ _openapi:
       title: Update a bookmark
       url: '#update-a-bookmark'
     - depth: 2
+      title: Get the caller's frequent bookmarks
+      url: '#get-the-callers-frequent-bookmarks'
+    - depth: 2
       title: Get collections for a bookmark
       url: '#get-collections-for-a-bookmark'
     - depth: 2
@@ -63,6 +66,27 @@ _openapi:
     - depth: 2
       title: Update an encrypted point
       url: '#update-an-encrypted-point'
+    - depth: 2
+      title: Get all custom routes
+      url: '#get-all-custom-routes'
+    - depth: 2
+      title: Create a custom route
+      url: '#create-a-custom-route'
+    - depth: 2
+      title: Get a custom route by ID
+      url: '#get-a-custom-route-by-id'
+    - depth: 2
+      title: Delete a custom route
+      url: '#delete-a-custom-route'
+    - depth: 2
+      title: Update a custom route
+      url: '#update-a-custom-route'
+    - depth: 2
+      title: Mint a public link for a route
+      url: '#mint-a-public-link-for-a-route'
+    - depth: 2
+      title: Revoke a route public link
+      url: '#revoke-a-route-public-link'
   structuredData:
     headings:
       - content: Create a new bookmark
@@ -71,6 +95,8 @@ _openapi:
         id: remove-bookmark-from-collections
       - content: Update a bookmark
         id: update-a-bookmark
+      - content: Get the caller's frequent bookmarks
+        id: get-the-callers-frequent-bookmarks
       - content: Get collections for a bookmark
         id: get-collections-for-a-bookmark
       - content: Get all collections
@@ -106,6 +132,20 @@ _openapi:
         id: delete-an-encrypted-point
       - content: Update an encrypted point
         id: update-an-encrypted-point
+      - content: Get all custom routes
+        id: get-all-custom-routes
+      - content: Create a custom route
+        id: create-a-custom-route
+      - content: Get a custom route by ID
+        id: get-a-custom-route-by-id
+      - content: Delete a custom route
+        id: delete-a-custom-route
+      - content: Update a custom route
+        id: update-a-custom-route
+      - content: Mint a public link for a route
+        id: mint-a-public-link-for-a-route
+      - content: Revoke a route public link
+        id: revoke-a-route-public-link
     contents: []
 ---
 
@@ -113,4 +153,4 @@ _openapi:
 
 Libraries, collections, and bookmarks
 
-<APIPage document={"http://localhost:5000/docs/json"} operations={[{"path":"/library/bookmarks/","method":"post"},{"path":"/library/bookmarks/{id}","method":"delete"},{"path":"/library/bookmarks/{id}","method":"put"},{"path":"/library/bookmarks/{id}/collections","method":"get"},{"path":"/library/collections/","method":"get"},{"path":"/library/collections/","method":"post"},{"path":"/library/collections/shared-with-me","method":"get"},{"path":"/library/collections/{id}","method":"get"},{"path":"/library/collections/{id}","method":"delete"},{"path":"/library/collections/{id}","method":"put"},{"path":"/library/collections/{id}/sensitive","method":"put"},{"path":"/library/collections/{id}/change-scheme","method":"post"},{"path":"/library/collections/{id}/rotate-key","method":"post"},{"path":"/library/collections/{id}/public-link","method":"post"},{"path":"/library/collections/{id}/public-link","method":"delete"},{"path":"/library/collections/{id}/encrypted-points","method":"get"},{"path":"/library/collections/{id}/encrypted-points","method":"post"},{"path":"/library/collections/{id}/encrypted-points/{pointId}","method":"delete"},{"path":"/library/collections/{id}/encrypted-points/{pointId}","method":"put"}]} webhooks={[]} hasHead={true} />
+<APIPage document={"openapi.json"} operations={[{"path":"/library/bookmarks/","method":"post"},{"path":"/library/bookmarks/{id}","method":"delete"},{"path":"/library/bookmarks/{id}","method":"put"},{"path":"/library/bookmarks/frequents","method":"get"},{"path":"/library/bookmarks/{id}/collections","method":"get"},{"path":"/library/collections/","method":"get"},{"path":"/library/collections/","method":"post"},{"path":"/library/collections/shared-with-me","method":"get"},{"path":"/library/collections/{id}","method":"get"},{"path":"/library/collections/{id}","method":"delete"},{"path":"/library/collections/{id}","method":"put"},{"path":"/library/collections/{id}/sensitive","method":"put"},{"path":"/library/collections/{id}/change-scheme","method":"post"},{"path":"/library/collections/{id}/rotate-key","method":"post"},{"path":"/library/collections/{id}/public-link","method":"post"},{"path":"/library/collections/{id}/public-link","method":"delete"},{"path":"/library/collections/{id}/encrypted-points","method":"get"},{"path":"/library/collections/{id}/encrypted-points","method":"post"},{"path":"/library/collections/{id}/encrypted-points/{pointId}","method":"delete"},{"path":"/library/collections/{id}/encrypted-points/{pointId}","method":"put"},{"path":"/library/routes/","method":"get"},{"path":"/library/routes/","method":"post"},{"path":"/library/routes/{id}","method":"get"},{"path":"/library/routes/{id}","method":"delete"},{"path":"/library/routes/{id}","method":"put"},{"path":"/library/routes/{id}/public-link","method":"post"},{"path":"/library/routes/{id}/public-link","method":"delete"}]} webhooks={[]} hasHead={true} />

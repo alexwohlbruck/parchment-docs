@@ -16,6 +16,9 @@ _openapi:
       title: Search by category/preset
       url: '#search-by-categorypreset'
     - depth: 2
+      title: Search all locations of a brand
+      url: '#search-all-locations-of-a-brand'
+    - depth: 2
       title: Get PlaceCategory definitions (labels + colors)
       url: '#get-placecategory-definitions-labels--colors'
     - depth: 2
@@ -34,6 +37,8 @@ _openapi:
         id: search-along-a-route-corridor
       - content: Search by category/preset
         id: search-by-categorypreset
+      - content: Search all locations of a brand
+        id: search-all-locations-of-a-brand
       - content: Get PlaceCategory definitions (labels + colors)
         id: get-placecategory-definitions-labels--colors
       - content: Get all categories/presets
@@ -47,4 +52,4 @@ _openapi:
 
 Search endpoints
 
-<APIPage document={"http://localhost:5000/docs/json"} operations={[{"path":"/search/","method":"get"},{"path":"/search/advanced","method":"post"},{"path":"/search/route","method":"post"},{"path":"/search/category","method":"post"},{"path":"/search/categories/palette","method":"get"},{"path":"/search/categories","method":"get"},{"path":"/search/categories/{categoryId}","method":"get"}]} webhooks={[]} hasHead={true} />
+<APIPage document={"openapi.json"} operations={[{"path":"/search/","method":"get"},{"path":"/search/advanced","method":"post"},{"path":"/search/route","method":"post"},{"path":"/search/category","method":"post"},{"path":"/search/brand","method":"post"},{"path":"/search/categories/palette","method":"get"},{"path":"/search/categories","method":"get"},{"path":"/search/categories/{categoryId}","method":"get"}]} webhooks={[]} hasHead={true} />
