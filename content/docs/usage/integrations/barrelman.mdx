@@ -19,6 +19,8 @@ See the [Barrelman setup guide](/barrelman) for instructions on running and impo
 | **Place Info** | Fetch a single place by OSM type + ID |
 | **Spatial Contains** | Find which named areas contain a given coordinate |
 | **Spatial Children** | List POIs whose centroids fall inside a given area |
+| **Transit** | Live vehicle positions, route shapes and topology, stop departures, and station detail from GTFS + GTFS-RT feeds |
+| **Shared mobility** | Bikeshare and scooter dock availability from GBFS feeds |
 | **Isochrones** | Travel-time reachability polygons for walking, cycling, driving, and public transit — used by the map's isochrone tool |
 
 ---
@@ -29,7 +31,7 @@ In **Settings → Integrations**, click the settings icon on the Barrelman card.
 
 | Field | Value |
 |---|---|
-| **Host** | Base URL of your Barrelman instance, e.g. `http://localhost:3001`. For a publicly deployed instance use the HTTPS URL (e.g. `https://barrelman.example.com`). |
+| **Host** | Base URL of your Barrelman instance, e.g. `http://localhost:5001`. For a publicly deployed instance use the HTTPS URL (e.g. `https://barrelman.example.com`). |
 | **API Key** | The value of `BARRELMAN_API_KEY` set in Barrelman's `.env`. Leave blank if no key is configured. |
 
 Click **Test Connection** before saving to confirm Parchment can reach your Barrelman instance.
