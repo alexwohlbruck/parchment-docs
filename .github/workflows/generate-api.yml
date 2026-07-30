@@ -41,17 +41,23 @@ jobs:
 
       - name: Generate API reference
         env:
-          OPENAPI_SPEC: ${{ inputs.spec }}
+          # `inputs` is empty on a scheduled run, and an empty value would make
+          # the script regenerate from the spec already vendored here — which
+          # can never drift. 'upstream' pulls Parchment's published spec, which
+          # is the whole point of the schedule.
+          OPENAPI_SPEC: ${{ inputs.spec || 'upstream' }}
         run: bun run generate:api
 
       - name: Check for changes
         id: diff
         run: |
-          if git diff --quiet -- content/docs/api; then
+          # The vendored spec counts too: refreshing it without committing it
+          # would leave the next run regenerating the same diff forever.
+          if git diff --quiet -- content/docs/api openapi.json; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
-            git --no-pager diff --stat -- content/docs/api
+            git --no-pager diff --stat -- content/docs/api openapi.json
           fi
 
       - name: Open pull request
@@ -64,12 +70,15 @@ jobs:
           git config user.name  'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
 
-          # Reuse the day's branch if an earlier run already opened one, so a
-          # re-run amends its PR instead of stacking up near-identical ones.
+          # Reuse the day's branch so a re-run updates its PR instead of
+          # stacking near-identical ones. The branch is rebuilt from the
+          # default branch each time and only ever holds generated output, so
+          # overwriting it is the intent — and --force-with-lease can't help
+          # here anyway, since checkout never fetched the branch to lease.
           git checkout -B "$BRANCH"
-          git add content/docs/api
+          git add content/docs/api openapi.json
           git commit -m 'Regenerate API reference from OpenAPI spec'
-          git push --force-with-lease origin "$BRANCH"
+          git push --force origin "$BRANCH"
 
           if [ -z "$(gh pr list --head "$BRANCH" --state open --json number --jq '.[].number')" ]; then
             gh pr create \
