@@ -9,12 +9,17 @@ _openapi:
     - depth: 2
       title: Get widget data for a place
       url: '#get-widget-data-for-a-place'
+    - depth: 2
+      title: Get nearest street-level image to a coordinate
+      url: '#get-nearest-street-level-image-to-a-coordinate'
   structuredData:
     headings:
       - content: Get place details by ID, name/location, or coordinates
         id: get-place-details-by-id-namelocation-or-coordinates
       - content: Get widget data for a place
         id: get-widget-data-for-a-place
+      - content: Get nearest street-level image to a coordinate
+        id: get-nearest-street-level-image-to-a-coordinate
     contents:
       - content: >-
           Lookup and enrich place data. Supports ID-based lookup (source+id),
@@ -32,4 +37,4 @@ _openapi:
 
 Places and points of interest
 
-<APIPage document={"http://localhost:5000/docs/json"} operations={[{"path":"/places/details","method":"get"},{"path":"/places/widgets/{type}","method":"get"}]} webhooks={[]} hasHead={true} />
+<APIPage document={"openapi.json"} operations={[{"path":"/places/details","method":"get"},{"path":"/places/widgets/{type}","method":"get"},{"path":"/places/street-imagery","method":"get"}]} webhooks={[]} hasHead={true} />

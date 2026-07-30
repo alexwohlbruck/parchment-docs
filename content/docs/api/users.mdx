@@ -7,6 +7,27 @@ _openapi:
       title: Get Auth Sessions Current
       url: '#get-auth-sessions-current'
     - depth: 2
+      title: Get user avatar
+      url: '#get-user-avatar'
+    - depth: 2
+      title: Upload avatar
+      url: '#upload-avatar'
+    - depth: 2
+      title: Delete avatar
+      url: '#delete-avatar'
+    - depth: 2
+      title: >-
+        Get (or lazily create) the per-device wrap secret used by the client to
+        derive the localStorage-seed wrap key. Idempotent.
+      url: >-
+        #get-or-lazily-create-the-per-device-wrap-secret-used-by-the-client-to-derive-the-localstorage-seed-wrap-key-idempotent
+    - depth: 2
+      title: >-
+        Rotate every device wrap secret for the current user. Any cached seed
+        envelope on any device becomes un-unwrappable.
+      url: >-
+        #rotate-every-device-wrap-secret-for-the-current-user-any-cached-seed-envelope-on-any-device-becomes-un-unwrappable
+    - depth: 2
       title: Get Users
       url: '#get-users'
     - depth: 2
@@ -16,8 +37,41 @@ _openapi:
       title: Get Users Roles
       url: '#get-users-roles'
     - depth: 2
+      title: Post Users Roles
+      url: '#post-users-roles'
+    - depth: 2
+      title: Get Users Roles By Id
+      url: '#get-users-roles-by-id'
+    - depth: 2
+      title: Patch Users Roles By Id
+      url: '#patch-users-roles-by-id'
+    - depth: 2
+      title: Delete Users Roles By Id
+      url: '#delete-users-roles-by-id'
+    - depth: 2
+      title: Put Users Roles By Id Permissions
+      url: '#put-users-roles-by-id-permissions'
+    - depth: 2
       title: Get all permissions
       url: '#get-all-permissions'
+    - depth: 2
+      title: Get Users Permissions By Id
+      url: '#get-users-permissions-by-id'
+    - depth: 2
+      title: Get Users By Id
+      url: '#get-users-by-id'
+    - depth: 2
+      title: Patch Users By Id
+      url: '#patch-users-by-id'
+    - depth: 2
+      title: Delete Users By Id
+      url: '#delete-users-by-id'
+    - depth: 2
+      title: Get Users By Id Billing
+      url: '#get-users-by-id-billing'
+    - depth: 2
+      title: Post Users By Id Impersonate
+      url: '#post-users-by-id-impersonate'
     - depth: 2
       title: Post Users Me Identity Reset
       url: '#post-users-me-identity-reset'
@@ -37,6 +91,9 @@ _openapi:
       title: Patch Users Me Alias
       url: '#patch-users-me-alias'
     - depth: 2
+      title: Get Users Alias Check
+      url: '#get-users-alias-check'
+    - depth: 2
       title: Put Users Me Keys
       url: '#put-users-me-keys'
     - depth: 2
@@ -55,29 +112,58 @@ _openapi:
       title: Put Users Me Preferences
       url: '#put-users-me-preferences'
     - depth: 2
-      title: >-
-        Get (or lazily create) the per-device wrap secret used by the client to
-        derive the localStorage-seed wrap key. Idempotent.
-      url: >-
-        #get-or-lazily-create-the-per-device-wrap-secret-used-by-the-client-to-derive-the-localstorage-seed-wrap-key-idempotent
-    - depth: 2
-      title: >-
-        Rotate every device wrap secret for the current user. Any cached seed
-        envelope on any device becomes un-unwrappable.
-      url: >-
-        #rotate-every-device-wrap-secret-for-the-current-user-any-cached-seed-envelope-on-any-device-becomes-un-unwrappable
+      title: Post Users Me Onboarding Complete
+      url: '#post-users-me-onboarding-complete'
   structuredData:
     headings:
       - content: Get Auth Sessions Current
         id: get-auth-sessions-current
+      - content: Get user avatar
+        id: get-user-avatar
+      - content: Upload avatar
+        id: upload-avatar
+      - content: Delete avatar
+        id: delete-avatar
+      - content: >-
+          Get (or lazily create) the per-device wrap secret used by the client
+          to derive the localStorage-seed wrap key. Idempotent.
+        id: >-
+          get-or-lazily-create-the-per-device-wrap-secret-used-by-the-client-to-derive-the-localstorage-seed-wrap-key-idempotent
+      - content: >-
+          Rotate every device wrap secret for the current user. Any cached seed
+          envelope on any device becomes un-unwrappable.
+        id: >-
+          rotate-every-device-wrap-secret-for-the-current-user-any-cached-seed-envelope-on-any-device-becomes-un-unwrappable
       - content: Get Users
         id: get-users
       - content: Create a new user
         id: create-a-new-user
       - content: Get Users Roles
         id: get-users-roles
+      - content: Post Users Roles
+        id: post-users-roles
+      - content: Get Users Roles By Id
+        id: get-users-roles-by-id
+      - content: Patch Users Roles By Id
+        id: patch-users-roles-by-id
+      - content: Delete Users Roles By Id
+        id: delete-users-roles-by-id
+      - content: Put Users Roles By Id Permissions
+        id: put-users-roles-by-id-permissions
       - content: Get all permissions
         id: get-all-permissions
+      - content: Get Users Permissions By Id
+        id: get-users-permissions-by-id
+      - content: Get Users By Id
+        id: get-users-by-id
+      - content: Patch Users By Id
+        id: patch-users-by-id
+      - content: Delete Users By Id
+        id: delete-users-by-id
+      - content: Get Users By Id Billing
+        id: get-users-by-id-billing
+      - content: Post Users By Id Impersonate
+        id: post-users-by-id-impersonate
       - content: Post Users Me Identity Reset
         id: post-users-me-identity-reset
       - content: Get Users Me Revocations Pending
@@ -90,6 +176,8 @@ _openapi:
         id: get-users-me-identity
       - content: Patch Users Me Alias
         id: patch-users-me-alias
+      - content: Get Users Alias Check
+        id: get-users-alias-check
       - content: Put Users Me Keys
         id: put-users-me-keys
       - content: Patch Users Me Profile
@@ -102,16 +190,8 @@ _openapi:
         id: get-users-me-preferences
       - content: Put Users Me Preferences
         id: put-users-me-preferences
-      - content: >-
-          Get (or lazily create) the per-device wrap secret used by the client
-          to derive the localStorage-seed wrap key. Idempotent.
-        id: >-
-          get-or-lazily-create-the-per-device-wrap-secret-used-by-the-client-to-derive-the-localstorage-seed-wrap-key-idempotent
-      - content: >-
-          Rotate every device wrap secret for the current user. Any cached seed
-          envelope on any device becomes un-unwrappable.
-        id: >-
-          rotate-every-device-wrap-secret-for-the-current-user-any-cached-seed-envelope-on-any-device-becomes-un-unwrappable
+      - content: Post Users Me Onboarding Complete
+        id: post-users-me-onboarding-complete
     contents:
       - content: >-
           Last-resort: wipe all of this user's encrypted data and clear the
@@ -131,6 +211,8 @@ _openapi:
         heading: get-users-me-identity
       - content: Update current user alias (username for federation)
         heading: patch-users-me-alias
+      - content: Check if an alias is available
+        heading: get-users-alias-check
       - content: Register or update federation public keys
         heading: put-users-me-keys
       - content: Update current user display profile (first/last name)
@@ -147,10 +229,12 @@ _openapi:
         heading: get-users-me-preferences
       - content: Update current user preferences (language, unit system)
         heading: put-users-me-preferences
+      - content: Mark onboarding as complete for the current user
+        heading: post-users-me-onboarding-complete
 ---
 
 {/* This file was generated by Fumadocs. Do not edit this file directly. Any changes should be made by running the generation command again. */}
 
 User and profile management
 
-<APIPage document={"http://localhost:5000/docs/json"} operations={[{"path":"/auth/sessions/current","method":"get"},{"path":"/users/","method":"get"},{"path":"/users/","method":"post"},{"path":"/users/roles","method":"get"},{"path":"/users/permissions","method":"get"},{"path":"/users/me/identity/reset","method":"post"},{"path":"/users/me/revocations/pending","method":"get"},{"path":"/users/me/revocations/flush","method":"post"},{"path":"/users/me/revocations/pending/{peerHandle}","method":"delete"},{"path":"/users/me/identity","method":"get"},{"path":"/users/me/alias","method":"patch"},{"path":"/users/me/keys","method":"put"},{"path":"/users/me/profile","method":"patch"},{"path":"/users/me/km-version","method":"get"},{"path":"/users/me/km-version/commit","method":"post"},{"path":"/users/me/preferences","method":"get"},{"path":"/users/me/preferences","method":"put"},{"path":"/users/me/devices/{deviceId}/wrap-secret","method":"get"},{"path":"/users/me/device-wrap-secrets/rotate","method":"post"}]} webhooks={[]} hasHead={true} />
+<APIPage document={"openapi.json"} operations={[{"path":"/auth/sessions/current","method":"get"},{"path":"/users/{id}/avatar","method":"get"},{"path":"/users/me/avatar","method":"post"},{"path":"/users/me/avatar","method":"delete"},{"path":"/users/me/devices/{deviceId}/wrap-secret","method":"get"},{"path":"/users/me/device-wrap-secrets/rotate","method":"post"},{"path":"/users/","method":"get"},{"path":"/users/","method":"post"},{"path":"/users/roles","method":"get"},{"path":"/users/roles","method":"post"},{"path":"/users/roles/{id}","method":"get"},{"path":"/users/roles/{id}","method":"patch"},{"path":"/users/roles/{id}","method":"delete"},{"path":"/users/roles/{id}/permissions","method":"put"},{"path":"/users/permissions","method":"get"},{"path":"/users/permissions/{id}","method":"get"},{"path":"/users/{id}","method":"get"},{"path":"/users/{id}","method":"patch"},{"path":"/users/{id}","method":"delete"},{"path":"/users/{id}/billing","method":"get"},{"path":"/users/{id}/impersonate","method":"post"},{"path":"/users/me/identity/reset","method":"post"},{"path":"/users/me/revocations/pending","method":"get"},{"path":"/users/me/revocations/flush","method":"post"},{"path":"/users/me/revocations/pending/{peerHandle}","method":"delete"},{"path":"/users/me/identity","method":"get"},{"path":"/users/me/alias","method":"patch"},{"path":"/users/alias/check","method":"get"},{"path":"/users/me/keys","method":"put"},{"path":"/users/me/profile","method":"patch"},{"path":"/users/me/km-version","method":"get"},{"path":"/users/me/km-version/commit","method":"post"},{"path":"/users/me/preferences","method":"get"},{"path":"/users/me/preferences","method":"put"},{"path":"/users/me/onboarding/complete","method":"post"}]} webhooks={[]} hasHead={true} />
