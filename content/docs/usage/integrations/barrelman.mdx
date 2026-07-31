@@ -16,9 +16,14 @@ See the [Barrelman setup guide](/barrelman) for instructions on running and impo
 | **Search** | Full-text, fuzzy, abbreviation, and vector search over OSM places |
 | **Autocomplete** | Low-latency typeahead backed by the same search pipeline |
 | **Search Category** | Browse places by OSM preset category (e.g. `amenity/cafe`) |
+| **Geocoding** | Address-to-coordinate lookup and reverse geocoding of a dropped pin |
 | **Place Info** | Fetch a single place by OSM type + ID |
 | **Spatial Contains** | Find which named areas contain a given coordinate |
 | **Spatial Children** | List POIs whose centroids fall inside a given area |
+
+Barrelman has the highest priority of any geocoding provider, so it serves geocoding whenever it is configured. Reverse geocoding returns the feature at the coordinate hydrated with its full OSM geometry and tags, borrowing the street address the geocoder found at the same spot when the feature has none of its own. If nothing addressable is nearby, it falls back to the smallest administrative area containing the point.
+
+Providers configured below Barrelman — Nominatim, Google Maps, Geoapify — remain as fallbacks for coordinates outside the regions you have imported.
 
 ---
 

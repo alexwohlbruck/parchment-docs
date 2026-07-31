@@ -31,4 +31,6 @@ No API key is required for the public OSM instance. Click **Test Connection** be
 
 ## Notes
 
+[Barrelman](barrelman) outranks Nominatim for geocoding, so when both are configured Nominatim only serves coordinates Barrelman has no data for — which keeps you well inside the public instance's rate limit.
+
 The [public Nominatim instance](https://nominatim.org/release-docs/latest/api/Overview/) enforces a usage policy — maximum 1 request/second, no bulk geocoding. For production use, self-host Nominatim or use a hosted provider. See [nominatim.org](https://nominatim.org) for self-hosting instructions.
