@@ -12,6 +12,25 @@ Mapbox provides the base map tiles rendered in Parchment's map view. It is the p
 | Capability | Description |
 |---|---|
 | **Map Engine** | Vector and raster tile rendering for the main map |
+| **Indoor maps** | Floor plans for venues Mapbox has mapped indoors, with a floor selector |
+
+---
+
+## Indoor maps
+
+Turn on **Settings → Appearance → Map configuration → Indoor maps** to render indoor
+floor plans. A floor selector appears on the right edge of the map whenever a mapped
+venue — an airport, mall or stadium — is in view; it stays hidden everywhere else.
+
+Indoor rendering is experimental in Mapbox GL JS and comes with two limits:
+
+- It only works on the **standard** basemap. On satellite or hybrid the setting has no effect.
+- Floor plans start drawing at zoom 16.
+
+Coverage is limited to venues Mapbox has surveyed, so most buildings show nothing.
+Where a venue is only partly mapped, Mapbox's own style logs repeated
+`floor_id evaluated to null` and `Missing source layer` warnings to the browser
+console — these come from the Mapbox style, not Parchment, and are harmless.
 
 ---
 
