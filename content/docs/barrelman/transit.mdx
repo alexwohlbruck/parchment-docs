@@ -125,6 +125,34 @@ Get routes serving a specific stop.
 | `feedId` | string | GTFS feed ID |
 | `stopId` | string | GTFS stop ID |
 
+### `GET /transit/departures`
+
+Upcoming departures at a stop, from the MOTIS timetable, enriched with route
+colors from the GTFS database. Query a stop directly with `feedId` + `stopId`,
+or search spatially with `lat` / `lng`.
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `lat` / `lng` | number | required unless `feedId` + `stopId` given | Point to search near |
+| `radius` | number | `150` | Search radius in meters |
+| `feedId` / `stopId` | string | — | Query one stop directly, skipping the spatial search |
+| `time` | string | now | ISO 8601 time to query from |
+| `n` | number | `50` | Max departures per stop |
+| `routeTypes` | string | — | Comma-separated GTFS `route_type` values the caller expects here |
+| `routeShortNames` | string | — | Keep only departures on these routes |
+| `directionId` | string | — | Keep only departures in this GTFS direction (`0`/`1`) |
+
+`routeTypes` fixes a mismatch that plain nearest-stop search gets wrong: the
+first stop returned names the station and supplies its route list, but a ferry
+landing's GTFS point sits at the end of the pier and an aerial tramway's out
+under the cables — so an unrelated bus stop on the street outside is usually
+closer. Stops served by a route of a listed type rank first and are searched out
+to 400 m; everything else stays within `radius`.
+
+The preference is a ranking, never a filter. Feeds mistype their routes — the
+Roosevelt Island Tramway is published as a bus — so a nearby stop of any mode is
+still returned when nothing matches the requested mode.
+
 ---
 
 ## Health check
