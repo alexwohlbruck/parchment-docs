@@ -139,6 +139,7 @@ or search spatially with `lat` / `lng`.
 | `time` | string | now | ISO 8601 time to query from |
 | `n` | number | `50` | Max departures per stop |
 | `routeTypes` | string | — | Comma-separated GTFS `route_type` values the caller expects here |
+| `windowMinutes` | number | — | Drop departures further out than this |
 | `routeShortNames` | string | — | Keep only departures on these routes |
 | `directionId` | string | — | Keep only departures in this GTFS direction (`0`/`1`) |
 
@@ -152,6 +153,37 @@ to 400 m; everything else stays within `radius`.
 The preference is a ranking, never a filter. Feeds mistype their routes — the
 Roosevelt Island Tramway is published as a bus — so a nearby stop of any mode is
 still returned when nothing matches the requested mode.
+
+#### Bounding the board by time
+
+`n` is a plain event count with no time bound, so the horizon it buys swings with
+how often the service runs: 50 events is about 45 minutes at a subway platform
+and five hours at a ferry landing. Pass `windowMinutes` to bound the board by
+time instead — `n` then only has to be large enough to fill the window. Each stop
+reports `hasMore` when runs exist past what came back, whether they were trimmed
+by the window or cut off by `n`.
+
+A stop with no service in the window comes back empty rather than reaching past
+it. That keeps "nothing for hours" distinguishable from "nothing at all", which
+is what lets a caller decide for itself whether to show the next run whenever it
+is — without a dormant stop dropping a departure weeks out onto an otherwise
+busy board.
+
+#### Service dates
+
+Each departure carries `serviceDate`, the GTFS service day it belongs to, parsed
+from MOTIS's trip id. This is **not** always the calendar date it departs on:
+GTFS files a 01:00 train under the previous day's service, published as a 25:00
+stop time. At a station running all night, two departures three minutes apart can
+carry different service dates:
+
+```
+20260815_24:49_5_…  → departs 01:00 Sat, service date 2026-08-15 (Friday)
+20260816_00:29_5_…  → departs 01:03 Sat, service date 2026-08-16 (Saturday)
+```
+
+Group a UI by calendar date — that is what a rider reads off a clock — and use
+`serviceDate` only to tell tonight's last run from tomorrow's first.
 
 ---
 
