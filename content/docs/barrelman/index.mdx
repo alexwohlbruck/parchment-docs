@@ -19,6 +19,7 @@ Barrelman ingests an OSM PBF extract from [Geofabrik](https://download.geofabrik
 - **Children lookup** — list POIs inside a venue or area (e.g. shops inside a mall)
 - **Place detail** — fetch a single OSM element by type + ID
 - **Isochrones** — travel-time reachability polygons ("how far can I get in 20 minutes?") for walking, cycling, driving, and public transit
+- **Live transit** — GTFS-RT vehicle positions, trip updates and [service alerts](/docs/usage/transit), read from the real-time feeds discovered during the GTFS import
 
 Parchment's `BarrelmanIntegration` handles all communication and maps responses to Parchment's unified `Place` model.
 

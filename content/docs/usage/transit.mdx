@@ -1,0 +1,61 @@
+---
+title: Transit
+description: Live departures, vehicle positions, and service alerts from GTFS-RT feeds.
+---
+
+Parchment reads the same real-time feeds agencies publish for their own apps. Where an agency publishes GTFS-RT, departures carry live predictions rather than the timetable, vehicles move on the map, and anything the agency has said about a disruption is shown alongside them.
+
+All of it comes through [Barrelman](/docs/barrelman), which discovers each feed's real-time URLs from Transitland during the GTFS import and stores them on the feed.
+
+---
+
+## Service alerts
+
+A service alert is the agency's own word on a disruption — a detour around roadworks, a suspended line, a lift out of service. Parchment reads the GTFS-RT `ServiceAlerts` feed and shows each alert wherever it applies:
+
+| Where | What you see |
+|---|---|
+| Route page | Every alert on that line, worst first, under "Alerts on this line" |
+| Stop departure board | Alerts naming the stop, plus a badge on each line that has one |
+| Planned trip | The alerts for each transit leg, above that leg's departure board |
+| Departure chip | A badge on a run the agency has published something about |
+
+Alerts already in effect lead; anything whose window opens later is filed under "Upcoming alerts", so next weekend's planned closure doesn't sit above tonight's suspension.
+
+### Severity
+
+Agencies are inconsistent about setting a severity on an alert, so Parchment falls back to the alert's *effect* when they leave it unset — a suspension with no severity is still drawn as a suspension, not as a footnote.
+
+| Drawn as | When |
+|---|---|
+| Red | Severity `SEVERE`, or effect `NO_SERVICE` |
+| Amber | Severity `WARNING`, or effects like `DETOUR`, `SIGNIFICANT_DELAYS`, `REDUCED_SERVICE`, `STOP_MOVED` |
+| Muted | Everything else |
+
+Agency prose runs long — stop lists, notes about arrival predictions — so anything past a few lines is collapsed behind "Show more".
+
+---
+
+## What an agency has to publish
+
+Alerts need a GTFS-RT `ServiceAlerts` feed. Barrelman finds it through Transitland when the feed's real-time URLs are discovered, alongside the trip update and vehicle position feeds.
+
+<Callout type="info">
+An agency that publishes no alerts feed simply shows no alerts — nothing else about its departures or vehicles changes.
+</Callout>
+
+If a region's real-time URLs were never discovered, run the discovery pass on Barrelman:
+
+```bash
+curl -X POST http://localhost:5001/transit/discover-rt-urls \
+  -H 'Content-Type: application/json' \
+  -d '{}'
+```
+
+Pass `{"feedId": "..."}` to limit it to one feed. Discovery needs a Transitland API key in Barrelman's environment.
+
+---
+
+## Freshness
+
+Barrelman caches each feed's alerts for a minute, and Parchment caches an answer for a minute on top of that. An alert an agency posts mid-journey reaches an open trip within about two minutes; opening a route or stop page fetches on entry.
