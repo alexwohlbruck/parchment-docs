@@ -46,7 +46,9 @@ Support is a registry (`src/services/alert-extensions.ts` in Barrelman): each ag
 
 ## What an agency has to publish
 
-Alerts need a GTFS-RT `ServiceAlerts` feed. Barrelman finds it through Transitland when the feed's real-time URLs are discovered, alongside the trip update and vehicle position feeds.
+Alerts need a GTFS-RT `ServiceAlerts` feed. Barrelman finds it through Transitland, alongside the trip update and vehicle position feeds.
+
+Discovery goes through the **operator**, not the feed id. An agency's realtime feeds are separate records from its static one and are not named after it — MTA New York City Transit's static subway feed is `f-dr5r-nyctsubway` while its realtime feeds are `f-mta~nyc~rt~subway~a~c~e` and nine others. Asking which operator runs a feed, then taking that operator's GTFS-RT feeds, finds all of them; deriving an id from the static feed finds none. Each URL's kind is recorded when it is discovered, because one agency's feeds cover several modes and the URL alone doesn't say which is which.
 
 <Callout type="info">
 An agency that publishes no alerts feed simply shows no alerts — nothing else about its departures or vehicles changes.
