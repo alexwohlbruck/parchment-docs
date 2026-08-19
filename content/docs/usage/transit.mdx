@@ -20,7 +20,7 @@ A service alert is the agency's own word on a disruption — a detour around roa
 | Planned trip | The alerts for each transit leg, above that leg's departure board |
 | Departure chip | A badge on a run the agency has published something about |
 
-Alerts already in effect lead; anything whose window opens later is filed under "Upcoming alerts", so next weekend's planned closure doesn't sit above tonight's suspension.
+Alerts already in effect lead; anything whose window opens later is filed under "Upcoming alerts", so next weekend's planned closure doesn't sit above tonight's suspension. Where the feed says an alert is planned work rather than a live incident, it is drawn one step quieter — a scheduled closure warns, an unplanned one is red.
 
 ### Severity
 
@@ -33,6 +33,14 @@ Agencies are inconsistent about setting a severity on an alert, so Parchment fal
 | Muted | Everything else |
 
 Agency prose runs long — stop lists, notes about arrival predictions — so anything past a few lines is collapsed behind "Show more".
+
+### Agencies that don't fill in the spec fields
+
+Some agencies leave `cause`, `effect` and `severity_level` unset on every alert and publish the real category in a vendor extension instead. The MTA is one: all of its alerts arrive as `UNKNOWN_EFFECT` / `UNKNOWN_SEVERITY`, with the category — "Planned - Detour", "Planned - Suspended", "Delays" — in a `MercuryAlert` extension the standard GTFS-RT decoders drop.
+
+Barrelman reads those extensions, so an MTA detour is drawn as a detour rather than as an unlabelled grey note. The extension also carries the time the agency published the alert, which is what the card's "Posted" line shows.
+
+Support is a registry (`src/services/alert-extensions.ts` in Barrelman): each agency's extension is one entry giving the protobuf field number it occupies and a function that reads it. Adding another agency's format needs no change to the alerts service, and an alert's own spec fields always win — an extension only fills a gap the feed left.
 
 ---
 
