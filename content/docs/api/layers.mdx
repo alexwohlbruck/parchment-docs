@@ -48,15 +48,6 @@ _openapi:
     - depth: 2
       title: Upsert user state for a default template
       url: '#upsert-user-state-for-a-default-template'
-    - depth: 2
-      title: Clone a default layer into a user-owned layer
-      url: '#clone-a-default-layer-into-a-user-owned-layer'
-    - depth: 2
-      title: Clone a default group into a user-owned group
-      url: '#clone-a-default-group-into-a-user-owned-group'
-    - depth: 2
-      title: Restore default layers (clears state; clones remain)
-      url: '#restore-default-layers-clears-state-clones-remain'
   structuredData:
     headings:
       - content: Get user-owned layers
@@ -89,12 +80,6 @@ _openapi:
         id: clear-user-state-for-a-default-template
       - content: Upsert user state for a default template
         id: upsert-user-state-for-a-default-template
-      - content: Clone a default layer into a user-owned layer
-        id: clone-a-default-layer-into-a-user-owned-layer
-      - content: Clone a default group into a user-owned group
-        id: clone-a-default-group-into-a-user-owned-group
-      - content: Restore default layers (clears state; clones remain)
-        id: restore-default-layers-clears-state-clones-remain
     contents: []
 ---
 
@@ -102,4 +87,4 @@ _openapi:
 
 Map layers and style management
 
-<APIPage document={"openapi.json"} operations={[{"path":"/library/layers","method":"get"},{"path":"/library/layers","method":"post"},{"path":"/library/layers/{id}","method":"delete"},{"path":"/library/layers/{id}","method":"put"},{"path":"/library/layers/groups","method":"get"},{"path":"/library/layers/groups","method":"post"},{"path":"/library/layers/groups/{id}","method":"delete"},{"path":"/library/layers/groups/{id}","method":"put"},{"path":"/library/layers/{id}/move","method":"put"},{"path":"/library/layers/groups/{id}/move","method":"put"},{"path":"/library/layers/reorder","method":"put"},{"path":"/library/layers/defaults","method":"get"},{"path":"/library/layers/default-state","method":"get"},{"path":"/library/layers/default-state","method":"delete"},{"path":"/library/layers/default-state","method":"put"},{"path":"/library/layers/default-clone/layer","method":"post"},{"path":"/library/layers/default-clone/group","method":"post"},{"path":"/library/layers/restore-defaults","method":"post"}]} webhooks={[]} hasHead={true} />
+<APIPage document={"openapi.json"} operations={[{"path":"/library/layers","method":"get"},{"path":"/library/layers","method":"post"},{"path":"/library/layers/{id}","method":"delete"},{"path":"/library/layers/{id}","method":"put"},{"path":"/library/layers/groups","method":"get"},{"path":"/library/layers/groups","method":"post"},{"path":"/library/layers/groups/{id}","method":"delete"},{"path":"/library/layers/groups/{id}","method":"put"},{"path":"/library/layers/{id}/move","method":"put"},{"path":"/library/layers/groups/{id}/move","method":"put"},{"path":"/library/layers/reorder","method":"put"},{"path":"/library/layers/defaults","method":"get"},{"path":"/library/layers/default-state","method":"get"},{"path":"/library/layers/default-state","method":"delete"},{"path":"/library/layers/default-state","method":"put"}]} webhooks={[]} hasHead={true} />

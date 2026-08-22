@@ -91,7 +91,7 @@
         "tags": [
           "Auth"
         ],
-        "description": "Verify an email address by requesting a one-time password.",
+        "description": "Verify an email address by requesting a one-time password. The code is valid for 15 minutes and is single-use.",
         "requestBody": {
           "required": true,
           "content": {
@@ -789,18 +789,6 @@
         }
       }
     },
-    "/auth/sessions/current": {
-      "get": {
-        "operationId": "getAuthSessionsCurrent",
-        "tags": [
-          "Auth",
-          "Users"
-        ],
-        "responses": {
-          "200": {}
-        }
-      }
-    },
     "/auth/sessions/current/permissions": {
       "get": {
         "operationId": "getAuthSessionsCurrentPermissions",
@@ -829,6 +817,18 @@
             "name": "sessionId",
             "required": true
           }
+        ],
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/auth/sessions/current": {
+      "get": {
+        "operationId": "getAuthSessionsCurrent",
+        "tags": [
+          "Auth",
+          "Users"
         ],
         "responses": {
           "200": {}
@@ -1373,7 +1373,7 @@
                         "type": "number"
                       },
                       "transitBufferMinutes": {
-                        "minimum": 1,
+                        "minimum": 0,
                         "maximum": 5,
                         "type": "number"
                       },
@@ -1754,7 +1754,7 @@
                         "type": "number"
                       },
                       "transitBufferMinutes": {
-                        "minimum": 1,
+                        "minimum": 0,
                         "maximum": 5,
                         "type": "number"
                       },
@@ -2135,7 +2135,7 @@
                         "type": "number"
                       },
                       "transitBufferMinutes": {
-                        "minimum": 1,
+                        "minimum": 0,
                         "maximum": 5,
                         "type": "number"
                       },
@@ -2548,7 +2548,7 @@
                         "type": "number"
                       },
                       "transitBufferMinutes": {
-                        "minimum": 1,
+                        "minimum": 0,
                         "maximum": 5,
                         "type": "number"
                       },
@@ -2929,7 +2929,7 @@
                         "type": "number"
                       },
                       "transitBufferMinutes": {
-                        "minimum": 1,
+                        "minimum": 0,
                         "maximum": 5,
                         "type": "number"
                       },
@@ -3310,7 +3310,7 @@
                         "type": "number"
                       },
                       "transitBufferMinutes": {
-                        "minimum": 1,
+                        "minimum": 0,
                         "maximum": 5,
                         "type": "number"
                       },
@@ -4288,7 +4288,7 @@
           "Geocoding"
         ],
         "summary": "Forward geocode an address to coordinates",
-        "description": "Convert an address or location query into geographic coordinates. Optionally provide lat/lng for location bias.",
+        "description": "Convert an address or location query into geographic coordinates. Optionally provide lat/lng for location bias. Served by the highest-priority configured geocoding integration, falling back to the next when one is unavailable or has no coverage.",
         "responses": {
           "200": {}
         }
@@ -4334,7 +4334,7 @@
           "Geocoding"
         ],
         "summary": "Reverse geocode coordinates to an address",
-        "description": "Convert geographic coordinates (latitude and longitude) into a human-readable address.",
+        "description": "Convert geographic coordinates (latitude and longitude) into a human-readable address. Served by the highest-priority configured geocoding integration, falling back to the next when one is unavailable or has no coverage.",
         "responses": {
           "200": {}
         }
@@ -5092,6 +5092,16 @@
         "responses": {
           "200": {}
         }
+      },
+      "get": {
+        "operationId": "getLibraryBookmarks",
+        "tags": [
+          "Library"
+        ],
+        "summary": "Get all of the caller's bookmarks",
+        "responses": {
+          "200": {}
+        }
       }
     },
     "/library/bookmarks/{id}": {
@@ -5129,12 +5139,6 @@
                   },
                   "lng": {
                     "type": "number"
-                  },
-                  "icon": {
-                    "type": "string"
-                  },
-                  "iconColor": {
-                    "type": "string"
                   },
                   "frequentType": {
                     "anyOf": [
@@ -5184,12 +5188,6 @@
                   "lng": {
                     "type": "number"
                   },
-                  "icon": {
-                    "type": "string"
-                  },
-                  "iconColor": {
-                    "type": "string"
-                  },
                   "frequentType": {
                     "anyOf": [
                       {
@@ -5237,12 +5235,6 @@
                   },
                   "lng": {
                     "type": "number"
-                  },
-                  "icon": {
-                    "type": "string"
-                  },
-                  "iconColor": {
-                    "type": "string"
                   },
                   "frequentType": {
                     "anyOf": [
@@ -7790,7 +7782,14 @@
                     ]
                   },
                   "hidden": {
-                    "type": "boolean"
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "visible": {
                     "anyOf": [
@@ -7813,6 +7812,16 @@
                     ]
                   },
                   "enabled": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "showInLayerSelector": {
                     "anyOf": [
                       {
                         "type": "boolean"
@@ -7869,7 +7878,14 @@
                     ]
                   },
                   "hidden": {
-                    "type": "boolean"
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "visible": {
                     "anyOf": [
@@ -7892,6 +7908,16 @@
                     ]
                   },
                   "enabled": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "showInLayerSelector": {
                     "anyOf": [
                       {
                         "type": "boolean"
@@ -7948,7 +7974,14 @@
                     ]
                   },
                   "hidden": {
-                    "type": "boolean"
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "visible": {
                     "anyOf": [
@@ -7971,6 +8004,16 @@
                     ]
                   },
                   "enabled": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "showInLayerSelector": {
                     "anyOf": [
                       {
                         "type": "boolean"
@@ -8103,138 +8146,6 @@
             }
           }
         },
-        "responses": {
-          "200": {}
-        }
-      }
-    },
-    "/library/layers/default-clone/layer": {
-      "post": {
-        "parameters": [],
-        "operationId": "postLibraryLayersDefault-cloneLayer",
-        "tags": [
-          "Layers"
-        ],
-        "summary": "Clone a default layer into a user-owned layer",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "templateId": {
-                    "type": "string"
-                  },
-                  "patch": {}
-                },
-                "required": [
-                  "templateId"
-                ]
-              }
-            },
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "templateId": {
-                    "type": "string"
-                  },
-                  "patch": {}
-                },
-                "required": [
-                  "templateId"
-                ]
-              }
-            },
-            "text/plain": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "templateId": {
-                    "type": "string"
-                  },
-                  "patch": {}
-                },
-                "required": [
-                  "templateId"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {}
-        }
-      }
-    },
-    "/library/layers/default-clone/group": {
-      "post": {
-        "parameters": [],
-        "operationId": "postLibraryLayersDefault-cloneGroup",
-        "tags": [
-          "Layers"
-        ],
-        "summary": "Clone a default group into a user-owned group",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "templateId": {
-                    "type": "string"
-                  },
-                  "patch": {}
-                },
-                "required": [
-                  "templateId"
-                ]
-              }
-            },
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "templateId": {
-                    "type": "string"
-                  },
-                  "patch": {}
-                },
-                "required": [
-                  "templateId"
-                ]
-              }
-            },
-            "text/plain": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "templateId": {
-                    "type": "string"
-                  },
-                  "patch": {}
-                },
-                "required": [
-                  "templateId"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {}
-        }
-      }
-    },
-    "/library/layers/restore-defaults": {
-      "post": {
-        "operationId": "postLibraryLayersRestore-defaults",
-        "tags": [
-          "Layers"
-        ],
-        "summary": "Restore default layers (clears state; clones remain)",
         "responses": {
           "200": {}
         }
@@ -11822,6 +11733,18 @@
           "Transit"
         ],
         "summary": "Upcoming departures at a stop",
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/transit/alerts": {
+      "get": {
+        "operationId": "getTransitAlerts",
+        "tags": [
+          "Transit"
+        ],
+        "summary": "GTFS-RT service alerts for routes, stops and trips",
         "responses": {
           "200": {}
         }
