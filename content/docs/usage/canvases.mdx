@@ -13,15 +13,49 @@ Find them under **Library → Canvases**.
 
 | Layer | What it draws |
 |---|---|
+| **Your data** | A file you imported or something you drew — points, lines, shapes or a heatmap |
 | **Custom layer** | Imagery, vector tiles or GeoJSON, styled in the [layer editor](/docs/usage/layers#building-a-layer). Belongs to the canvas, not your library |
 | **From your library** | A layer you already have, borrowed onto this canvas |
 | **Saved places** | A collection's places, drawn as points |
+| **Route** | One of your saved routes, drawn as its path |
+| **People** | Friends sharing their location with you, live |
 
 Layers draw from the bottom of the list up, and drag to reorder. The eye beside each one hides it without removing it.
 
 A canvas that borrows a library layer keeps its own copy on the map, so it draws whether or not that layer is switched on in your library — and turning it off in the library doesn't empty your canvas.
 
-A saved-places layer stores only the collection's id. The places themselves stay under the collection's own encryption; putting a collection on a canvas never copies them out of it.
+Two layer kinds hold only a reference, never the contents: a saved-places layer stores the collection's id, and a People layer stores whose positions to draw. The places and the positions stay under their own encryption — putting either on a canvas never copies anything out.
+
+---
+
+## Importing a file
+
+**Add a layer → Import a file** reads GeoJSON, KML, GPX and CSV. A CSV needs latitude and longitude columns — `latitude`/`longitude`, `lat`/`lng`, `lat`/`lon` and `x`/`y` are all recognised — and every other column comes along as a property you can label features with. Rows with unreadable coordinates are skipped rather than failing the whole file.
+
+The file is read on your device. There is no upload: the features are stored inside the canvas document, which is what lets a **private** canvas hold imported data the server never sees. The trade is a size ceiling — a canvas is saved whole, so imports are capped at about 4MB of GeoJSON. Past that, simplify or split the file.
+
+Shapefiles aren't supported yet.
+
+### How it draws
+
+An import picks its renderer from what's in it, and you can change it any time from the layer's **⋯ → Edit layer**.
+
+| Draw as | Uses | Good for |
+|---|---|---|
+| **Points** | Point features | Places, sightings, stops |
+| **Lines** | LineString features | Tracks, routes, boundaries |
+| **Shapes** | Polygon features | Regions, zones, catchments |
+| **Heatmap** | Point features | Density rather than individual places |
+
+Each mode only draws the geometry it can, so a mixed file — a GPX with a track and its waypoints — shows the right half in each mode rather than nothing. Colour, size and opacity are per layer, and a points layer can label each feature from any of its properties.
+
+---
+
+## Drawing
+
+**Add a layer → Draw on the map** arms the map: every click adds a point. Drop pins one at a time, click along a path for a line, or click around a region for an area — an area closes itself, so you don't have to land back on the first vertex.
+
+Undo removes the last point; Done turns what you have into a layer, which then behaves exactly like an imported one. Nothing is written to the canvas until you press Done, so cancelling leaves no trace.
 
 ---
 
@@ -35,6 +69,12 @@ Every canvas is one of two things, and you pick when you create it.
 | **Private** | End-to-end encrypted; only your devices can read them | Never | Yes |
 
 Change it later from **Canvas details** — the switch is under Privacy. It re-packages the whole canvas under the other scheme in one go, so it asks first. Going private also revokes any public link, since the server can no longer render what that link promises.
+
+### Sharing by link
+
+A shareable canvas can have a public link, minted from **Canvas details → Create a share link**. Anyone holding it can open the canvas and see its layers on the map without signing in, and they can't change anything. Revoking the link stops it working immediately.
+
+Private canvases can't have one, and never silently gain one.
 
 <Callout type="info">
 A device that hasn't imported your recovery key can still make and edit shareable canvases. It can't make private ones, or open ones you already made — there's nothing on it to decrypt them with.
@@ -54,4 +94,6 @@ Edits are held locally until you press **Save**. Because a canvas is a workspace
 
 ## What's next
 
-Canvases are the foundation for the rest of [PAR-91](https://linear.app/parchment-maps/issue/PAR-91/canvases): drawing tools, file uploads (KML, GPX, shapefiles, CSV), route and heatmap layers, live "people" layers, guided stories, and sharing a canvas with someone else to view or collaborate on. The layer model here is the extension point — a new kind of canvas layer is a new arm of one union, not a new table.
+Still to come on [PAR-91](https://linear.app/parchment-maps/issue/PAR-91/canvases): guided **stories** (a narrated list of places, in the spirit of Apple Maps guides), real-time **collaboration** on a shared canvas, **shapefile** import, and **on-the-fly canvases** generated during navigation so a trip can be shared as it happens.
+
+The layer model is the extension point for all of them — a new kind of canvas layer is a new arm of one union, not a new table.

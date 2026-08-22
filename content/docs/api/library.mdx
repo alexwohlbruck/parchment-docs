@@ -40,6 +40,12 @@ _openapi:
       title: Change a canvas encryption scheme
       url: '#change-a-canvas-encryption-scheme'
     - depth: 2
+      title: Create a public link for a canvas
+      url: '#create-a-public-link-for-a-canvas'
+    - depth: 2
+      title: Revoke a canvas public link
+      url: '#revoke-a-canvas-public-link'
+    - depth: 2
       title: Get all collections
       url: '#get-all-collections'
     - depth: 2
@@ -134,6 +140,10 @@ _openapi:
         id: update-a-canvas
       - content: Change a canvas encryption scheme
         id: change-a-canvas-encryption-scheme
+      - content: Create a public link for a canvas
+        id: create-a-public-link-for-a-canvas
+      - content: Revoke a canvas public link
+        id: revoke-a-canvas-public-link
       - content: Get all collections
         id: get-all-collections
       - content: Create a new collection
@@ -188,4 +198,4 @@ _openapi:
 
 Libraries, collections, and bookmarks
 
-<APIPage document={"openapi.json"} operations={[{"path":"/library/bookmarks/","method":"get"},{"path":"/library/bookmarks/","method":"post"},{"path":"/library/bookmarks/{id}","method":"delete"},{"path":"/library/bookmarks/{id}","method":"put"},{"path":"/library/bookmarks/frequents","method":"get"},{"path":"/library/bookmarks/{id}/collections","method":"get"},{"path":"/library/canvases/","method":"get"},{"path":"/library/canvases/","method":"post"},{"path":"/library/canvases/{id}","method":"get"},{"path":"/library/canvases/{id}","method":"delete"},{"path":"/library/canvases/{id}","method":"put"},{"path":"/library/canvases/{id}/change-scheme","method":"post"},{"path":"/library/collections/","method":"get"},{"path":"/library/collections/","method":"post"},{"path":"/library/collections/shared-with-me","method":"get"},{"path":"/library/collections/{id}","method":"get"},{"path":"/library/collections/{id}","method":"delete"},{"path":"/library/collections/{id}","method":"put"},{"path":"/library/collections/{id}/sensitive","method":"put"},{"path":"/library/collections/{id}/change-scheme","method":"post"},{"path":"/library/collections/{id}/rotate-key","method":"post"},{"path":"/library/collections/{id}/public-link","method":"post"},{"path":"/library/collections/{id}/public-link","method":"delete"},{"path":"/library/collections/{id}/encrypted-points","method":"get"},{"path":"/library/collections/{id}/encrypted-points","method":"post"},{"path":"/library/collections/{id}/encrypted-points/{pointId}","method":"delete"},{"path":"/library/collections/{id}/encrypted-points/{pointId}","method":"put"},{"path":"/library/routes/","method":"get"},{"path":"/library/routes/","method":"post"},{"path":"/library/routes/{id}","method":"get"},{"path":"/library/routes/{id}","method":"delete"},{"path":"/library/routes/{id}","method":"put"},{"path":"/library/routes/{id}/public-link","method":"post"},{"path":"/library/routes/{id}/public-link","method":"delete"}]} webhooks={[]} hasHead={true} />
+<APIPage document={"openapi.json"} operations={[{"path":"/library/bookmarks/","method":"get"},{"path":"/library/bookmarks/","method":"post"},{"path":"/library/bookmarks/{id}","method":"delete"},{"path":"/library/bookmarks/{id}","method":"put"},{"path":"/library/bookmarks/frequents","method":"get"},{"path":"/library/bookmarks/{id}/collections","method":"get"},{"path":"/library/canvases/","method":"get"},{"path":"/library/canvases/","method":"post"},{"path":"/library/canvases/{id}","method":"get"},{"path":"/library/canvases/{id}","method":"delete"},{"path":"/library/canvases/{id}","method":"put"},{"path":"/library/canvases/{id}/change-scheme","method":"post"},{"path":"/library/canvases/{id}/public-link","method":"post"},{"path":"/library/canvases/{id}/public-link","method":"delete"},{"path":"/library/collections/","method":"get"},{"path":"/library/collections/","method":"post"},{"path":"/library/collections/shared-with-me","method":"get"},{"path":"/library/collections/{id}","method":"get"},{"path":"/library/collections/{id}","method":"delete"},{"path":"/library/collections/{id}","method":"put"},{"path":"/library/collections/{id}/sensitive","method":"put"},{"path":"/library/collections/{id}/change-scheme","method":"post"},{"path":"/library/collections/{id}/rotate-key","method":"post"},{"path":"/library/collections/{id}/public-link","method":"post"},{"path":"/library/collections/{id}/public-link","method":"delete"},{"path":"/library/collections/{id}/encrypted-points","method":"get"},{"path":"/library/collections/{id}/encrypted-points","method":"post"},{"path":"/library/collections/{id}/encrypted-points/{pointId}","method":"delete"},{"path":"/library/collections/{id}/encrypted-points/{pointId}","method":"put"},{"path":"/library/routes/","method":"get"},{"path":"/library/routes/","method":"post"},{"path":"/library/routes/{id}","method":"get"},{"path":"/library/routes/{id}","method":"delete"},{"path":"/library/routes/{id}","method":"put"},{"path":"/library/routes/{id}/public-link","method":"post"},{"path":"/library/routes/{id}/public-link","method":"delete"}]} webhooks={[]} hasHead={true} />
