@@ -17,11 +17,14 @@ Marking up a map is the quickest thing you do on a canvas, so it doesn't involve
 |---|---|---|
 | **Pin** | P | One point per click |
 | **Line** | L | Click along a path; Done when you're finished |
+| **Route** | R | Like a line, but snapped to the street network |
 | **Polygon** | O | Click around a region; it closes itself |
 | **Rectangle** | E | Two opposite corners |
 | **Circle** | I | A centre, then a point on the edge |
 
-A tool stays armed until you pick another or press Escape, so you can drop a run of pins without going back to the toolbar each time. Pins, rectangles and circles finish themselves; lines and polygons collect points until you press Done. Undo removes the last point.
+A tool stays armed until you pick another or press Escape, so you can drop a run of pins without going back to the toolbar each time. Pins, rectangles and circles finish themselves; lines, routes and polygons collect points until you press Done. Undo removes the last point.
+
+**Route** takes the same clicks as Line and then asks the routing engine to follow the network between them — the same engine behind directions and the route builder. Pick walking, cycling or driving from the toolbar and it re-snaps. The straight line between your waypoints shows while a request is in flight, so the shape never blinks out, and the waypoints are kept alongside the path so changing mode re-routes rather than starting over.
 
 Annotations always draw above the canvas's layers, and they're listed under the layer stack — not in it, because they aren't layers.
 
