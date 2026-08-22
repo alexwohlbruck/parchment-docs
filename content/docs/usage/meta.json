@@ -1,4 +1,10 @@
 {
   "title": "Usage",
-  "pages": ["index", "transit", "integrations"]
+  "pages": [
+    "index",
+    "layers",
+    "canvases",
+    "transit",
+    "integrations"
+  ]
 }

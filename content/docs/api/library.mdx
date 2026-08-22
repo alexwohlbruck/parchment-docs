@@ -22,6 +22,21 @@ _openapi:
       title: Get collections for a bookmark
       url: '#get-collections-for-a-bookmark'
     - depth: 2
+      title: Get all canvases
+      url: '#get-all-canvases'
+    - depth: 2
+      title: Create a canvas
+      url: '#create-a-canvas'
+    - depth: 2
+      title: Get a canvas by ID
+      url: '#get-a-canvas-by-id'
+    - depth: 2
+      title: Delete a canvas
+      url: '#delete-a-canvas'
+    - depth: 2
+      title: Update a canvas
+      url: '#update-a-canvas'
+    - depth: 2
       title: Get all collections
       url: '#get-all-collections'
     - depth: 2
@@ -104,6 +119,16 @@ _openapi:
         id: get-the-callers-frequent-bookmarks
       - content: Get collections for a bookmark
         id: get-collections-for-a-bookmark
+      - content: Get all canvases
+        id: get-all-canvases
+      - content: Create a canvas
+        id: create-a-canvas
+      - content: Get a canvas by ID
+        id: get-a-canvas-by-id
+      - content: Delete a canvas
+        id: delete-a-canvas
+      - content: Update a canvas
+        id: update-a-canvas
       - content: Get all collections
         id: get-all-collections
       - content: Create a new collection
@@ -158,4 +183,4 @@ _openapi:
 
 Libraries, collections, and bookmarks
 
-<APIPage document={"openapi.json"} operations={[{"path":"/library/bookmarks/","method":"get"},{"path":"/library/bookmarks/","method":"post"},{"path":"/library/bookmarks/{id}","method":"delete"},{"path":"/library/bookmarks/{id}","method":"put"},{"path":"/library/bookmarks/frequents","method":"get"},{"path":"/library/bookmarks/{id}/collections","method":"get"},{"path":"/library/collections/","method":"get"},{"path":"/library/collections/","method":"post"},{"path":"/library/collections/shared-with-me","method":"get"},{"path":"/library/collections/{id}","method":"get"},{"path":"/library/collections/{id}","method":"delete"},{"path":"/library/collections/{id}","method":"put"},{"path":"/library/collections/{id}/sensitive","method":"put"},{"path":"/library/collections/{id}/change-scheme","method":"post"},{"path":"/library/collections/{id}/rotate-key","method":"post"},{"path":"/library/collections/{id}/public-link","method":"post"},{"path":"/library/collections/{id}/public-link","method":"delete"},{"path":"/library/collections/{id}/encrypted-points","method":"get"},{"path":"/library/collections/{id}/encrypted-points","method":"post"},{"path":"/library/collections/{id}/encrypted-points/{pointId}","method":"delete"},{"path":"/library/collections/{id}/encrypted-points/{pointId}","method":"put"},{"path":"/library/routes/","method":"get"},{"path":"/library/routes/","method":"post"},{"path":"/library/routes/{id}","method":"get"},{"path":"/library/routes/{id}","method":"delete"},{"path":"/library/routes/{id}","method":"put"},{"path":"/library/routes/{id}/public-link","method":"post"},{"path":"/library/routes/{id}/public-link","method":"delete"}]} webhooks={[]} hasHead={true} />
+<APIPage document={"openapi.json"} operations={[{"path":"/library/bookmarks/","method":"get"},{"path":"/library/bookmarks/","method":"post"},{"path":"/library/bookmarks/{id}","method":"delete"},{"path":"/library/bookmarks/{id}","method":"put"},{"path":"/library/bookmarks/frequents","method":"get"},{"path":"/library/bookmarks/{id}/collections","method":"get"},{"path":"/library/canvases/","method":"get"},{"path":"/library/canvases/","method":"post"},{"path":"/library/canvases/{id}","method":"get"},{"path":"/library/canvases/{id}","method":"delete"},{"path":"/library/canvases/{id}","method":"put"},{"path":"/library/collections/","method":"get"},{"path":"/library/collections/","method":"post"},{"path":"/library/collections/shared-with-me","method":"get"},{"path":"/library/collections/{id}","method":"get"},{"path":"/library/collections/{id}","method":"delete"},{"path":"/library/collections/{id}","method":"put"},{"path":"/library/collections/{id}/sensitive","method":"put"},{"path":"/library/collections/{id}/change-scheme","method":"post"},{"path":"/library/collections/{id}/rotate-key","method":"post"},{"path":"/library/collections/{id}/public-link","method":"post"},{"path":"/library/collections/{id}/public-link","method":"delete"},{"path":"/library/collections/{id}/encrypted-points","method":"get"},{"path":"/library/collections/{id}/encrypted-points","method":"post"},{"path":"/library/collections/{id}/encrypted-points/{pointId}","method":"delete"},{"path":"/library/collections/{id}/encrypted-points/{pointId}","method":"put"},{"path":"/library/routes/","method":"get"},{"path":"/library/routes/","method":"post"},{"path":"/library/routes/{id}","method":"get"},{"path":"/library/routes/{id}","method":"delete"},{"path":"/library/routes/{id}","method":"put"},{"path":"/library/routes/{id}/public-link","method":"post"},{"path":"/library/routes/{id}/public-link","method":"delete"}]} webhooks={[]} hasHead={true} />

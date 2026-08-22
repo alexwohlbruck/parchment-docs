@@ -1,0 +1,77 @@
+---
+title: Layers
+description: The layer library, the layer store, and building your own layers from imagery, vector tiles or GeoJSON.
+---
+
+A layer is one thing drawn over the basemap: aerial imagery, contour lines, air quality, your friends' positions. **Library → Layers** is the list of them, and the switch beside each one puts it on the map.
+
+Layers come from two places. Most are **system layers** that ship with Parchment — they're assembled in the app's own code, and several of them do more than draw (a transit stop label opens its departure board; the friends layer follows live positions). Those aren't editable, because there is no plain Mapbox JSON that would describe what they actually do. They can still be reordered, grouped, switched off and removed.
+
+The rest are **your own layers**, built in the layer editor and yours to change.
+
+---
+
+## The layer store
+
+Not every system layer is in your library to begin with. Terrain, time zones, air quality, wildfires and OSM notes sit in the **layer store** — the shop icon above the layer list — and go in when you add them.
+
+The store is also the way back from a deletion. Remove a system layer and it returns to the store; add it again and it comes back with your ordering and grouping intact. There is no "restore defaults" to hunt for.
+
+Each bundle has a page listing exactly which layers it will put in your library, grouped the way they'll be grouped once added — so Cycling's twenty layers read as Cycleways, Cycle Tracks and Bike Lanes rather than as a wall of names.
+
+<Callout type="info">
+A bundle only advertises layers it can actually draw. If one of its layers needs an integration you haven't configured, it isn't listed and isn't added.
+</Callout>
+
+---
+
+## Building a layer
+
+**Library → Layers → + → New Layer** opens the editor in the side panel, with the map still visible beside it. That's deliberate: the layer you're building is drawn on the map as you work, so a colour, a dash pattern or a zoom cutoff is judged against the basemap you'll actually see it on. The eye button in the header turns the preview off.
+
+Nothing is written until you press **Save**. Leaving with unsaved changes asks first.
+
+### Source
+
+Where the data comes from. Pick this first — it decides everything downstream.
+
+| Source | For |
+|---|---|
+| **Raster tiles** | Pre-rendered image tiles: aerial imagery, scanned maps, weather overlays |
+| **Terrain** | Elevation tiles (`raster-dem`), drawn as hillshading |
+| **Vector tiles** | Mapbox Vector Tiles — every layer inside them can be styled separately |
+| **GeoJSON** | Points, lines and polygons, from a URL or pasted straight in |
+| **Image** | A single image pinned to four corner coordinates |
+
+Tiled sources are addressed either by a **TileJSON** document or by **tile URL templates** containing `{z}`, `{x}` and `{y}`. Add several templates if the provider runs subdomains.
+
+Vector layers also need a **source layer** — the name of the layer inside the tiles, which the provider documents.
+
+### Style
+
+Every style property the layer type supports, grouped into sections that read like the thing being drawn — Stroke, Shape, Icon, Label — rather than like the JSON. Property names are the Mapbox/MapLibre spec's own, so anything you know from Mapbox Studio or Maputnik transfers.
+
+A property you haven't set shows its spec default greyed out and stays out of the saved style. Set one and a reset arrow appears to put it back. Nothing is written that you didn't choose.
+
+Zoom-dependent values and data-driven styling are expressions, which no slider can represent: a property holding one is marked **Expression** and opens a JSON editor instead.
+
+### Options
+
+Whether the layer appears in the map's layer menu, whether it mutes the basemap while it's on, which engines can draw it, a feature **filter**, and a raw JSON view of the layer's `paint` and `layout` for anything the editor has no control for. Unknown properties survive a round-trip untouched either way.
+
+---
+
+## Importing from Mapbox Studio or Maputnik
+
+**Import from a style** on the Source tab takes a whole style document — the JSON those tools export — and lists the layers in it. Pick one and the editor opens on it, source inlined.
+
+Some things don't travel, and the list says so rather than importing something that renders nothing:
+
+| Warning | Why |
+|---|---|
+| Uses a `mapbox://` source | Needs a Mapbox token this instance may not be using |
+| References sprite images | `icon-image` and `*-pattern` name images in the origin style's sprite sheet, which doesn't come with the layer |
+| Uses fonts that may not exist | `text-font` names must be in the basemap's glyph set |
+| Its source isn't in this document | Nothing to draw from — this one can't be imported at all |
+
+A single layer object pasted on its own works too, though you'll have to give it a source.

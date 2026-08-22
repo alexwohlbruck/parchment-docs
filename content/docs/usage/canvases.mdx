@@ -1,0 +1,57 @@
+---
+title: Canvases
+description: Your own maps — imagery, data and saved places stacked into something you can switch on over the basemap.
+---
+
+A canvas is a map you build. It holds an ordered stack of layers, and it can be switched on over the basemap like any other layer, or opened on its own to work on.
+
+Find them under **Library → Canvases**.
+
+---
+
+## What a canvas can hold
+
+| Layer | What it draws |
+|---|---|
+| **Custom layer** | Imagery, vector tiles or GeoJSON, styled in the [layer editor](/docs/usage/layers#building-a-layer). Belongs to the canvas, not your library |
+| **From your library** | A layer you already have, borrowed onto this canvas |
+| **Saved places** | A collection's places, drawn as points |
+
+Layers draw from the bottom of the list up, and drag to reorder. The eye beside each one hides it without removing it.
+
+A canvas that borrows a library layer keeps its own copy on the map, so it draws whether or not that layer is switched on in your library — and turning it off in the library doesn't empty your canvas.
+
+A saved-places layer stores only the collection's id. The places themselves stay under the collection's own encryption; putting a collection on a canvas never copies them out of it.
+
+---
+
+## Privacy
+
+You choose when the canvas is created, and it can't be changed afterwards without rewriting the contents.
+
+| | Where the layer stack lives | Public links |
+|---|---|---|
+| **Shareable** | Stored so the server can read it | Possible later |
+| **Private** | End-to-end encrypted; only your devices can read it | Never |
+
+The canvas's **name and description are always end-to-end encrypted**, whichever you pick. The server never sees what a canvas is called.
+
+<Callout type="info">
+Creating a canvas needs an identity key on the device. A browser that hasn't imported your recovery key can read canvases it has already synced but can't create new ones.
+</Callout>
+
+---
+
+## Editing
+
+Opening a canvas takes over the side panel on desktop and a bottom sheet on mobile, with the map beside it. The canvas's layers are drawn as you arrange them, so reordering and toggling read on the map immediately.
+
+Edits are held locally until you press **Save**. Because a canvas is a workspace rather than a passing detail view, the mobile sheet won't swipe away by accident — leaving it, by any route, asks first if there's unsaved work.
+
+**Save the current view** (the crosshair in the header) pins the camera the canvas opens at.
+
+---
+
+## What's next
+
+Canvases are the foundation for the rest of [PAR-91](https://linear.app/parchment-maps/issue/PAR-91/canvases): drawing tools, file uploads (KML, GPX, shapefiles, CSV), route and heatmap layers, live "people" layers, guided stories, and sharing a canvas with someone else to view or collaborate on. The layer model here is the extension point — a new kind of canvas layer is a new arm of one union, not a new table.
