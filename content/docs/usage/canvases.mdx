@@ -9,11 +9,29 @@ Find them under **Library → Canvases**.
 
 ---
 
+## Annotations
+
+Marking up a map is the quickest thing you do on a canvas, so it doesn't involve layers at all. The toolbar sits over the map for as long as a canvas is open:
+
+| Tool | Key | What it does |
+|---|---|---|
+| **Pin** | P | One point per click |
+| **Line** | L | Click along a path; Done when you're finished |
+| **Polygon** | O | Click around a region; it closes itself |
+| **Rectangle** | E | Two opposite corners |
+| **Circle** | I | A centre, then a point on the edge |
+
+A tool stays armed until you pick another or press Escape, so you can drop a run of pins without going back to the toolbar each time. Pins, rectangles and circles finish themselves; lines and polygons collect points until you press Done. Undo removes the last point.
+
+Annotations always draw above the canvas's layers, and they're listed under the layer stack — not in it, because they aren't layers.
+
+---
+
 ## What a canvas can hold
 
 | Layer | What it draws |
 |---|---|
-| **Your data** | A file you imported or something you drew — points, lines, shapes or a heatmap |
+| **Your data** | A file you imported — points, lines, shapes or a heatmap |
 | **Custom layer** | Imagery, vector tiles or GeoJSON, styled in the [layer editor](/docs/usage/layers#building-a-layer). Belongs to the canvas, not your library |
 | **From your library** | A layer you already have, borrowed onto this canvas |
 | **Saved places** | A collection's places, drawn as points |
@@ -28,13 +46,21 @@ Two layer kinds hold only a reference, never the contents: a saved-places layer 
 
 ---
 
-## Importing a file
+## Data sources
 
-**Add a layer → Import a file** reads GeoJSON, KML, GPX and CSV. A CSV needs latitude and longitude columns — `latitude`/`longitude`, `lat`/`lng`, `lat`/`lon` and `x`/`y` are all recognised — and every other column comes along as a property you can label features with. Rows with unreadable coordinates are skipped rather than failing the whole file.
+A source is where data lives; a layer is one rendering of it. **Add a layer → Data sources** opens the browser, which has two halves.
+
+**Library** is a curated set of datasets that are known to render well and need no API key — time zones, OpenStreetMap and topographic tiles, elevation, railways, nautical charts. Picking one creates a layer from it, ready to restyle.
+
+**Your data** is a file or a URL. It reads GeoJSON, KML, GPX and CSV. A CSV needs latitude and longitude columns — `latitude`/`longitude`, `lat`/`lng`, `lat`/`lon` and `x`/`y` are all recognised — and every other column comes along as a property you can label features with. Rows with unreadable coordinates are skipped rather than failing the whole file.
 
 The file is read on your device. There is no upload: the features are stored inside the canvas document, which is what lets a **private** canvas hold imported data the server never sees. The trade is a size ceiling — a canvas is saved whole, so imports are capped at about 4MB of GeoJSON. Past that, simplify or split the file.
 
 Shapefiles aren't supported yet.
+
+### Live connections
+
+Postgres, BigQuery and Snowflake appear in the browser and are **not built yet** — they're listed so the shape of the feature is visible, and each says so rather than failing when clicked. The idea is a layer that queries a database and redraws as the data changes, instead of holding a snapshot.
 
 ### How it draws
 
@@ -48,14 +74,6 @@ An import picks its renderer from what's in it, and you can change it any time f
 | **Heatmap** | Point features | Density rather than individual places |
 
 Each mode only draws the geometry it can, so a mixed file — a GPX with a track and its waypoints — shows the right half in each mode rather than nothing. Colour, size and opacity are per layer, and a points layer can label each feature from any of its properties.
-
----
-
-## Drawing
-
-**Add a layer → Draw on the map** arms the map: every click adds a point. Drop pins one at a time, click along a path for a line, or click around a region for an area — an area closes itself, so you don't have to land back on the first vertex.
-
-Undo removes the last point; Done turns what you have into a layer, which then behaves exactly like an imported one. Nothing is written to the canvas until you press Done, so cancelling leaves no trace.
 
 ---
 
