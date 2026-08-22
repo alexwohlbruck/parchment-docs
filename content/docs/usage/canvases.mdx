@@ -27,17 +27,17 @@ A saved-places layer stores only the collection's id. The places themselves stay
 
 ## Privacy
 
-You choose when the canvas is created, and it can't be changed afterwards without rewriting the contents.
+Every canvas is one of two things, and you pick when you create it.
 
-| | Where the layer stack lives | Public links |
-|---|---|---|
-| **Shareable** | Stored so the server can read it | Possible later |
-| **Private** | End-to-end encrypted; only your devices can read it | Never |
+| | Name, description and layers | Public links | Needs your recovery key |
+|---|---|---|---|
+| **Shareable** | Stored so the server can read them | Possible later | No |
+| **Private** | End-to-end encrypted; only your devices can read them | Never | Yes |
 
-The canvas's **name and description are always end-to-end encrypted**, whichever you pick. The server never sees what a canvas is called.
+Change it later from **Canvas details** — the switch is under Privacy. It re-packages the whole canvas under the other scheme in one go, so it asks first. Going private also revokes any public link, since the server can no longer render what that link promises.
 
 <Callout type="info">
-Creating a canvas needs an identity key on the device. A browser that hasn't imported your recovery key can read canvases it has already synced but can't create new ones.
+A device that hasn't imported your recovery key can still make and edit shareable canvases. It can't make private ones, or open ones you already made — there's nothing on it to decrypt them with.
 </Callout>
 
 ---
