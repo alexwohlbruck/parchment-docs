@@ -98,6 +98,8 @@ The import runs these steps in sequence:
 |------|------|-------------|
 | 1 | osm2pgsql | Imports all OSM nodes/ways/relations via flex Lua style into `geo_places` |
 | 2 | post-import.sql | Extracts structured address/contact fields, builds GiST + GIN indexes, computes `area_m2` |
+| 2a | create-transit-views.sql | Derives the `transit_station_buildings`, `transit_platforms` and `transit_entrances` tile sources from `geo_places` |
+| 2b | create-detail-views.sql | Derives the `parking_areas` and `street_trees` tile sources, which the OpenMapTiles basemap has no schema for |
 | 3 | generate-abbreviations.ts | Pre-computes `name_abbrev` for autocomplete (e.g. UNCC → UNC Charlotte) |
 | 4 | tsvector rebuild | Rebuilds full-text search vectors to include abbreviations |
 
