@@ -74,6 +74,17 @@ Billing is powered by [Polar](https://polar.sh) and gated by a signed license to
 
 In development (`NODE_ENV=development`), the license check is skipped — only the Polar credentials are needed.
 
+## Feedback (optional)
+
+The in-app feedback form is backed by a self-hosted [Quackback](https://github.com/QuackbackIO/quackback) instance, which owns the feedback boards, voting, roadmap and the two-way Linear sync. Leave these unset and the feedback entry points hide themselves.
+
+| Variable | Description | Required |
+|---|---|---|
+| `QUACKBACK_URL` | Base URL of your Quackback instance | No |
+| `QUACKBACK_API_KEY` | Quackback API key (`qb_…`) | No |
+
+The key must belong to an **admin-role** Quackback key. Attributing a post to the user who wrote it is admin-gated upstream, so a member-role key would file every post under the key's own account instead.
+
 ## Integrations
 
 Third-party integrations can be enabled in the app under **Settings → Integrations**. Each may require its own API key at the instance level.
