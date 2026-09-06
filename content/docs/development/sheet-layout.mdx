@@ -99,7 +99,9 @@ element, so the collapsed sheet rests exactly around the header.
 
 `<SheetHeader>` registers itself, which covers most views. When the peek region
 isn't the sticky header — Place collapses around its title and action buttons,
-which don't pin — mark it with `useSheetPeek()` instead:
+which don't pin; the layer picker collapses around its whole tab panel, so it
+rests on its content and re-snaps as groups expand — mark it with
+`useSheetPeek()` instead:
 
 ```vue
 <script setup>
@@ -112,6 +114,10 @@ const { peekRef } = useSheetPeek()
   <PlaceGallery />                           <!-- revealed when expanded -->
 </template>
 ```
+
+Registrations are held per caller, so a `<SheetHeader peek="false">` above
+content that anchors the peek itself, or a sub-page pushed over the view it came
+from, can't clear an anchor it doesn't own.
 
 The peek belongs to the peek content alone. A pinned footer is parked below the
 fold at that detent and slides up as the sheet is dragged open, arriving fully
