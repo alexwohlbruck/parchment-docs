@@ -113,8 +113,10 @@ const { peekRef } = useSheetPeek()
 </template>
 ```
 
-A pinned footer's height is added to the peek, so a collapsed sheet shows its
-peek content *and* its footer rather than one on top of the other.
+The peek belongs to the peek content alone. A pinned footer is parked below the
+fold at that detent and slides up as the sheet is dragged open, arriving fully
+once there is its own height to spare — so a collapsed sheet shows the header
+and nothing else.
 
 ## Why the footer is portaled
 
@@ -138,6 +140,7 @@ The sheet publishes these to everything it hosts:
 | `--sheet-sticky-top` | Where a sticky header docks, below the chrome bar |
 | `--sheet-visible-height` | How much of the sheet is currently on screen |
 | `--sheet-footer-height` | Height of the pinned footer, `0px` when there is none |
+| `--sheet-footer-space` | How much of that footer has been revealed above the peek |
 
 A hand-rolled sticky element should dock with
 `top: var(--sheet-sticky-top, 0px)` rather than `top: 0`, so it lands below the
