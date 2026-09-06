@@ -142,6 +142,19 @@ The sheet publishes these to everything it hosts:
 | `--sheet-footer-height` | Height of the pinned footer, `0px` when there is none |
 | `--sheet-footer-space` | How much of that footer has been revealed above the peek |
 
+`useVirtualKeyboard`, called once in `App`, publishes one more app-wide:
+
+| Property | Meaning |
+|----------|---------|
+| `--keyboard-inset-height` | Screen the on-screen keyboard is covering, `0px` when none |
+
+It's read off the gap the keyboard opens between the layout and visual
+viewports, so it correctly reports `0px` on browsers that shrink the layout
+viewport instead — the page has already been laid out around the keyboard
+there. The bottom sheet reserves that much extra room at the end of its scroll
+surface and lifts its pinned footer above it, so reaching the end of a list
+never means dismissing the keyboard you're typing into.
+
 A hand-rolled sticky element should dock with
 `top: var(--sheet-sticky-top, 0px)` rather than `top: 0`, so it lands below the
 drag handle and navigation buttons instead of underneath them.
