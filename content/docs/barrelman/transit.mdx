@@ -125,6 +125,30 @@ Get routes serving a specific stop.
 | `feedId` | string | GTFS feed ID |
 | `stopId` | string | GTFS stop ID |
 
+### `GET /transit/resolve-route`
+
+Turn a bare GTFS `route_id` into the `(feedId, routeId)` pair the other route
+endpoints are keyed by.
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `routeId` | string | required | A feed's own GTFS `route_id`, unqualified |
+| `lat` / `lng` | number | required | Point the id was read at |
+| `mode` | string | — | Mode class to prefer: `metro`, `tram`, `regional`, `monorail`, `funicular`, `cable`, `aerial`, `ferry`, `bus` |
+| `radius` | number | `5000` | How far from the point a stop of the route may be, in meters |
+
+A `route_id` is only unique within its feed, so a caller holding one off a map
+tile cannot key anything with it: `2` is the New York subway's Seventh Avenue
+express in Manhattan and the Long Island Rail Road's Ronkonkoma branch twenty
+miles east. Of the feeds using the id, the one whose stops lie nearest the point
+wins, and `mode` breaks the remaining ties.
+
+Like the departure board's `routeTypes`, `mode` is a preference rather than a
+filter — feeds mistype their routes, so the nearest route still comes back when
+none of the candidates match the requested class. Returns `404` when no feed
+claims the id near the point, and when the id is not unique anywhere else
+either.
+
 ### `GET /transit/departures`
 
 Upcoming departures at a stop, from the MOTIS timetable, enriched with route
