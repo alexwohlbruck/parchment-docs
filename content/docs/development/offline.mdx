@@ -20,6 +20,7 @@ unaware of it.
 | Offline read suppression | request interceptor in `web/src/lib/api.ts` |
 | Mutation queue | `web/src/stores/sync.store.ts` + `web/src/lib/sync/` |
 | Sync UI | `web/src/components/sync/` |
+| Toast policy | `web/src/lib/toast.ts` |
 | Service worker | `web/src/sw.ts` (built by `vite-plugin-pwa`, injectManifest) |
 
 ## Connectivity state
@@ -58,6 +59,34 @@ While offline, GET requests are suppressed at the request interceptor with a
 typed `OfflineRequestError` instead of being attempted — callers fall back
 to cached data instead of burning a timeout each. Opt out per request with
 `allowOffline: true`.
+
+## Toasts: import from `@/lib/toast`
+
+**Never import `toast` from `vue-sonner` directly.** Import it from
+`@/lib/toast`, which wraps sonner and drops `toast.error` while the app is
+offline.
+
+This exists because suppressing the error at the axios interceptor was not
+enough: nearly every service catches its own fetch failure and raises a
+message of its own ("Failed to fetch collections"), so an offline user got a
+wall of red toasts for things they could do nothing about. Being offline is
+already communicated twice — the sidebar chip and the offline empty state on
+the view that couldn't load.
+
+Success, info and warning toasts pass through untouched; an optimistic
+"Saved" while offline is true and worth showing. Two escape hatches:
+
+```ts
+toast.error('Could not write to this device', { force: true }) // show anyway
+toast.error(message, { cause: error })  // drop if the error is offline/cancelled
+```
+
+`cause` covers the race where connectivity returns between the failed
+request and the catch block that reports it.
+
+For the same reason, `OfflineRequestError.message` is plain English
+("You're offline") rather than a description of the suppressed request —
+some catch blocks render `error.message` straight into the UI.
 
 ## Offline writes: the mutation queue
 
