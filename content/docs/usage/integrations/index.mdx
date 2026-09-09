@@ -70,6 +70,8 @@ If a capability has no active integration (or all configured integrations fail t
 - Map tiles fall back to the next configured map engine
 - Features with no provider available are hidden from the UI rather than surfacing errors
 
+When a connected integration's own service starts failing (for example, a self-hosted location history server goes down), Parchment doesn't show error popups. Instead the integration is flagged as **Not responding**: a warning badge appears on its card in **Settings → Integrations** and a dot marks the Integrations entry in the settings navigation. The flag clears automatically once a request succeeds, a connection test passes, or the configuration is saved again.
+
 ---
 
 ## Available integrations
