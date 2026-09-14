@@ -9,6 +9,8 @@ Once Barrelman is running and data is imported, connect it to Parchment through 
 |---|---|
 | **Host** | Base URL of your Barrelman instance — `http://localhost:5001` for local dev, or the public URL (e.g. `https://barrelman.example.com`) for a deployed instance. |
 | **API Key** | The value of `BARRELMAN_API_KEY` from Barrelman's `.env`. Leave blank if no key is set. |
+| **Tile host** | Optional. Only needed when the browser cannot reach **Host** — a container name, or a port bound to the server alone. |
+| **Tile key** | A `tiles`-scoped API key, used for map tiles. Public by design; see [the integration reference](/usage/integrations/barrelman#map-tiles). |
 
 Click **Test Connection**, then **Save**.
 
