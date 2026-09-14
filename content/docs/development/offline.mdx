@@ -1,0 +1,152 @@
+---
+title: Offline support
+description: Connectivity state, network error classification, the offline mutation queue, and PWA caching in the Parchment web app.
+---
+
+Parchment treats being offline as a state, not an error. The web app installs
+as a PWA, launches without a connection, keeps cached content working, queues
+writes for replay, and shows explicit offline UI instead of network errors.
+
+## Architecture
+
+All of the offline infrastructure lives in the web app; the server is
+unaware of it.
+
+| Concern | Module |
+| --- | --- |
+| Connectivity state | `web/src/lib/connectivity.ts` |
+| Component access | `web/src/composables/useConnectivity.ts` |
+| Error classification | `web/src/lib/network-errors.ts` |
+| Offline read suppression | request interceptor in `web/src/lib/api.ts` |
+| Mutation queue | `web/src/stores/sync.store.ts` + `web/src/lib/sync/` |
+| Sync UI | `web/src/components/sync/` |
+| Toast policy | `web/src/lib/toast.ts` |
+| Service worker | `web/src/sw.ts` (built by `vite-plugin-pwa`, injectManifest) |
+
+## Connectivity state
+
+`lib/connectivity.ts` is the single source of truth — nothing else should
+read `navigator.onLine` or listen to browser online/offline events. It
+combines the browser's events with evidence from real requests: the axios
+layer reports every response (any HTTP status proves the server is
+reachable) and every response-less failure. While unreachable, a bounded
+backoff probe retries until the server answers.
+
+Components use the composable:
+
+```ts
+const { isOffline, status, onReconnected, checkNow } = useConnectivity()
+onReconnected(load) // refetch whatever was skipped while offline
+```
+
+`status` is `'online' | 'offline' | 'reconnecting'` — `offline` means no
+network interface, `reconnecting` means the device has network but the
+server isn't answering.
+
+## Network error classification
+
+`lib/network-errors.ts` classifies any failure into
+offline / unreachable / timeout / client (4xx) / server (5xx) /
+cancelled / unknown. The axios response interceptor stamps the
+classification onto every error (`getNetworkErrorKind(error)` reads it in a
+catch block) and decides what the user sees:
+
+- **offline** and **cancelled** are always silent
+- **unreachable** and **timeout** share a single deduplicated toast
+- 4xx/5xx keep the server-provided message behavior
+
+While offline, GET requests are suppressed at the request interceptor with a
+typed `OfflineRequestError` instead of being attempted — callers fall back
+to cached data instead of burning a timeout each. Opt out per request with
+`allowOffline: true`.
+
+## Toasts: import from `@/lib/toast`
+
+**Never import `toast` from `vue-sonner` directly.** Import it from
+`@/lib/toast`, which wraps sonner and drops `toast.error` while the app is
+offline.
+
+This exists because suppressing the error at the axios interceptor was not
+enough: nearly every service catches its own fetch failure and raises a
+message of its own ("Failed to fetch collections"), so an offline user got a
+wall of red toasts for things they could do nothing about. Being offline is
+already communicated twice — the sidebar chip and the offline empty state on
+the view that couldn't load.
+
+Success, info and warning toasts pass through untouched; an optimistic
+"Saved" while offline is true and worth showing. Two escape hatches:
+
+```ts
+toast.error('Could not write to this device', { force: true }) // show anyway
+toast.error(message, { cause: error })  // drop if the error is offline/cancelled
+```
+
+`cause` covers the race where connectivity returns between the failed
+request and the catch block that reports it.
+
+For the same reason, `OfflineRequestError.message` is plain English
+("You're offline") rather than a description of the suppressed request —
+some catch blocks render `error.message` straight into the UI.
+
+## Offline writes: the mutation queue
+
+Writes are applied optimistically and queued, not blocked. The queue
+(`useSyncStore`) persists to localStorage and replays in order on reconnect.
+
+Each feature registers replayable handlers once at module load:
+
+```ts
+registerMutationHandler<CreateBookmarkMutation>('bookmark:create', {
+  async execute(payload, ctx) { /* server write + reconcile stores */ },
+  rollback(payload) { /* undo the optimistic change */ },
+})
+```
+
+and enqueues after applying the change locally:
+
+```ts
+syncStore.enqueue('bookmark:create', payload, label)
+```
+
+Entities created offline get `offline-` prefixed temp ids
+(`lib/sync/offline-id.ts`); the queue records the temp → server id mapping
+as creates replay, and `ctx.resolveId()` remaps references in later entries.
+Store refreshes (`setBookmarks`, `setCollections`) deliberately preserve
+offline-id rows so a reconnect refetch can't clobber unsynced work.
+
+Failure semantics: a retriable failure (offline again, unreachable, timeout)
+leaves the entry pending; a definitive failure (4xx) rolls back the
+optimistic change, marks the entry failed, and toasts. The sidebar sync chip
+(`components/sync/SyncStatus.vue`) lists pending/syncing/failed entries with
+per-entry cancel, retry and dismiss.
+
+Bookmarks (save / update / remove) are the reference integration — see
+`web/src/services/library/bookmarks.sync.ts`.
+
+## PWA and caching
+
+`vite-plugin-pwa` in `injectManifest` mode builds `web/src/sw.ts`. The
+precache holds only the app shell (index.html, entry chunk, MapLibre worker
+pair, icons — the full dist is far too large to install wholesale).
+Runtime caches, all bounded LRU:
+
+- `app-assets` — hashed lazy chunks, cache-first
+- `map-static` — glyphs, sprites, 3D models
+- `map-tiles` — basemap/layer tiles through `/proxy/*` on any origin plus
+  the third-party raster hosts (satellite, terrain), 2500 entries / 30 days.
+  This is opportunistic "recently seen areas survive a restart" caching, not
+  downloadable offline regions.
+
+Tile URLs carry a release-stable `v` cache-buster (the app version) and
+have auth `token` params stripped from cache keys. Registration lives in
+`web/src/lib/pwa.ts` — production web only, never under Tauri. Icons are
+generated into `web/public/icons/` by `bun run build:pwa-icons`.
+
+## Offline empty states
+
+The shared `EmptyState` component takes an `offline` prop: it swaps the
+caller's copy for "You're offline" messaging, hides the action slot, and
+renders a retry button that probes connectivity and emits `retry`. Screens
+pass `offline` only when a list is empty *because the fetch couldn't run* —
+a genuinely empty server response renders the normal empty state — and
+refetch via `onReconnected` so the state resolves itself.
