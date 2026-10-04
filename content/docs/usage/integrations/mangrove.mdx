@@ -23,7 +23,11 @@ Mangrove reviews are free and available to every user, not only those with premi
 
 In **Settings → Integrations**, click the settings icon on the Mangrove card.
 
-No configuration is required — Mangrove is a public API with no authentication. Add the integration and enable it.
+| Field | Required | Description |
+|---|---|---|
+| **Signer client ID** | For writing | Client id registered with Mangrove's signer. Without it, reviews are read-only and people get a link to write on mangrove.reviews instead. |
+
+Reading reviews needs no configuration. To let people write reviews, request a signer client id by opening an issue in the [Mangrove repository](https://gitlab.com/open-reviews/mangrove/-/issues) with the app's name and its redirect URIs, which are `/oauth/mangrove.html` on each origin Parchment is served from (for example `https://parchment.app/oauth/mangrove.html`).
 
 Click **Test Connection** before saving.
 
@@ -31,8 +35,8 @@ Click **Test Connection** before saving.
 
 ## Writing reviews
 
-Signed-in users can write a review from a place's **Reviews** tab: a star rating, optional text, and an optional display name. They can edit or delete it later from the same tab.
+From a place's **Reviews** tab, people write a star rating, optional text and an optional display name, and can edit or delete their review later.
 
-- Reviews are published openly on Mangrove under CC BY 4.0, and the form says so.
-- Each user has one Mangrove reviewer key. It is created in the browser on their first review and stored in their end-to-end encrypted personal storage, so it follows them across devices and the server never sees it.
-- Writing needs an encryption identity on the device and library write access (part of the default role). Users without these, or on a place that isn't from OpenStreetMap, see a **Write a review on Mangrove** link instead.
+- Posting requires signing in to Mangrove with OpenStreetMap, Bluesky, Google, GitHub or a passkey. Mangrove's signer holds the person's key, so their reviews share one identity across mangrove.reviews and other apps; Parchment stores no keys.
+- Sign-in is asked for at the moment of posting, in a popup, and the draft is kept. A sign-in lasts 24 hours.
+- Reviews are published openly under CC BY 4.0, and the form says so.
