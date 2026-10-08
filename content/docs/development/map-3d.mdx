@@ -1,0 +1,54 @@
+---
+title: The 3D map
+description: How Parchment draws terrain, objects, roads and bridges in 3D, where each piece comes from, and what it needs from Barrelman.
+---
+
+The MapLibre engine draws the city in 3D at street zoom: lidar terrain, street furniture, sport pitches, forests, fences and power lines, lane-level roads and bridges standing on piers. Most of it is built from OpenStreetMap at Barrelman's import, so a client only has to draw it. The rest is generated in the browser from tiles it already has.
+
+The Mapbox engine draws Mapbox Standard's own cartography and none of this.
+
+## Where each piece comes from
+
+| Piece | Built | Drawn by |
+|---|---|---|
+| Terrain | [Mapterhorn](https://mapterhorn.com) terrarium tiles: USGS 3DEP lidar in the US, Copernicus elsewhere | MapLibre terrain (`lib/map-style/terrain.ts`) |
+| Street furniture | Barrelman `street_furniture`, each object's `direction` filled from its nearest road or path | `ObjectLayer` (`lib/map-objects/furniture.ts`) |
+| Sport pitches | Barrelman `sport_pitches`: surfaces, regulation markings, nets, hoops and goals | Fill and line layers, plus `ObjectLayer` (`sports.ts`) |
+| Forests | The basemap's wood polygons, planted in the browser | `ObjectLayer` (`forest.ts`, `planting.ts`) |
+| Fences, walls, hedges, power lines, catenary | Barrelman `object_lines` | `ObjectLayer`, stretching one model per segment (`lines.ts`) |
+| Solar arrays, flower beds, scrub, shrubs | Barrelman `object_areas`, planted in the browser | `ObjectLayer` (`areas.ts`) |
+| Roads at street zoom | Barrelman `road_surfaces`, `road_markings` and `road_glyphs`, from lane tags | Fill, line and symbol layers (`lib/map-style/road-markings.ts`) |
+| Bridges and elevated roads | The basemap's bridges, solved for height against the terrain | `DeckLayer` (`lib/map-decks`) |
+
+## The object layer
+
+`ObjectLayer` is a MapLibre custom layer that draws instanced GLB models. Each `ObjectSourceSpec` in `lib/map-objects/index.ts` turns features from a source into instances:
+
+- `positions` places objects on a feature (a point, a walk along a line, a planting grid).
+- `toInstance` gives each one a model, height, heading and shade.
+- `distinct: false` keeps every tile piece of a feature that crosses tiles; each piece places only what falls inside its own tile.
+- `budget` caps a spec's objects, keeping those nearest the view centre, and `followsView` regathers on pan.
+- An instance's `length` stretches its model along x to span a segment, which is how one fence model covers any stretch of fence.
+
+Models are generated, not authored: `bun run build:models` writes every GLB in `public/models` from `scripts/build-3d-objects.mjs`. Each is normalised to one unit tall, with a cheap far variant, and colours come from material roles resolved per theme.
+
+## Roads
+
+At street zoom the basemap's roads fade to asphalt and Barrelman's carriageways draw over them at their real width, with rounded kerbs. Lane, centre, edge and bike lines, stop lines, crosswalks, and turn arrows and bike symbols from the sprite are drawn on top.
+
+Barrelman builds the geometry with its "Build Road Markings" task. Where lanes are added or dropped, the lines ease across over the MUTCD taper length for the road's speed. Against a Barrelman without road geometry, streets still draw at street zoom, just unpainted.
+
+## Bridges
+
+`DeckLayer` builds each bridge as a slab with parapets and piers, from the basemap's bridge segments joined across tiles:
+
+- An end that meets a road at grade sits on the terrain.
+- An end that meets another deck takes that deck's height.
+- Between, the deck clears 6 m per OSM `layer`, climbing no steeper than 6%.
+- Lidar terrain carries road embankments, so an overpass spans between them.
+
+The bridge's lane paint and any active route are laid on the deck, and the flat bridge layers are muted underneath. Decks draw only with terrain on.
+
+## Building for MapLibre Native
+
+Everything that comes from Barrelman is plain vector tiles and GLB models, which MapLibre Native can draw the same way. The pieces generated in the browser are kept framework-free so they can be ported: `planting.ts` (forests and areas) and `lib/map-decks/decks.ts` (bridge heights and meshes). Moving the deck solve into Barrelman, with DEM-sampled heights per vertex, would remove the largest of them.
