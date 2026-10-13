@@ -1,0 +1,27 @@
+---
+title: Collections
+description: Organize collections into personal groups and nested groups.
+---
+
+### Organizing collections
+
+In the collections view, choose **New group** to create a group such as a city.
+Choose its location to place it inside another group. The group menu also offers
+**New nested group** and **New collection**. Use a collection’s **Move to group**
+action to file it in a group, or choose **All collections** to return it to the top level.
+
+Use **Edit group** to rename a group or move it to a different parent.
+**Remove group** moves its collections and nested groups up one level and keeps
+all collections. Groups can be expanded or collapsed. Search includes group names
+and reveals matching collections inside their groups; ownership filters still apply.
+
+Groups are personal, including when they contain collections shared with you.
+Their names and structure sync across your signed-in devices, and cached groups
+remain available to browse offline. Creating or editing groups requires a connection.
+Group names are stored as ordinary account data; collection encryption and sharing
+permissions are unchanged.
+
+The organization API reads and replaces the caller’s group tree and collection
+placements. Save with the revision returned by the latest read. A stale revision
+returns HTTP 409; reload before retrying. Cycles, missing parent groups and duplicate
+placements are rejected, and placements for inaccessible collections are discarded.
