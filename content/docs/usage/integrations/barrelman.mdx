@@ -38,5 +38,24 @@ In **Settings → Integrations**, click the settings icon on the Barrelman card.
 |---|---|
 | **Host** | Base URL of your Barrelman instance, e.g. `http://localhost:5001`. For a publicly deployed instance use the HTTPS URL (e.g. `https://barrelman.example.com`). |
 | **API Key** | The value of `BARRELMAN_API_KEY` set in Barrelman's `.env`. Leave blank if no key is configured. |
+| **Tile host** | Optional. Where the *browser* reaches Barrelman, when that differs from **Host** — see below. Leave blank to use **Host**. |
+| **Tile key** | An API key with the `tiles` scope, for map tiles. Leave blank and the map falls back to whatever other basemap you have configured. |
 
 Click **Test Connection** before saving to confirm Parchment can reach your Barrelman instance.
+
+### Map tiles
+
+Tiles are fetched by the browser directly from Barrelman, not relayed through
+the Parchment server. Two consequences:
+
+**The address has to be reachable from the browser.** If **Host** is something
+only the server can resolve — a container name like `http://barrelman:5001`, or
+a private port — set **Tile host** to a URL a phone or laptop can open. Most
+deployments don't need it.
+
+**The tile key is public.** It appears in the tile URLs on the page, because a
+map library cannot attach an `Authorization` header. That is expected, and why
+it should be a *separate* key from **API Key**: create one in the Barrelman
+console scoped to `tiles` only, and add an origin allowlist so it is worthless
+anywhere but your own site. Never put your account key here — **API Key** stays
+on the server and is never sent to the browser.
