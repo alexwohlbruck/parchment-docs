@@ -1,4 +1,9 @@
 {
   "title": "Usage",
-  "pages": ["index", "transit", "integrations"]
+  "pages": [
+    "index",
+    "globe",
+    "transit",
+    "integrations"
+  ]
 }
