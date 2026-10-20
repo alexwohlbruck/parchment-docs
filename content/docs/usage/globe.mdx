@@ -1,15 +1,29 @@
 ---
 title: Globe view
-description: Explore the world against a starry sky.
+description: Explore the globe with stars, sunlight, and city lights.
 ---
 
 With the MapLibre map engine and Globe projection selected in Appearance, zoom
-out to see the Earth against a black sky with subtle stars and a blue atmosphere.
+out to see Earth against a black sky with subtle stars and a blue atmosphere.
 The sky follows the camera as you turn the globe, and the atmosphere follows its
-edge when you tilt the map.
+edge when you tilt the map. A softly glowing sun appears at its real position
+and disappears behind Earth when the globe blocks it.
 
 The effect works with the standard, satellite, and hybrid basemaps, in either
 app theme. It fades away as you zoom in so the usual map sky returns for closer
 views.
 
-![Globe with a subtle starfield and blue atmosphere](/images/globe-sky.png)
+![Globe with stars and a blue atmosphere](/images/globe-sky.png)
+
+Turn on **Day & Night** in the layers selector to light the globe with the
+current sun position. A soft twilight boundary separates day from night, the
+atmosphere brightens on the sunlit side, and warm city lights appear after
+sunset. The dark side keeps enough ambient light to see its terrain.
+
+![Satellite globe with sunlight, twilight, and city lights](/images/globe-sky-satellite.png)
+
+City lights use [NASA's 2016 Black Marble composite](https://science.nasa.gov/earth/earth-observatory/earth-at-night/maps/),
+not live observations. A compressed global texture loads only when Day & Night
+is enabled in globe view; it needs no external imagery service or account.
+
+![Nighttime Earth and the sun](/images/globe-sun.png)
