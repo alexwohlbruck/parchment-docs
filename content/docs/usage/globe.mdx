@@ -6,7 +6,8 @@ description: Explore the globe with stars, sunlight, and city lights.
 With the MapLibre map engine and Globe projection selected in Appearance, zoom
 out to see Earth against a black sky with subtle stars and a blue atmosphere.
 The sky follows the camera as you turn the globe, and the atmosphere follows its
-edge when you tilt the map. A softly glowing sun appears at its real position
+edge when you tilt the map. A faint photographic Milky Way lies behind the
+globe. A softly glowing sun appears at its real position
 and disappears behind Earth when the globe blocks it.
 
 The effect works with the standard, satellite, and hybrid basemaps, in either
@@ -18,7 +19,9 @@ views.
 Turn on **Day & Night** in the layers selector to light the globe with the
 current sun position. A soft twilight boundary separates day from night, the
 atmosphere brightens on the sunlit side, and warm city lights appear after
-sunset. The dark side keeps enough ambient light to see its terrain.
+sunset. The camera gradually increases exposure as the night side fills the view,
+revealing more terrain and the Milky Way. It eases back down when you return to
+daylight, while keeping the sun and city lights bright.
 
 ![Satellite globe with sunlight, twilight, and city lights](/images/globe-sky-satellite.png)
 
@@ -27,3 +30,9 @@ not live observations. A compressed global texture loads only when Day & Night
 is enabled in globe view; it needs no external imagery service or account.
 
 ![Nighttime Earth and the sun](/images/globe-sun.png)
+
+The sky uses a [photographic Milky Way panorama by ESO/S. Brunier](https://www.eso.org/public/images/eso0932a/),
+resized and compressed to about 1.5 MB. It downloads only in globe view and is
+cached afterward. Its brightness stays subtle so Earth remains the focus.
+
+![Night-side exposure and the Milky Way](/images/globe-milky-way.png)
