@@ -19,14 +19,24 @@ views.
 Turn on **Day & Night** in the layers selector to light the globe with the
 current sun position. A soft twilight boundary separates day from night, the
 atmosphere brightens on the sunlit side with pale daylight haze, and warm city lights appear after
-sunset. The camera gradually increases exposure as the night side fills the view,
+sunset in satellite and hybrid views. The camera gradually increases exposure as the night side fills the view,
 revealing more terrain and the Milky Way. It eases back down when you return to
 daylight, while keeping the sun and city lights bright.
 
-Clouds sit above the surface, catch warm twilight, and cast soft shadows. They
-are more subtle on the standard map than on satellite and hybrid views. Clouds
-use a compressed NASA Blue Marble composite, **not live weather**, and load only
-in globe view. They fade away as you zoom in with the atmosphere.
+Satellite and hybrid globes show clouds above the surface, with warm twilight
+and soft shadows. Their oceans have deeper blue tones and a soft sun reflection
+that follows the camera and sun. The standard map keeps clouds and city lights
+hidden.
+
+Clouds use [Live Cloud Maps](https://github.com/matteason/live-cloud-maps),
+containing modified EUMETSAT data. The provider publishes new images every three
+hours; this is near-real-time satellite imagery, not a continuous live stream.
+The 4K texture is about 1.5 MB and loads only in satellite/hybrid globe view.
+Updates are checked every three hours while that view is visible. If the feed
+is unavailable, the first load uses a bundled NASA Blue Marble composite;
+later failures retain the last loaded image. Satellite data can have gaps or
+delays, and polar cloud patterns are mirrored by the provider. Clouds fade away
+with the atmosphere as you zoom in.
 
 ![Daylight globe with clouds](/images/globe-clouds.png)
 
@@ -34,7 +44,7 @@ in globe view. They fade away as you zoom in with the atmosphere.
 
 City lights use [NASA's 2016 Black Marble composite](https://science.nasa.gov/earth/earth-observatory/earth-at-night/maps/),
 not live observations. A compressed global texture loads only when Day & Night
-is enabled in globe view; it needs no external imagery service or account.
+is enabled in satellite or hybrid globe view; it needs no external imagery service or account.
 
 ![Nighttime Earth and the sun](/images/globe-sun.png)
 
