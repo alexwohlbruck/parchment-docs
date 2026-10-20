@@ -5,8 +5,9 @@ description: Explore the globe with stars, sunlight, and city lights.
 
 With the MapLibre map engine and Globe projection selected in Appearance, zoom
 out to see Earth against a black sky with subtle stars and a blue atmosphere.
-The sky follows the camera as you turn the globe, and the atmosphere follows its
-edge when you tilt the map. A faint photographic Milky Way lies behind the
+The sky follows the camera as you turn the globe. The atmosphere is a thin
+shell of air: blue molecular scattering and pale aerosol haze follow its edge
+when you tilt the map, and distant terrain softens through longer air paths. A faint photographic Milky Way lies behind the
 globe. A softly glowing sun appears at its real position
 and disappears behind Earth when the globe blocks it.
 
@@ -18,7 +19,7 @@ views.
 
 Turn on **Day & Night** in the layers selector to light the globe with the
 current sun position. A soft twilight boundary separates day from night, the
-atmosphere brightens on the sunlit side, and warm city lights appear after
+atmosphere brightens on the sunlit side and warms near sunset, and warm city lights appear after
 sunset. The camera gradually increases exposure as the night side fills the view,
 revealing more terrain and the Milky Way. It eases back down when you return to
 daylight, while keeping the sun and city lights bright.
@@ -36,3 +37,7 @@ resized and compressed to about 1.5 MB. It downloads only in globe view and is
 cached afterward. Its brightness stays subtle so Earth remains the focus.
 
 ![Night-side exposure and the Milky Way](/images/globe-milky-way.png)
+
+The atmospheric shell accounts for air density, sunlight absorption, and
+Earth's shadow. It uses a compact single-scattering model, with a small
+precomputed sunlight lookup to keep the rendering cost down.
