@@ -42,7 +42,7 @@ Barrelman builds the geometry with its "Build Road Markings" task. Where lanes a
 
 Barrelman's bridge-generation jobs build the deck structure, parapets, piers, carriageway surfaces and markings ahead of time. The `bridge_decks` vector layer carries a `mesh` filename; `/tiles/bridges/models/{file}` serves that content-addressed BRM1 file. Parchment proxies it through `/proxy/barrelman/bridges/models/{file}`.
 
-The browser decodes typed-array views and uploads indexed buffers. Camera movements reuse the buffers; they do not solve profiles, triangulate decks, or clip road markings. Material roles are resolved in the shader so changing themes does not rebuild geometry. Terrain exaggeration and shadows use the same elevation scale. Active navigation routes remain a small dynamic overlay.
+The browser decodes typed-array views and uploads one indexed mesh per render callback. Shader compilation is started ahead of uploads and polled asynchronously where parallel compilation is available. Camera movements reuse the buffers; they do not solve profiles, triangulate decks, or clip road markings. Material roles are resolved in the shader so changing themes does not rebuild geometry. Terrain exaggeration and shadows use the same elevation scale. Active navigation routes remain a small dynamic overlay.
 
 A mesh includes the surfaces and nearby ground ways needed to place objects on or below bridges. Until all required meshes are available, the ordinary flat bridges remain visible. There is no expensive client-side geometry fallback.
 
