@@ -18,7 +18,7 @@ The Mapbox engine draws Mapbox Standard's own cartography and none of this.
 | Fences, walls, hedges, power lines, catenary | Barrelman `object_lines` | `ObjectLayer`, stretching one model per segment (`lines.ts`) |
 | Solar arrays, flower beds, scrub, shrubs | Barrelman `object_areas`, planted in the browser | `ObjectLayer` (`areas.ts`) |
 | Roads at street zoom | Barrelman `road_surfaces`, `road_markings` and `road_glyphs`, from lane tags | Fill, line and symbol layers (`lib/map-style/road-markings.ts`) |
-| Bridges and elevated roads | The basemap's bridges, solved for height against the terrain | `DeckLayer` (`lib/map-decks`) |
+| Bridges and elevated roads | Barrelman solves the heights and bakes indexed meshes, including road markings, during imports | `BakedBridgeLayer` (`lib/map-decks/baked`) |
 
 ## The object layer
 
@@ -40,15 +40,14 @@ Barrelman builds the geometry with its "Build Road Markings" task. Where lanes a
 
 ## Bridges
 
-`DeckLayer` builds each bridge as a slab with parapets and piers, from the basemap's bridge segments joined across tiles:
+Barrelman's bridge-generation jobs build the deck structure, parapets, piers, carriageway surfaces and markings ahead of time. The `bridge_decks` vector layer carries a `mesh` filename; `/tiles/bridges/models/{file}` serves that content-addressed BRM1 file. Parchment proxies it through `/proxy/barrelman/bridges/models/{file}`.
 
-- An end that meets a road at grade sits on the terrain.
-- An end that meets another deck takes that deck's height.
-- Between, the deck clears 6 m per OSM `layer`, climbing no steeper than 6%.
-- Lidar terrain carries road embankments, so an overpass spans between them.
+The browser decodes typed-array views and uploads indexed buffers. Camera movements reuse the buffers; they do not solve profiles, triangulate decks, or clip road markings. Material roles are resolved in the shader so changing themes does not rebuild geometry. Terrain exaggeration and shadows use the same elevation scale. Active navigation routes remain a small dynamic overlay.
 
-The bridge's lane paint and any active route are laid on the deck, and the flat bridge layers are muted underneath. Decks draw only with terrain on.
+A mesh includes the surfaces and nearby ground ways needed to place objects on or below bridges. Until all required meshes are available, the ordinary flat bridges remain visible. There is no expensive client-side geometry fallback.
+
+Deploy the Barrelman schema/API and rebuild bridge data before enabling this client in production. API and ops must share `BRIDGE_MESH_DIR`. The directory contains immutable mesh files and precompressed copies; database rows are updated only after their files are written. Rebuild bridges after changing road-marking geometry. Existing profile-only data remains usable by older clients, while the new client shows flat bridges until it has meshes.
 
 ## Building for MapLibre Native
 
-Everything that comes from Barrelman is plain vector tiles and GLB models, which MapLibre Native can draw the same way. The pieces generated in the browser are kept framework-free so they can be ported: `planting.ts` (forests and areas) and `lib/map-decks/decks.ts` (bridge heights and meshes). Moving the deck solve into Barrelman, with DEM-sampled heights per vertex, would remove the largest of them.
+Terrain and most detail data use standard vector tiles and GLB models. Bridges use a versioned binary container with a JSON header, aligned float32 vertex streams, uint32 indices, material roles and placement surfaces. A native renderer can upload these streams directly; no browser geometry compiler needs porting. The remaining browser-generated scenery, such as forest planting, is kept framework-free.
