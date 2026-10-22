@@ -42,11 +42,34 @@ Barrelman builds the geometry with its "Build Road Markings" task. Where lanes a
 
 Barrelman's bridge-generation jobs build the deck structure, parapets, piers, carriageway surfaces and markings ahead of time. The `bridge_decks` vector layer carries a `mesh` filename; `/tiles/bridges/models/{file}` serves that content-addressed BRM1 file. Parchment proxies it through `/proxy/barrelman/bridges/models/{file}`.
 
-The browser decodes typed-array views and uploads one indexed mesh per render callback. Shader compilation is started ahead of uploads and polled asynchronously where parallel compilation is available. Camera movements reuse the buffers; they do not solve profiles, triangulate decks, or clip road markings. Material roles are resolved in the shader so changing themes does not rebuild geometry. Terrain exaggeration and shadows use the same elevation scale. Active navigation routes remain a small dynamic overlay.
+The browser decodes typed-array views and uploads one indexed mesh per render callback. Shader compilation is started ahead of uploads and polled asynchronously where parallel compilation is available. Camera movements reuse the buffers; they do not solve profiles, triangulate decks, or clip road markings. Material roles are resolved in the shader so changing themes does not rebuild geometry. Active navigation routes remain a small dynamic overlay.
+
+### Deck heights
+
+A deck arches over what it crosses: roads, railways and water below it, and lower decks where OSM's `layer` puts it above them. Where a road climbing from the street cannot clear a lesser road it crosses within a 6% grade, the lesser road dips under it. Two ways meeting alone carry one deck on when one of them has no `layer`, which is how a bridge's anchorage stretch is usually mapped.
+
+Where OSM records it, a bridge's own height sets its deck:
+
+| Tag | Read as |
+|---|---|
+| `seamark:bridge:clearance_height` on the bridge | Clearance over the water; the deck is 2 m above it |
+| `height` on the `man_made=bridge` outline | The deck's height over the water or ground under its span. On a suspension or cable-stayed bridge only when clearly below its towers' own `height`, since it may be theirs |
+| `bridge:support=pylon` / `abutment` areas | The towers and anchorages: a suspended span hangs between them on no piers, cambered 1% of the span down to each tower |
+| `ele`, `layer` | Not heights: ground elevation, and drawing order |
+
+Where OSM has none of these, Barrelman's `config/bridge-elevations.json` can give a deck height by the bridge's Wikidata item. It is a fallback; adding the tag to OSM is better.
+
+### Terrain exaggeration
+
+The terrain is drawn exaggerated (1.2×); buildings and landmark models keep their true height over it. Decks do too: each vertex carries a lift, the ground under it smoothed over about 25 m (the exact ground at a pier's foot or an at-grade end), and is drawn at `z + (exaggeration − 1) × lift`. A deck therefore meets a landmark tower at the height the model was built for. Meshes baked before lifts (BRM version 1) still draw, exaggerated as a whole.
+
+### Bridges with landmark models
+
+A landmark model may stand in for a whole bridge rather than its towers. It draws the bridge's structure inside the `man_made=bridge` outline it lists in `replaces`, out to its own reach: towers, anchorages, cables, suspenders, trusses, railings, the promenade's frame. The baked decks keep the road and walkway surfaces and their markings there, and leave out their own piers and parapets. Approaches outside the model's reach are entirely the decks'. Activating or changing such a landmark needs a bridge rebuild for its decks to drop their structure.
 
 A mesh includes the surfaces and nearby ground ways needed to place objects on or below bridges. Until all required meshes are available, the ordinary flat bridges remain visible. There is no expensive client-side geometry fallback.
 
-Deploy the Barrelman schema/API and rebuild bridge data before enabling this client in production. API and ops must share `BRIDGE_MESH_DIR`. The directory contains immutable mesh files and precompressed copies; database rows are updated only after their files are written. Rebuild bridges after changing road-marking geometry. Existing profile-only data remains usable by older clients, while the new client shows flat bridges until it has meshes.
+Deploy the Barrelman schema/API and rebuild bridge data before enabling this client in production. A rebuild is also needed after changing the deck rules, the landmark catalog's bridge models, or road-marking geometry. API and ops must share `BRIDGE_MESH_DIR`. The directory contains immutable mesh files and precompressed copies; database rows are updated only after their files are written. Existing profile-only data remains usable by older clients, while the new client shows flat bridges until it has meshes.
 
 ## Building for MapLibre Native
 
