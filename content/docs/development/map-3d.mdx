@@ -65,7 +65,7 @@ The terrain is drawn exaggerated (1.2×); buildings and landmark models keep the
 
 ### Bridges with landmark models
 
-A landmark model may stand in for a whole bridge rather than its towers. It draws the bridge's structure inside the `man_made=bridge` outline it lists in `replaces`, out to its own reach: towers, anchorages, cables, suspenders, trusses, railings, the promenade's frame. The baked decks keep the road and walkway surfaces and their markings there, and leave out their own piers and parapets. Approaches outside the model's reach are entirely the decks'. Activating or changing such a landmark needs a bridge rebuild for its decks to drop their structure.
+A landmark model may stand in for a whole bridge rather than its towers. It draws the bridge's structure inside the `man_made=bridge` outline it lists in `replaces`, out to its own reach: towers, anchorages, cables, suspenders, trusses, railings, the promenade's frame. The baked decks keep the road surfaces and their markings there, and leave out their own piers and parapets; walkways and tracks there, such as an elevated promenade, are the model's entirely. Approaches outside the model's reach are entirely the decks'. Activating or changing such a landmark needs a bridge rebuild for its decks to drop their structure.
 
 A mesh includes the surfaces and nearby ground ways needed to place objects on or below bridges. Until all required meshes are available, the ordinary flat bridges remain visible. There is no expensive client-side geometry fallback.
 
