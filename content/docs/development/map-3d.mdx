@@ -67,6 +67,10 @@ The terrain is drawn exaggerated (1.2×); buildings and landmark models keep the
 
 A landmark model may stand in for a whole bridge rather than its towers. It draws the bridge's structure inside the `man_made=bridge` outline it lists in `replaces`, out to its own reach: towers, anchorages, cables, suspenders, trusses, railings, the promenade's frame. The baked decks keep the road surfaces and their markings there, and leave out their own piers and parapets; walkways and tracks there, such as an elevated promenade, are the model's entirely. Approaches outside the model's reach are entirely the decks'. Activating or changing such a landmark needs a bridge rebuild for its decks to drop their structure.
 
+### Landmarks at night
+
+In the dark theme a landmark is lit by its glTF material names and one optional vertex attribute; by day all of it is ignored. `window*` materials take the procedural facade, `entrance` glows with a pool of light at the door, and `lamp*` materials (a bridge's cable lights, lantern heads) glow warm white. A `_FLOODLIGHT` float attribute, 0–1 per vertex, washes floodlit stone back toward its own colour in warm white light, so a bridge's towers can be lit without lighting its anchorages. The landmarks repository's `STYLE.md` describes how models set them.
+
 A mesh includes the surfaces and nearby ground ways needed to place objects on or below bridges. Until all required meshes are available, the ordinary flat bridges remain visible. There is no expensive client-side geometry fallback.
 
 Deploy the Barrelman schema/API and rebuild bridge data before enabling this client in production. A rebuild is also needed after changing the deck rules, the landmark catalog's bridge models, or road-marking geometry. API and ops must share `BRIDGE_MESH_DIR`. The directory contains immutable mesh files and precompressed copies; database rows are updated only after their files are written. Existing profile-only data remains usable by older clients, while the new client shows flat bridges until it has meshes.
