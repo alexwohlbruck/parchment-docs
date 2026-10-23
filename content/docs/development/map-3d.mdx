@@ -59,6 +59,10 @@ Where OSM records it, a bridge's own height sets its deck:
 
 Where OSM has none of these, Barrelman's `config/bridge-elevations.json` can give a deck height by the bridge's Wikidata item. It is a fallback; adding the tag to OSM is better.
 
+### Continuous decks
+
+Approaches and interchanges are drawn as continuous ribbons. A deck shaped to its `man_made=bridge` outline keeps to the outline that holds most of it, so a ramp passing under another bridge does not widen out to that bridge's outline, and a short tab where a side strays into a landing or gore is dropped. A ramp running into the deck it joins takes that deck's height along the merge. A named walkway mapped as short footbridges over each street with untagged stretches between them is one deck down to the street, and a roadway's side stops short of a walkway running beside it. A scrap of footbridge meeting nothing at either end is left out. A bridge's own low abutments and piers (`bridge:support`, under 20 m) are not extruded as buildings: the deck stands in for them.
+
 ### Terrain exaggeration
 
 The terrain is drawn exaggerated (1.2×); buildings and landmark models keep their true height over it. Decks do too: each vertex carries a lift, the ground under it smoothed over about 25 m (the exact ground at a pier's foot or an at-grade end), and is drawn at `z + (exaggeration − 1) × lift`. A deck therefore meets a landmark tower at the height the model was built for. Meshes baked before lifts (BRM version 1) still draw, exaggerated as a whole.
