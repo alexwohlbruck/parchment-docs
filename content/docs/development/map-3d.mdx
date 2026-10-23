@@ -69,7 +69,7 @@ A landmark model may stand in for a whole bridge rather than its towers. It draw
 
 ### Landmarks at night
 
-In the dark theme a landmark is lit by its glTF material names and one optional vertex attribute; by day all of it is ignored. `window*` materials take the procedural facade, `entrance` glows with a pool of light at the door, and `lamp*` materials (a bridge's cable lights, lantern heads) glow warm white. A `_FLOODLIGHT` float attribute, 0–1 per vertex, washes floodlit stone back toward its own colour in warm white light, so a bridge's towers can be lit without lighting its anchorages. The landmarks repository's `STYLE.md` describes how models set them.
+In the dark theme a landmark is lit by its glTF material names and one optional vertex attribute. `window*` materials take the procedural facade, `entrance` glows with a pool of light at the door, and `lamp*` materials (a bridge's cable lights, lantern heads) are drawn unshaded in warm white at night and not at all by day. A `_FLOODLIGHT` float attribute, 0–1 per vertex, washes floodlit stone back toward its own colour in warm white light, so a bridge's towers can be lit without lighting its anchorages. The landmarks repository's `STYLE.md` describes how models set them.
 
 A mesh includes the surfaces and nearby ground ways needed to place objects on or below bridges. Until all required meshes are available, the ordinary flat bridges remain visible. There is no expensive client-side geometry fallback.
 
