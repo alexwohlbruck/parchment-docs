@@ -1,0 +1,50 @@
+---
+title: Toast notifications
+description: Repeated notifications, request errors, and useful actions.
+---
+
+Import `toast` from `@/lib/toast`. The wrapper preserves the application's offline-error policy and groups repeated notifications.
+
+## Repeated notifications
+
+Plain-text notifications without buttons are grouped by their type, message, and description. Repeating one updates the existing toast and briefly pulses it. The pulse respects reduced-motion preferences and does not change the notification's position. The wrapper does not explicitly extend its lifetime; dismissal and expiration remain managed by Vue Sonner.
+
+Use an explicit `id` when wording changes but the notification represents the same operation:
+
+```ts
+toast.info('Copied to clipboard', { id: 'clipboard' })
+```
+
+Notifications with action or cancel buttons stay separate unless an explicit ID is supplied. Include the entity ID when grouping these notifications, so actions for different collections retain their own destinations. Components, function-valued messages, and unkeyed loading notifications are not automatically grouped.
+
+Keyed updates replace their action, cancel button, description, and dismissal callbacks. Supply those options again when they should remain present.
+
+## Request errors
+
+Pass the original caught error through `cause`:
+
+```ts
+try {
+  await saveCollection()
+} catch (error) {
+  toast.error('Could not save collection', { cause: error })
+}
+```
+
+The API interceptor also passes the error. Reporting the same object updates one notification with the caller's more specific message, preserving the API description when the caller supplies none. Different error objects remain independent. An explicit ID takes precedence, allowing sync failures to aggregate into one notification.
+
+Errors are suppressed while offline, and cancelled/offline causes remain suppressed even if connectivity has returned. `force: true` bypasses suppression for failures the user must see, such as a failed local write. Success, information, and warning notifications remain available offline.
+
+The wrapper's error policy applies to `toast.error`; do not assume native `toast.promise` error handling applies the same policy.
+
+## Useful actions
+
+Add a button when it provides a meaningful next step. Collection creation offers **View**; sync failures offer **Review sync**; identity warnings offer **Manage identity**. Route saves already navigate to their destination, and the layer store already opens on the Layers page, so those flows do not add redundant navigation buttons.
+
+Use one clear action, close any blocking dialog before navigating, and only offer Undo when the underlying operation can reliably be reversed.
+
+## Validation
+
+`web/src/lib/toast.test.ts` covers grouping, error correlation, and offline suppression. `web/src/lib/toast-lifecycle.test.ts` mounts Vue Sonner to check expiration, dismissal, action replacement, independent destinations, and reduced-motion behavior. The sync-store tests verify failure aggregation and opening the review panel.
+
+![Collection creation notification with a View action on mobile](/images/toast-feedback-mobile.png)
