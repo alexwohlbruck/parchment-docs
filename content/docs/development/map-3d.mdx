@@ -79,7 +79,7 @@ In the dark theme a landmark is lit by its glTF material names and one optional 
 
 A mesh includes the surfaces and nearby ground ways needed to place objects on or below bridges. Until every mesh in view has arrived, the ordinary flat bridges remain visible; the margin's meshes keep loading after the decks are drawn, and objects are re-stood on them in one pass rather than per mesh. There is no expensive client-side geometry fallback.
 
-Deploy the Barrelman schema/API and rebuild bridge data before enabling this client in production. A rebuild is also needed after changing the deck rules, the landmark catalog's bridge models, or road-marking geometry. API and ops must share `BRIDGE_MESH_DIR`. The directory contains immutable mesh files and precompressed copies; database rows are updated only after their files are written. Existing profile-only data remains usable by older clients, while the new client shows flat bridges until it has meshes.
+Deploy the Barrelman schema/API and rebuild bridge data before enabling this client in production. A rebuild is also needed after changing the deck rules, the landmark catalog's bridge models, or road-marking geometry. API and ops must share `BRIDGE_MESH_DIR`. The directory holds the immutable mesh files, gzipped; database rows are updated only after their files are written. Existing profile-only data remains usable by older clients, while the new client shows flat bridges until it has meshes.
 
 ## Terrain rendering
 
