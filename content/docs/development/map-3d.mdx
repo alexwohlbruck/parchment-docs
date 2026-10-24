@@ -42,7 +42,9 @@ Barrelman builds the geometry with its "Build Road Markings" task. Where lanes a
 
 Barrelman's bridge-generation jobs build the deck structure, parapets, piers, carriageway surfaces and markings ahead of time. The `bridge_decks` vector layer carries a `mesh` filename; `/tiles/bridges/models/{file}` serves that content-addressed BRM1 file. Parchment proxies it through `/proxy/barrelman/bridges/models/{file}`.
 
-The browser decodes typed-array views and uploads one indexed mesh per render callback. Shader compilation is started ahead of uploads and polled asynchronously where parallel compilation is available. Camera movements reuse the buffers; they do not solve profiles, triangulate decks, or clip road markings. Material roles are resolved in the shader so changing themes does not rebuild geometry. Active navigation routes remain a small dynamic overlay.
+Meshes are BRM version 3: positions, ground and lift as integer steps of 1e-10 mercator units (about 3 mm), each the difference from the vertex before; normals as bytes; palette slots as integers; header coordinates rounded to the same 3 mm. Gzipped, a mesh is under half the size of the float version 2 files, which clients still read.
+
+The browser fetches up to 12 meshes at once, those in view at high priority and those in the margin around it at low. It uploads as many as fit in 4 ms of each render callback. Shader compilation is started ahead of uploads and polled asynchronously where parallel compilation is available. Camera movements reuse the buffers; they do not solve profiles, triangulate decks, or clip road markings. Material roles are resolved in the shader so changing themes does not rebuild geometry. Active navigation routes remain a small dynamic overlay.
 
 ### Deck heights
 
@@ -75,7 +77,7 @@ A landmark model may stand in for a whole bridge rather than its towers. It draw
 
 In the dark theme a landmark is lit by its glTF material names and one optional vertex attribute. `window*` materials take the procedural facade, `entrance` glows with a pool of light at the door, and `lamp*` materials (a bridge's cable lights, lantern heads) are drawn unshaded in warm white at night and not at all by day. A `_FLOODLIGHT` float attribute, 0–1 per vertex, washes floodlit stone back toward its own colour in warm white light, so a bridge's towers can be lit without lighting its anchorages. The landmarks repository's `STYLE.md` describes how models set them.
 
-A mesh includes the surfaces and nearby ground ways needed to place objects on or below bridges. Until all required meshes are available, the ordinary flat bridges remain visible. There is no expensive client-side geometry fallback.
+A mesh includes the surfaces and nearby ground ways needed to place objects on or below bridges. Until every mesh in view has arrived, the ordinary flat bridges remain visible; the margin's meshes keep loading after the decks are drawn, and objects are re-stood on them in one pass rather than per mesh. There is no expensive client-side geometry fallback.
 
 Deploy the Barrelman schema/API and rebuild bridge data before enabling this client in production. A rebuild is also needed after changing the deck rules, the landmark catalog's bridge models, or road-marking geometry. API and ops must share `BRIDGE_MESH_DIR`. The directory contains immutable mesh files and precompressed copies; database rows are updated only after their files are written. Existing profile-only data remains usable by older clients, while the new client shows flat bridges until it has meshes.
 
