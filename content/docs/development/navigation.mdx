@@ -1,0 +1,45 @@
+---
+title: Navigation
+description: How guidance follows the traveller, frames the camera and talks, and where each part lives.
+---
+
+Navigation is the **guidance** module (`components/navigation` is the app's shell menu). It is a custom implementation on MapLibre; no vendor navigation SDK is involved, and the Mapbox engine is not supported during guidance.
+
+| Layer | Holds |
+|---|---|
+| `lib/guidance` | Pure logic, unit tested: route model, matching, filters, camera framing, announcements, hazards, handoffs, transit stages, lanes, alternatives, dock watch, deck lift |
+| `services/guidance` | The engine singleton, position source, voice, wake lock, map layers, and API calls (reroute, alternatives, search ahead, docks) |
+| `stores/guidance.store.ts` | The session: leg segments, progress at 4 Hz, status, transit stage, handoffs, lane plans, preferences |
+| `composables/guidance` | Camera, route line, search, alternatives, dock watch, lane guidance |
+| `views/guidance/Guidance.vue` | The `/navigate` route, `immersive` so the map's own chrome is hidden |
+
+## Following the traveller
+
+`buildNavRoute` joins a leg's segments into one polyline with cumulative distance `s`. Its steps, edges and hazards are rebased onto it.
+
+Each fix is matched to the route in a window around the last match (`route-matcher`). The match feeds a 1D Kalman filter along the route over position, speed and acceleration. That filter rejects outliers, never runs backwards, and holds still when the phone is still. Between fixes, the engine predicts at 60 fps and blends corrections in. Heading fuses gyro yaw with the course. Off-route detection uses hysteresis, then reroutes from a point projected 8 s ahead, with a heading so the new route doesn't open with a U-turn.
+
+Per-mode tuning lives in one table, `mode-profiles.ts`: speeds, arrival and handoff radii, filter noise, camera range, and which speed widgets show.
+
+## Camera
+
+Critically damped springs drive zoom, pitch and bearing, with one `jumpTo` a frame on the shared animation scheduler. A feedback loop keeps the puck at 72 % of the visible map. Zoom comes from the ground span ahead, which scales with speed and the next maneuver. When nothing is changing, the frame rate drops to 30 fps.
+
+## Voice
+
+`Announcer` schedules up to three prompts per maneuver, at lead distances that scale with speed, plus hazard and arrival prompts. `phrases.ts` turns each one into words through i18n, and `voice.service` speaks through Web Speech, unlocked by the Start tap.
+
+## Server
+
+| Endpoint | Used for |
+|---|---|
+| `POST /directions/reroute` | A fresh route for the rest of the current segment |
+| `POST /directions/alternatives` | Up to three routes for it, each with comparison metrics |
+| `POST /search/along-route` | Places ahead within a corridor sized by mode, with detour times |
+| `GET /gbfs/station`, `GET /gbfs/station/alternatives` | Live dock status, and stations to switch to (premium) |
+
+Trip and reroute segments carry `hazards`, derived from GraphHopper edge details, curvature and the elevation profile. Hazards that matter for safety are never gated. The rest require `premium:navigation`.
+
+## Simulator
+
+In development, *Simulate* in the navigation sheet drives the route. It uses a speed profile per segment, stops at turns and transit stops, and adds GPS noise. Alongside it are controls for a wrong turn, *Wait too long* and *Stay on board* (transit), forcing a bike share station to fill up or go empty, and checking for better routes. `guidanceClock` lets it move the timetable forward.
