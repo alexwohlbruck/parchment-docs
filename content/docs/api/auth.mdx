@@ -56,14 +56,14 @@ _openapi:
       title: Delete Auth Sessions Others
       url: '#delete-auth-sessions-others'
     - depth: 2
-      title: Get Auth Sessions Current
-      url: '#get-auth-sessions-current'
-    - depth: 2
       title: Get current session permissions
       url: '#get-current-session-permissions'
     - depth: 2
       title: Delete a session
       url: '#delete-a-session'
+    - depth: 2
+      title: Get Auth Sessions Current
+      url: '#get-auth-sessions-current'
   structuredData:
     headings:
       - content: Post Auth Verify
@@ -104,14 +104,16 @@ _openapi:
         id: delete-auth-sessions-all
       - content: Delete Auth Sessions Others
         id: delete-auth-sessions-others
-      - content: Get Auth Sessions Current
-        id: get-auth-sessions-current
       - content: Get current session permissions
         id: get-current-session-permissions
       - content: Delete a session
         id: delete-a-session
+      - content: Get Auth Sessions Current
+        id: get-auth-sessions-current
     contents:
-      - content: Verify an email address by requesting a one-time password.
+      - content: >-
+          Verify an email address by requesting a one-time password. The code is
+          valid for 15 minutes and is single-use.
         heading: post-auth-verify
       - content: Verify webauthn passkey registration.
         heading: post-auth-passkeys-register-verify
@@ -137,4 +139,4 @@ _openapi:
 
 Authentication and session endpoints
 
-<APIPage document={"openapi.json"} operations={[{"path":"/auth/verify","method":"post"},{"path":"/auth/passkeys/register/options","method":"post"},{"path":"/auth/passkeys/register/verify","method":"post"},{"path":"/auth/passkeys/authenticate/options","method":"post"},{"path":"/auth/passkeys/authenticate/verify","method":"post"},{"path":"/auth/passkeys/","method":"get"},{"path":"/auth/passkeys/prf-assert/options","method":"post"},{"path":"/auth/passkeys/{credentialId}/prf-enroll/options","method":"post"},{"path":"/auth/passkeys/{passkeyId}","method":"delete"},{"path":"/auth/sessions/","method":"get"},{"path":"/auth/sessions/","method":"post"},{"path":"/auth/sessions/","method":"delete"},{"path":"/auth/sessions/all","method":"delete"},{"path":"/auth/sessions/others","method":"delete"},{"path":"/auth/sessions/current","method":"get"},{"path":"/auth/sessions/current/permissions","method":"get"},{"path":"/auth/sessions/{sessionId}","method":"delete"}]} webhooks={[]} hasHead={true} />
+<APIPage document={"openapi.json"} operations={[{"path":"/auth/verify","method":"post"},{"path":"/auth/passkeys/register/options","method":"post"},{"path":"/auth/passkeys/register/verify","method":"post"},{"path":"/auth/passkeys/authenticate/options","method":"post"},{"path":"/auth/passkeys/authenticate/verify","method":"post"},{"path":"/auth/passkeys/","method":"get"},{"path":"/auth/passkeys/prf-assert/options","method":"post"},{"path":"/auth/passkeys/{credentialId}/prf-enroll/options","method":"post"},{"path":"/auth/passkeys/{passkeyId}","method":"delete"},{"path":"/auth/sessions/","method":"get"},{"path":"/auth/sessions/","method":"post"},{"path":"/auth/sessions/","method":"delete"},{"path":"/auth/sessions/all","method":"delete"},{"path":"/auth/sessions/others","method":"delete"},{"path":"/auth/sessions/current/permissions","method":"get"},{"path":"/auth/sessions/{sessionId}","method":"delete"},{"path":"/auth/sessions/current","method":"get"}]} webhooks={[]} hasHead={true} />

@@ -81,6 +81,10 @@
     {
       "name": "Weather",
       "description": "Weather data"
+    },
+    {
+      "name": "Feedback",
+      "description": "User feedback and feature requests"
     }
   ],
   "paths": {
@@ -91,7 +95,7 @@
         "tags": [
           "Auth"
         ],
-        "description": "Verify an email address by requesting a one-time password.",
+        "description": "Verify an email address by requesting a one-time password. The code is valid for 15 minutes and is single-use.",
         "requestBody": {
           "required": true,
           "content": {
@@ -789,18 +793,6 @@
         }
       }
     },
-    "/auth/sessions/current": {
-      "get": {
-        "operationId": "getAuthSessionsCurrent",
-        "tags": [
-          "Auth",
-          "Users"
-        ],
-        "responses": {
-          "200": {}
-        }
-      }
-    },
     "/auth/sessions/current/permissions": {
       "get": {
         "operationId": "getAuthSessionsCurrentPermissions",
@@ -829,6 +821,18 @@
             "name": "sessionId",
             "required": true
           }
+        ],
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/auth/sessions/current": {
+      "get": {
+        "operationId": "getAuthSessionsCurrent",
+        "tags": [
+          "Auth",
+          "Users"
         ],
         "responses": {
           "200": {}
@@ -1171,7 +1175,7 @@
         "parameters": [],
         "operationId": "postDirections",
         "summary": "Plan a multimodal trip",
-        "description": "Generate multiple trip options using different transportation modes and combinations",
+        "description": "Generate multiple trip options using different transportation modes and combinations. A request with more than two waypoints returns one whole journey per travel strategy, each carried from stop to stop — a journey that cycles to the first stop still has the bike at the second. Segments carry `legIndex` to say which hop they belong to. A transit leg's `routeOptions` lists the other lines running the same stops at that time. Its `shortName` names the line; a line with no GTFS short name reads by its long name, and the train number moves to `trip.shortName`. A walking segment with `streetTransfer` leaves the paid area between stations the agency does not connect, so the next ride is a new fare. Street segments carry `hazards`: crosswalks, rail crossings, tunnels, fords, steep grades, stairs, sharp curves and the like, placed by distance along the segment. Comfort hazards (rough surfaces, dismount sections, ferries) appear only for users with premium navigation. Driving segments carry `drivingSide`, and where the routing engine knows the lanes, `laneGeometry` (the route drawn in the lanes it takes, with `measures` giving the distance along `geometry` each coordinate stands for) and `lanePlan` (per instruction index, the approach lanes left to right and which lead on).",
         "tags": [
           "Trip Planning"
         ],
@@ -1264,10 +1268,6 @@
                       },
                       {
                         "const": "transit",
-                        "type": "string"
-                      },
-                      {
-                        "const": "wheelchair",
                         "type": "string"
                       },
                       {
@@ -1373,7 +1373,7 @@
                         "type": "number"
                       },
                       "transitBufferMinutes": {
-                        "minimum": 1,
+                        "minimum": 0,
                         "maximum": 5,
                         "type": "number"
                       },
@@ -1445,10 +1445,6 @@
                             },
                             {
                               "const": "e-scooter",
-                              "type": "string"
-                            },
-                            {
-                              "const": "wheelchair",
                               "type": "string"
                             },
                             {
@@ -1648,10 +1644,6 @@
                         "type": "string"
                       },
                       {
-                        "const": "wheelchair",
-                        "type": "string"
-                      },
-                      {
                         "const": "rideshare",
                         "type": "string"
                       }
@@ -1754,7 +1746,7 @@
                         "type": "number"
                       },
                       "transitBufferMinutes": {
-                        "minimum": 1,
+                        "minimum": 0,
                         "maximum": 5,
                         "type": "number"
                       },
@@ -1826,10 +1818,6 @@
                             },
                             {
                               "const": "e-scooter",
-                              "type": "string"
-                            },
-                            {
-                              "const": "wheelchair",
                               "type": "string"
                             },
                             {
@@ -2029,10 +2017,6 @@
                         "type": "string"
                       },
                       {
-                        "const": "wheelchair",
-                        "type": "string"
-                      },
-                      {
                         "const": "rideshare",
                         "type": "string"
                       }
@@ -2135,7 +2119,7 @@
                         "type": "number"
                       },
                       "transitBufferMinutes": {
-                        "minimum": 1,
+                        "minimum": 0,
                         "maximum": 5,
                         "type": "number"
                       },
@@ -2207,10 +2191,6 @@
                             },
                             {
                               "const": "e-scooter",
-                              "type": "string"
-                            },
-                            {
-                              "const": "wheelchair",
                               "type": "string"
                             },
                             {
@@ -2318,6 +2298,458 @@
                 },
                 "required": [
                   "waypoints"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/directions/reroute": {
+      "post": {
+        "parameters": [],
+        "operationId": "postDirectionsReroute",
+        "summary": "Reroute the current segment during navigation",
+        "description": "Plans a fresh street route from where the traveller is to the end of the segment they are on, favouring the direction they are already heading so the new route does not open with a U-turn. Send a position projected a few seconds ahead of the last fix. Returns one segment in the same shape as a `/directions` trip segment.",
+        "tags": [
+          "Trip Planning"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "position": {
+                    "type": "object",
+                    "properties": {
+                      "lat": {
+                        "type": "number"
+                      },
+                      "lng": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "lat",
+                      "lng"
+                    ]
+                  },
+                  "heading": {
+                    "minimum": 0,
+                    "maximum": 360,
+                    "type": "number"
+                  },
+                  "destination": {
+                    "type": "object",
+                    "properties": {
+                      "lat": {
+                        "type": "number"
+                      },
+                      "lng": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "lat",
+                      "lng"
+                    ]
+                  },
+                  "mode": {
+                    "anyOf": [
+                      {
+                        "const": "walking",
+                        "type": "string"
+                      },
+                      {
+                        "const": "cycling",
+                        "type": "string"
+                      },
+                      {
+                        "const": "driving",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "routingPreferences": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^(.*)$": {}
+                    }
+                  }
+                },
+                "required": [
+                  "position",
+                  "destination",
+                  "mode"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "position": {
+                    "type": "object",
+                    "properties": {
+                      "lat": {
+                        "type": "number"
+                      },
+                      "lng": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "lat",
+                      "lng"
+                    ]
+                  },
+                  "heading": {
+                    "minimum": 0,
+                    "maximum": 360,
+                    "type": "number"
+                  },
+                  "destination": {
+                    "type": "object",
+                    "properties": {
+                      "lat": {
+                        "type": "number"
+                      },
+                      "lng": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "lat",
+                      "lng"
+                    ]
+                  },
+                  "mode": {
+                    "anyOf": [
+                      {
+                        "const": "walking",
+                        "type": "string"
+                      },
+                      {
+                        "const": "cycling",
+                        "type": "string"
+                      },
+                      {
+                        "const": "driving",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "routingPreferences": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^(.*)$": {}
+                    }
+                  }
+                },
+                "required": [
+                  "position",
+                  "destination",
+                  "mode"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "position": {
+                    "type": "object",
+                    "properties": {
+                      "lat": {
+                        "type": "number"
+                      },
+                      "lng": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "lat",
+                      "lng"
+                    ]
+                  },
+                  "heading": {
+                    "minimum": 0,
+                    "maximum": 360,
+                    "type": "number"
+                  },
+                  "destination": {
+                    "type": "object",
+                    "properties": {
+                      "lat": {
+                        "type": "number"
+                      },
+                      "lng": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "lat",
+                      "lng"
+                    ]
+                  },
+                  "mode": {
+                    "anyOf": [
+                      {
+                        "const": "walking",
+                        "type": "string"
+                      },
+                      {
+                        "const": "cycling",
+                        "type": "string"
+                      },
+                      {
+                        "const": "driving",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "routingPreferences": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^(.*)$": {}
+                    }
+                  }
+                },
+                "required": [
+                  "position",
+                  "destination",
+                  "mode"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/directions/alternatives": {
+      "post": {
+        "parameters": [],
+        "operationId": "postDirectionsAlternatives",
+        "summary": "Alternative routes for the rest of the current segment",
+        "description": "The same request as `/reroute`, answered with up to three routes from where the traveller is to the end of their segment. Each is a segment like `/reroute` returns, plus `metrics`: `duration`, `distance`, `turns`, `protectedShare` and `majorRoadShare` (fractions of distance), `crossings`, and `via`, the street carrying most of the route.",
+        "tags": [
+          "Trip Planning"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "position": {
+                    "type": "object",
+                    "properties": {
+                      "lat": {
+                        "type": "number"
+                      },
+                      "lng": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "lat",
+                      "lng"
+                    ]
+                  },
+                  "heading": {
+                    "minimum": 0,
+                    "maximum": 360,
+                    "type": "number"
+                  },
+                  "destination": {
+                    "type": "object",
+                    "properties": {
+                      "lat": {
+                        "type": "number"
+                      },
+                      "lng": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "lat",
+                      "lng"
+                    ]
+                  },
+                  "mode": {
+                    "anyOf": [
+                      {
+                        "const": "walking",
+                        "type": "string"
+                      },
+                      {
+                        "const": "cycling",
+                        "type": "string"
+                      },
+                      {
+                        "const": "driving",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "routingPreferences": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^(.*)$": {}
+                    }
+                  }
+                },
+                "required": [
+                  "position",
+                  "destination",
+                  "mode"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "position": {
+                    "type": "object",
+                    "properties": {
+                      "lat": {
+                        "type": "number"
+                      },
+                      "lng": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "lat",
+                      "lng"
+                    ]
+                  },
+                  "heading": {
+                    "minimum": 0,
+                    "maximum": 360,
+                    "type": "number"
+                  },
+                  "destination": {
+                    "type": "object",
+                    "properties": {
+                      "lat": {
+                        "type": "number"
+                      },
+                      "lng": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "lat",
+                      "lng"
+                    ]
+                  },
+                  "mode": {
+                    "anyOf": [
+                      {
+                        "const": "walking",
+                        "type": "string"
+                      },
+                      {
+                        "const": "cycling",
+                        "type": "string"
+                      },
+                      {
+                        "const": "driving",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "routingPreferences": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^(.*)$": {}
+                    }
+                  }
+                },
+                "required": [
+                  "position",
+                  "destination",
+                  "mode"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "position": {
+                    "type": "object",
+                    "properties": {
+                      "lat": {
+                        "type": "number"
+                      },
+                      "lng": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "lat",
+                      "lng"
+                    ]
+                  },
+                  "heading": {
+                    "minimum": 0,
+                    "maximum": 360,
+                    "type": "number"
+                  },
+                  "destination": {
+                    "type": "object",
+                    "properties": {
+                      "lat": {
+                        "type": "number"
+                      },
+                      "lng": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "lat",
+                      "lng"
+                    ]
+                  },
+                  "mode": {
+                    "anyOf": [
+                      {
+                        "const": "walking",
+                        "type": "string"
+                      },
+                      {
+                        "const": "cycling",
+                        "type": "string"
+                      },
+                      {
+                        "const": "driving",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "routingPreferences": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^(.*)$": {}
+                    }
+                  }
+                },
+                "required": [
+                  "position",
+                  "destination",
+                  "mode"
                 ]
               }
             }
@@ -2442,10 +2874,6 @@
                         "type": "string"
                       },
                       {
-                        "const": "wheelchair",
-                        "type": "string"
-                      },
-                      {
                         "const": "rideshare",
                         "type": "string"
                       }
@@ -2548,7 +2976,7 @@
                         "type": "number"
                       },
                       "transitBufferMinutes": {
-                        "minimum": 1,
+                        "minimum": 0,
                         "maximum": 5,
                         "type": "number"
                       },
@@ -2620,10 +3048,6 @@
                             },
                             {
                               "const": "e-scooter",
-                              "type": "string"
-                            },
-                            {
-                              "const": "wheelchair",
                               "type": "string"
                             },
                             {
@@ -2823,10 +3247,6 @@
                         "type": "string"
                       },
                       {
-                        "const": "wheelchair",
-                        "type": "string"
-                      },
-                      {
                         "const": "rideshare",
                         "type": "string"
                       }
@@ -2929,7 +3349,7 @@
                         "type": "number"
                       },
                       "transitBufferMinutes": {
-                        "minimum": 1,
+                        "minimum": 0,
                         "maximum": 5,
                         "type": "number"
                       },
@@ -3001,10 +3421,6 @@
                             },
                             {
                               "const": "e-scooter",
-                              "type": "string"
-                            },
-                            {
-                              "const": "wheelchair",
                               "type": "string"
                             },
                             {
@@ -3204,10 +3620,6 @@
                         "type": "string"
                       },
                       {
-                        "const": "wheelchair",
-                        "type": "string"
-                      },
-                      {
                         "const": "rideshare",
                         "type": "string"
                       }
@@ -3310,7 +3722,7 @@
                         "type": "number"
                       },
                       "transitBufferMinutes": {
-                        "minimum": 1,
+                        "minimum": 0,
                         "maximum": 5,
                         "type": "number"
                       },
@@ -3382,10 +3794,6 @@
                             },
                             {
                               "const": "e-scooter",
-                              "type": "string"
-                            },
-                            {
-                              "const": "wheelchair",
                               "type": "string"
                             },
                             {
@@ -3894,6 +4302,108 @@
         }
       }
     },
+    "/feedback/boards": {
+      "get": {
+        "operationId": "getFeedbackBoards",
+        "tags": [
+          "Feedback"
+        ],
+        "summary": "List feedback boards",
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/feedback/": {
+      "post": {
+        "parameters": [],
+        "operationId": "postFeedback",
+        "tags": [
+          "Feedback"
+        ],
+        "summary": "Submit feedback",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "boardId": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "title": {
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "type": "string"
+                  },
+                  "content": {
+                    "maxLength": 10000,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "boardId",
+                  "title"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "boardId": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "title": {
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "type": "string"
+                  },
+                  "content": {
+                    "maxLength": 10000,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "boardId",
+                  "title"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "boardId": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "title": {
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "type": "string"
+                  },
+                  "content": {
+                    "maxLength": 10000,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "boardId",
+                  "title"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      }
+    },
     "/friends/": {
       "get": {
         "operationId": "getFriends",
@@ -4239,6 +4749,92 @@
         }
       }
     },
+    "/gbfs/station": {
+      "get": {
+        "operationId": "getGbfsStation",
+        "tags": [
+          "GBFS"
+        ],
+        "summary": "One station with live availability",
+        "description": "By `systemId` + `stationId`, or the station nearest `lat`/`lng` within `radius` metres.",
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/gbfs/station/alternatives": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "lat",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "lng",
+            "required": true
+          },
+          {
+            "schema": {
+              "anyOf": [
+                {
+                  "const": "dock",
+                  "type": "string"
+                },
+                {
+                  "const": "bike",
+                  "type": "string"
+                }
+              ]
+            },
+            "in": "query",
+            "name": "need",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "number",
+              "minimum": 1
+            },
+            "in": "query",
+            "name": "min",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "toLat",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "toLng",
+            "required": false
+          }
+        ],
+        "operationId": "getGbfsStationAlternatives",
+        "tags": [
+          "GBFS"
+        ],
+        "summary": "Stations to switch to when one fills up or runs dry",
+        "description": "Nearby stations within 700 m of `lat`/`lng` holding at least `min` (default 3) free docks (`need=dock`) or bikes (`need=bike`), excluding the original. Ranked by distance to `toLat`/`toLng` (where the traveller goes next) when given, else to the original. Requires the premium navigation permission.",
+        "responses": {
+          "200": {}
+        }
+      }
+    },
     "/geocoding/forward": {
       "get": {
         "parameters": [
@@ -4288,7 +4884,7 @@
           "Geocoding"
         ],
         "summary": "Forward geocode an address to coordinates",
-        "description": "Convert an address or location query into geographic coordinates. Optionally provide lat/lng for location bias.",
+        "description": "Convert an address or location query into geographic coordinates. Optionally provide lat/lng for location bias. Served by the highest-priority configured geocoding integration, falling back to the next when one is unavailable or has no coverage.",
         "responses": {
           "200": {}
         }
@@ -4334,7 +4930,7 @@
           "Geocoding"
         ],
         "summary": "Reverse geocode coordinates to an address",
-        "description": "Convert geographic coordinates (latitude and longitude) into a human-readable address.",
+        "description": "Convert geographic coordinates (latitude and longitude) into a human-readable address. Served by the highest-priority configured geocoding integration, falling back to the next when one is unavailable or has no coverage.",
         "responses": {
           "200": {}
         }
@@ -5092,6 +5688,16 @@
         "responses": {
           "200": {}
         }
+      },
+      "get": {
+        "operationId": "getLibraryBookmarks",
+        "tags": [
+          "Library"
+        ],
+        "summary": "Get all of the caller's bookmarks",
+        "responses": {
+          "200": {}
+        }
       }
     },
     "/library/bookmarks/{id}": {
@@ -5129,12 +5735,6 @@
                   },
                   "lng": {
                     "type": "number"
-                  },
-                  "icon": {
-                    "type": "string"
-                  },
-                  "iconColor": {
-                    "type": "string"
                   },
                   "frequentType": {
                     "anyOf": [
@@ -5184,12 +5784,6 @@
                   "lng": {
                     "type": "number"
                   },
-                  "icon": {
-                    "type": "string"
-                  },
-                  "iconColor": {
-                    "type": "string"
-                  },
                   "frequentType": {
                     "anyOf": [
                       {
@@ -5237,12 +5831,6 @@
                   },
                   "lng": {
                     "type": "number"
-                  },
-                  "icon": {
-                    "type": "string"
-                  },
-                  "iconColor": {
-                    "type": "string"
                   },
                   "frequentType": {
                     "anyOf": [
@@ -5390,6 +5978,759 @@
         }
       }
     },
+    "/library/canvases/": {
+      "get": {
+        "operationId": "getLibraryCanvases",
+        "tags": [
+          "Library"
+        ],
+        "summary": "Get all canvases",
+        "responses": {
+          "200": {}
+        }
+      },
+      "post": {
+        "parameters": [],
+        "operationId": "postLibraryCanvases",
+        "tags": [
+          "Library"
+        ],
+        "summary": "Create a canvas",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "scheme": {
+                    "anyOf": [
+                      {
+                        "const": "server-key",
+                        "type": "string"
+                      },
+                      {
+                        "const": "user-e2ee",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "isPublic": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "scheme": {
+                    "anyOf": [
+                      {
+                        "const": "server-key",
+                        "type": "string"
+                      },
+                      {
+                        "const": "user-e2ee",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "isPublic": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "scheme": {
+                    "anyOf": [
+                      {
+                        "const": "server-key",
+                        "type": "string"
+                      },
+                      {
+                        "const": "user-e2ee",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "isPublic": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/library/canvases/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "getLibraryCanvasesById",
+        "tags": [
+          "Library"
+        ],
+        "summary": "Get a canvas by ID",
+        "responses": {
+          "200": {}
+        }
+      },
+      "put": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "putLibraryCanvasesById",
+        "tags": [
+          "Library"
+        ],
+        "summary": "Update a canvas",
+        "description": "Returns the canvas without its body: a canvas saves itself as it is edited, and the document it has just sent is the one thing the client already holds. Read it back with GET /canvases/:id.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "isPublic": {
+                    "type": "boolean"
+                  },
+                  "name": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "description": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "icon": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "iconColor": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "body": {
+                    "anyOf": [
+                      {},
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "metadataEncrypted": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "metadataKeyVersion": {
+                    "type": "number"
+                  },
+                  "bodyEncrypted": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "isPublic": {
+                    "type": "boolean"
+                  },
+                  "name": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "description": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "icon": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "iconColor": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "body": {
+                    "anyOf": [
+                      {},
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "metadataEncrypted": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "metadataKeyVersion": {
+                    "type": "number"
+                  },
+                  "bodyEncrypted": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "isPublic": {
+                    "type": "boolean"
+                  },
+                  "name": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "description": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "icon": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "iconColor": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "body": {
+                    "anyOf": [
+                      {},
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "metadataEncrypted": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "metadataKeyVersion": {
+                    "type": "number"
+                  },
+                  "bodyEncrypted": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "deleteLibraryCanvasesById",
+        "tags": [
+          "Library"
+        ],
+        "summary": "Delete a canvas",
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/library/canvases/{id}/change-scheme": {
+      "post": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "postLibraryCanvasesByIdChange-scheme",
+        "tags": [
+          "Library"
+        ],
+        "summary": "Change a canvas encryption scheme",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "targetScheme": {
+                    "anyOf": [
+                      {
+                        "const": "server-key",
+                        "type": "string"
+                      },
+                      {
+                        "const": "user-e2ee",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "name": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "description": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "icon": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "iconColor": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "body": {
+                    "anyOf": [
+                      {},
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "metadataEncrypted": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "metadataKeyVersion": {
+                    "type": "number"
+                  },
+                  "bodyEncrypted": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "targetScheme"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "targetScheme": {
+                    "anyOf": [
+                      {
+                        "const": "server-key",
+                        "type": "string"
+                      },
+                      {
+                        "const": "user-e2ee",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "name": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "description": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "icon": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "iconColor": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "body": {
+                    "anyOf": [
+                      {},
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "metadataEncrypted": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "metadataKeyVersion": {
+                    "type": "number"
+                  },
+                  "bodyEncrypted": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "targetScheme"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "targetScheme": {
+                    "anyOf": [
+                      {
+                        "const": "server-key",
+                        "type": "string"
+                      },
+                      {
+                        "const": "user-e2ee",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "name": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "description": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "icon": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "iconColor": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "body": {
+                    "anyOf": [
+                      {},
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "metadataEncrypted": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "metadataKeyVersion": {
+                    "type": "number"
+                  },
+                  "bodyEncrypted": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "targetScheme"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/library/canvases/{id}/public-link": {
+      "post": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "postLibraryCanvasesByIdPublic-link",
+        "tags": [
+          "Library"
+        ],
+        "summary": "Create a public link for a canvas",
+        "responses": {
+          "200": {}
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "deleteLibraryCanvasesByIdPublic-link",
+        "tags": [
+          "Library"
+        ],
+        "summary": "Revoke a canvas public link",
+        "responses": {
+          "200": {}
+        }
+      }
+    },
     "/library/collections/": {
       "get": {
         "operationId": "getLibraryCollections",
@@ -5408,6 +6749,7 @@
           "Library"
         ],
         "summary": "Create a new collection",
+        "description": "Creates a collection, `server-key` unless `scheme` says otherwise. A server-key collection takes cleartext metadata. A user-e2ee collection takes none: the client seals it with `PUT /:id` once the id exists, and cleartext fields are rejected with 400.",
         "requestBody": {
           "required": true,
           "content": {
@@ -5415,6 +6757,42 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "icon": {
+                    "type": "string"
+                  },
+                  "iconPack": {
+                    "anyOf": [
+                      {
+                        "const": "lucide",
+                        "type": "string"
+                      },
+                      {
+                        "const": "maki",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "iconColor": {
+                    "type": "string"
+                  },
+                  "scheme": {
+                    "anyOf": [
+                      {
+                        "const": "server-key",
+                        "type": "string"
+                      },
+                      {
+                        "const": "user-e2ee",
+                        "type": "string"
+                      }
+                    ]
+                  },
                   "metadataEncrypted": {
                     "type": "string"
                   },
@@ -5424,16 +6802,49 @@
                   "isPublic": {
                     "type": "boolean"
                   }
-                },
-                "required": [
-                  "metadataEncrypted"
-                ]
+                }
               }
             },
             "multipart/form-data": {
               "schema": {
                 "type": "object",
                 "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "icon": {
+                    "type": "string"
+                  },
+                  "iconPack": {
+                    "anyOf": [
+                      {
+                        "const": "lucide",
+                        "type": "string"
+                      },
+                      {
+                        "const": "maki",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "iconColor": {
+                    "type": "string"
+                  },
+                  "scheme": {
+                    "anyOf": [
+                      {
+                        "const": "server-key",
+                        "type": "string"
+                      },
+                      {
+                        "const": "user-e2ee",
+                        "type": "string"
+                      }
+                    ]
+                  },
                   "metadataEncrypted": {
                     "type": "string"
                   },
@@ -5443,16 +6854,49 @@
                   "isPublic": {
                     "type": "boolean"
                   }
-                },
-                "required": [
-                  "metadataEncrypted"
-                ]
+                }
               }
             },
             "text/plain": {
               "schema": {
                 "type": "object",
                 "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "icon": {
+                    "type": "string"
+                  },
+                  "iconPack": {
+                    "anyOf": [
+                      {
+                        "const": "lucide",
+                        "type": "string"
+                      },
+                      {
+                        "const": "maki",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "iconColor": {
+                    "type": "string"
+                  },
+                  "scheme": {
+                    "anyOf": [
+                      {
+                        "const": "server-key",
+                        "type": "string"
+                      },
+                      {
+                        "const": "user-e2ee",
+                        "type": "string"
+                      }
+                    ]
+                  },
                   "metadataEncrypted": {
                     "type": "string"
                   },
@@ -5462,10 +6906,7 @@
                   "isPublic": {
                     "type": "boolean"
                   }
-                },
-                "required": [
-                  "metadataEncrypted"
-                ]
+                }
               }
             }
           }
@@ -5524,6 +6965,7 @@
           "Library"
         ],
         "summary": "Update a collection",
+        "description": "Server-key collections take cleartext metadata, which also clears any legacy envelope. User-e2ee collections take only `metadataEncrypted`; cleartext fields are rejected with 400.",
         "requestBody": {
           "required": true,
           "content": {
@@ -5531,6 +6973,30 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "icon": {
+                    "type": "string"
+                  },
+                  "iconPack": {
+                    "anyOf": [
+                      {
+                        "const": "lucide",
+                        "type": "string"
+                      },
+                      {
+                        "const": "maki",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "iconColor": {
+                    "type": "string"
+                  },
                   "metadataEncrypted": {
                     "type": "string"
                   },
@@ -5547,6 +7013,30 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "icon": {
+                    "type": "string"
+                  },
+                  "iconPack": {
+                    "anyOf": [
+                      {
+                        "const": "lucide",
+                        "type": "string"
+                      },
+                      {
+                        "const": "maki",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "iconColor": {
+                    "type": "string"
+                  },
                   "metadataEncrypted": {
                     "type": "string"
                   },
@@ -5563,6 +7053,30 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "icon": {
+                    "type": "string"
+                  },
+                  "iconPack": {
+                    "anyOf": [
+                      {
+                        "const": "lucide",
+                        "type": "string"
+                      },
+                      {
+                        "const": "maki",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "iconColor": {
+                    "type": "string"
+                  },
                   "metadataEncrypted": {
                     "type": "string"
                   },
@@ -5602,72 +7116,6 @@
         }
       }
     },
-    "/library/collections/{id}/sensitive": {
-      "put": {
-        "parameters": [
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "id",
-            "required": true
-          }
-        ],
-        "operationId": "putLibraryCollectionsByIdSensitive",
-        "tags": [
-          "Library"
-        ],
-        "summary": "Toggle sensitive mode for a collection",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "isSensitive": {
-                    "type": "boolean"
-                  }
-                },
-                "required": [
-                  "isSensitive"
-                ]
-              }
-            },
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "isSensitive": {
-                    "type": "boolean"
-                  }
-                },
-                "required": [
-                  "isSensitive"
-                ]
-              }
-            },
-            "text/plain": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "isSensitive": {
-                    "type": "boolean"
-                  }
-                },
-                "required": [
-                  "isSensitive"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {}
-        }
-      }
-    },
     "/library/collections/{id}/change-scheme": {
       "post": {
         "parameters": [
@@ -5685,6 +7133,7 @@
           "Library"
         ],
         "summary": "Change a collection's encryption scheme",
+        "description": "Metadata moves with the scheme: upgrading to user-e2ee requires `newMetadataEncrypted` and clears the cleartext fields; downgrading to server-key requires `metadata` and clears the envelope.",
         "requestBody": {
           "required": true,
           "content": {
@@ -5706,6 +7155,35 @@
                   },
                   "newMetadataEncrypted": {
                     "type": "string"
+                  },
+                  "metadata": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "icon": {
+                        "type": "string"
+                      },
+                      "iconPack": {
+                        "anyOf": [
+                          {
+                            "const": "lucide",
+                            "type": "string"
+                          },
+                          {
+                            "const": "maki",
+                            "type": "string"
+                          }
+                        ]
+                      },
+                      "iconColor": {
+                        "type": "string"
+                      }
+                    }
                   },
                   "newMetadataKeyVersion": {
                     "type": "number"
@@ -5773,6 +7251,18 @@
                         "icon": {
                           "type": "string"
                         },
+                        "iconPack": {
+                          "anyOf": [
+                            {
+                              "const": "lucide",
+                              "type": "string"
+                            },
+                            {
+                              "const": "maki",
+                              "type": "string"
+                            }
+                          ]
+                        },
                         "iconColor": {
                           "type": "string"
                         },
@@ -5821,7 +7311,6 @@
                 },
                 "required": [
                   "targetScheme",
-                  "newMetadataEncrypted",
                   "newMetadataKeyVersion",
                   "updatedShareEnvelopes"
                 ]
@@ -5846,6 +7335,35 @@
                   "newMetadataEncrypted": {
                     "type": "string"
                   },
+                  "metadata": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "icon": {
+                        "type": "string"
+                      },
+                      "iconPack": {
+                        "anyOf": [
+                          {
+                            "const": "lucide",
+                            "type": "string"
+                          },
+                          {
+                            "const": "maki",
+                            "type": "string"
+                          }
+                        ]
+                      },
+                      "iconColor": {
+                        "type": "string"
+                      }
+                    }
+                  },
                   "newMetadataKeyVersion": {
                     "type": "number"
                   },
@@ -5912,6 +7430,18 @@
                         "icon": {
                           "type": "string"
                         },
+                        "iconPack": {
+                          "anyOf": [
+                            {
+                              "const": "lucide",
+                              "type": "string"
+                            },
+                            {
+                              "const": "maki",
+                              "type": "string"
+                            }
+                          ]
+                        },
                         "iconColor": {
                           "type": "string"
                         },
@@ -5960,7 +7490,6 @@
                 },
                 "required": [
                   "targetScheme",
-                  "newMetadataEncrypted",
                   "newMetadataKeyVersion",
                   "updatedShareEnvelopes"
                 ]
@@ -5985,6 +7514,35 @@
                   "newMetadataEncrypted": {
                     "type": "string"
                   },
+                  "metadata": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "icon": {
+                        "type": "string"
+                      },
+                      "iconPack": {
+                        "anyOf": [
+                          {
+                            "const": "lucide",
+                            "type": "string"
+                          },
+                          {
+                            "const": "maki",
+                            "type": "string"
+                          }
+                        ]
+                      },
+                      "iconColor": {
+                        "type": "string"
+                      }
+                    }
+                  },
                   "newMetadataKeyVersion": {
                     "type": "number"
                   },
@@ -6051,6 +7609,18 @@
                         "icon": {
                           "type": "string"
                         },
+                        "iconPack": {
+                          "anyOf": [
+                            {
+                              "const": "lucide",
+                              "type": "string"
+                            },
+                            {
+                              "const": "maki",
+                              "type": "string"
+                            }
+                          ]
+                        },
                         "iconColor": {
                           "type": "string"
                         },
@@ -6099,7 +7669,6 @@
                 },
                 "required": [
                   "targetScheme",
-                  "newMetadataEncrypted",
                   "newMetadataKeyVersion",
                   "updatedShareEnvelopes"
                 ]
@@ -6425,6 +7994,7 @@
           "Library"
         ],
         "summary": "Create an encrypted point",
+        "description": "Pass `id` when the envelope was sealed with it: the point AAD binds the point id, so the client mints it before encrypting.",
         "requestBody": {
           "required": true,
           "content": {
@@ -6432,6 +8002,11 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "id": {
+                    "minLength": 8,
+                    "maxLength": 64,
+                    "type": "string"
+                  },
                   "encryptedData": {
                     "type": "string"
                   },
@@ -6449,6 +8024,11 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "id": {
+                    "minLength": 8,
+                    "maxLength": 64,
+                    "type": "string"
+                  },
                   "encryptedData": {
                     "type": "string"
                   },
@@ -6466,6 +8046,11 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "id": {
+                    "minLength": 8,
+                    "maxLength": 64,
+                    "type": "string"
+                  },
                   "encryptedData": {
                     "type": "string"
                   },
@@ -6647,7 +8232,14 @@
                     "type": "boolean"
                   },
                   "icon": {
-                    "type": "string"
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "order": {
                     "type": "number"
@@ -6713,7 +8305,14 @@
                     "type": "boolean"
                   },
                   "icon": {
-                    "type": "string"
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "order": {
                     "type": "number"
@@ -6779,7 +8378,14 @@
                     "type": "boolean"
                   },
                   "icon": {
-                    "type": "string"
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "order": {
                     "type": "number"
@@ -6872,7 +8478,14 @@
                     "type": "boolean"
                   },
                   "icon": {
-                    "type": "string"
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "order": {
                     "type": "number"
@@ -6933,7 +8546,14 @@
                     "type": "boolean"
                   },
                   "icon": {
-                    "type": "string"
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "order": {
                     "type": "number"
@@ -6994,7 +8614,14 @@
                     "type": "boolean"
                   },
                   "icon": {
-                    "type": "string"
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "order": {
                     "type": "number"
@@ -7094,7 +8721,14 @@
                     "type": "boolean"
                   },
                   "icon": {
-                    "type": "string"
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "order": {
                     "type": "number"
@@ -7143,7 +8777,14 @@
                     "type": "boolean"
                   },
                   "icon": {
-                    "type": "string"
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "order": {
                     "type": "number"
@@ -7192,7 +8833,14 @@
                     "type": "boolean"
                   },
                   "icon": {
-                    "type": "string"
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "order": {
                     "type": "number"
@@ -7268,7 +8916,14 @@
                     "type": "boolean"
                   },
                   "icon": {
-                    "type": "string"
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "order": {
                     "type": "number"
@@ -7313,7 +8968,14 @@
                     "type": "boolean"
                   },
                   "icon": {
-                    "type": "string"
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "order": {
                     "type": "number"
@@ -7358,7 +9020,14 @@
                     "type": "boolean"
                   },
                   "icon": {
-                    "type": "string"
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "order": {
                     "type": "number"
@@ -7790,7 +9459,14 @@
                     ]
                   },
                   "hidden": {
-                    "type": "boolean"
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "visible": {
                     "anyOf": [
@@ -7813,6 +9489,16 @@
                     ]
                   },
                   "enabled": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "showInLayerSelector": {
                     "anyOf": [
                       {
                         "type": "boolean"
@@ -7869,7 +9555,14 @@
                     ]
                   },
                   "hidden": {
-                    "type": "boolean"
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "visible": {
                     "anyOf": [
@@ -7892,6 +9585,16 @@
                     ]
                   },
                   "enabled": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "showInLayerSelector": {
                     "anyOf": [
                       {
                         "type": "boolean"
@@ -7948,7 +9651,14 @@
                     ]
                   },
                   "hidden": {
-                    "type": "boolean"
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "visible": {
                     "anyOf": [
@@ -7971,6 +9681,16 @@
                     ]
                   },
                   "enabled": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "showInLayerSelector": {
                     "anyOf": [
                       {
                         "type": "boolean"
@@ -8103,138 +9823,6 @@
             }
           }
         },
-        "responses": {
-          "200": {}
-        }
-      }
-    },
-    "/library/layers/default-clone/layer": {
-      "post": {
-        "parameters": [],
-        "operationId": "postLibraryLayersDefault-cloneLayer",
-        "tags": [
-          "Layers"
-        ],
-        "summary": "Clone a default layer into a user-owned layer",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "templateId": {
-                    "type": "string"
-                  },
-                  "patch": {}
-                },
-                "required": [
-                  "templateId"
-                ]
-              }
-            },
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "templateId": {
-                    "type": "string"
-                  },
-                  "patch": {}
-                },
-                "required": [
-                  "templateId"
-                ]
-              }
-            },
-            "text/plain": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "templateId": {
-                    "type": "string"
-                  },
-                  "patch": {}
-                },
-                "required": [
-                  "templateId"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {}
-        }
-      }
-    },
-    "/library/layers/default-clone/group": {
-      "post": {
-        "parameters": [],
-        "operationId": "postLibraryLayersDefault-cloneGroup",
-        "tags": [
-          "Layers"
-        ],
-        "summary": "Clone a default group into a user-owned group",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "templateId": {
-                    "type": "string"
-                  },
-                  "patch": {}
-                },
-                "required": [
-                  "templateId"
-                ]
-              }
-            },
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "templateId": {
-                    "type": "string"
-                  },
-                  "patch": {}
-                },
-                "required": [
-                  "templateId"
-                ]
-              }
-            },
-            "text/plain": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "templateId": {
-                    "type": "string"
-                  },
-                  "patch": {}
-                },
-                "required": [
-                  "templateId"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {}
-        }
-      }
-    },
-    "/library/layers/restore-defaults": {
-      "post": {
-        "operationId": "postLibraryLayersRestore-defaults",
-        "tags": [
-          "Layers"
-        ],
-        "summary": "Restore default layers (clears state; clones remain)",
         "responses": {
           "200": {}
         }
@@ -9487,6 +11075,678 @@
         }
       }
     },
+    "/osm/presets/search": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "q",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 2
+            },
+            "in": "query",
+            "name": "cc",
+            "required": false
+          },
+          {
+            "schema": {
+              "anyOf": [
+                {
+                  "const": "point",
+                  "type": "string"
+                },
+                {
+                  "const": "area",
+                  "type": "string"
+                },
+                {
+                  "const": "line",
+                  "type": "string"
+                },
+                {
+                  "const": "vertex",
+                  "type": "string"
+                }
+              ]
+            },
+            "in": "query",
+            "name": "geometry",
+            "required": false
+          }
+        ],
+        "operationId": "getOsmPresetsSearch",
+        "tags": [
+          "OSM"
+        ],
+        "summary": "Search OSM tagging presets and chains",
+        "description": "Searches the same category index the app search uses, so curated aliases (\"bike rack\") resolve.",
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/osm/element/{type}/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "anyOf": [
+                {
+                  "const": "node",
+                  "type": "string"
+                },
+                {
+                  "const": "way",
+                  "type": "string"
+                },
+                {
+                  "const": "relation",
+                  "type": "string"
+                }
+              ]
+            },
+            "in": "path",
+            "name": "type",
+            "required": true
+          },
+          {
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "numeric",
+                  "default": 0,
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "getOsmElementByTypeById",
+        "tags": [
+          "OSM"
+        ],
+        "summary": "Fetch a live OSM element for editing",
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/osm/duplicates": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "numeric",
+                  "default": 0,
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "in": "query",
+            "name": "lat",
+            "required": true
+          },
+          {
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "numeric",
+                  "default": 0,
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "in": "query",
+            "name": "lng",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "presetId",
+            "required": true
+          },
+          {
+            "schema": {
+              "minimum": 10,
+              "maximum": 500,
+              "anyOf": [
+                {
+                  "format": "numeric",
+                  "default": 0,
+                  "type": "string"
+                },
+                {
+                  "minimum": 10,
+                  "maximum": 500,
+                  "type": "number"
+                }
+              ]
+            },
+            "in": "query",
+            "name": "radius",
+            "required": false
+          }
+        ],
+        "operationId": "getOsmDuplicates",
+        "tags": [
+          "OSM"
+        ],
+        "summary": "Find nearby elements matching a preset",
+        "description": "Checks Overpass for existing elements with the same primary tags near a point, to avoid duplicate POIs.",
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/osm/tags/upgrades": {
+      "post": {
+        "parameters": [],
+        "operationId": "postOsmTagsUpgrades",
+        "tags": [
+          "OSM"
+        ],
+        "summary": "Suggest tag upgrades",
+        "description": "Mirrors iD's outdated-tags check: replaces deprecated tags, adds tags the matched preset implies, and applies Name Suggestion Index brand tags when the name matches a chain. Returns the changes and the matched brand, if any.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tags": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^(.*)$": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "geometry": {
+                    "anyOf": [
+                      {
+                        "const": "point",
+                        "type": "string"
+                      },
+                      {
+                        "const": "vertex",
+                        "type": "string"
+                      },
+                      {
+                        "const": "area",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "tags"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tags": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^(.*)$": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "geometry": {
+                    "anyOf": [
+                      {
+                        "const": "point",
+                        "type": "string"
+                      },
+                      {
+                        "const": "vertex",
+                        "type": "string"
+                      },
+                      {
+                        "const": "area",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "tags"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tags": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^(.*)$": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "geometry": {
+                    "anyOf": [
+                      {
+                        "const": "point",
+                        "type": "string"
+                      },
+                      {
+                        "const": "vertex",
+                        "type": "string"
+                      },
+                      {
+                        "const": "area",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "tags"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/osm/brands/search": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "q",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "presetId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 2
+            },
+            "in": "query",
+            "name": "cc",
+            "required": false
+          }
+        ],
+        "operationId": "getOsmBrandsSearch",
+        "tags": [
+          "OSM"
+        ],
+        "summary": "Search brands in the Name Suggestion Index",
+        "description": "Returns chains matching a name for the preset's primary tag, with their canonical tags and logo.",
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/osm/tags/suggest": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "q",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "key",
+            "required": false
+          }
+        ],
+        "operationId": "getOsmTagsSuggest",
+        "tags": [
+          "OSM"
+        ],
+        "summary": "Suggest tag keys and values",
+        "description": "Suggestions come from the tagging schema's own taginfo export — the documented keys and values, not live taginfo.io usage.",
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/osm/config": {
+      "get": {
+        "operationId": "getOsmConfig",
+        "tags": [
+          "OSM"
+        ],
+        "summary": "Get the configured OSM server",
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/osm/edits": {
+      "post": {
+        "parameters": [],
+        "operationId": "postOsmEdits",
+        "tags": [
+          "OSM"
+        ],
+        "summary": "Submit a quick edit to OpenStreetMap",
+        "description": "Creates a changeset, uploads the change, and closes the changeset using the user's connected OSM account.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "comment": {
+                    "minLength": 1,
+                    "maxLength": 255,
+                    "type": "string"
+                  },
+                  "action": {
+                    "anyOf": [
+                      {
+                        "const": "create",
+                        "type": "string"
+                      },
+                      {
+                        "const": "modify",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "element": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "anyOf": [
+                          {
+                            "const": "node",
+                            "type": "string"
+                          },
+                          {
+                            "const": "way",
+                            "type": "string"
+                          },
+                          {
+                            "const": "relation",
+                            "type": "string"
+                          }
+                        ]
+                      },
+                      "id": {
+                        "type": "number"
+                      },
+                      "version": {
+                        "type": "number"
+                      },
+                      "lat": {
+                        "minimum": -90,
+                        "maximum": 90,
+                        "type": "number"
+                      },
+                      "lon": {
+                        "minimum": -180,
+                        "maximum": 180,
+                        "type": "number"
+                      },
+                      "tags": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^(.*)$": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "tags"
+                    ]
+                  }
+                },
+                "required": [
+                  "comment",
+                  "action",
+                  "element"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "comment": {
+                    "minLength": 1,
+                    "maxLength": 255,
+                    "type": "string"
+                  },
+                  "action": {
+                    "anyOf": [
+                      {
+                        "const": "create",
+                        "type": "string"
+                      },
+                      {
+                        "const": "modify",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "element": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "anyOf": [
+                          {
+                            "const": "node",
+                            "type": "string"
+                          },
+                          {
+                            "const": "way",
+                            "type": "string"
+                          },
+                          {
+                            "const": "relation",
+                            "type": "string"
+                          }
+                        ]
+                      },
+                      "id": {
+                        "type": "number"
+                      },
+                      "version": {
+                        "type": "number"
+                      },
+                      "lat": {
+                        "minimum": -90,
+                        "maximum": 90,
+                        "type": "number"
+                      },
+                      "lon": {
+                        "minimum": -180,
+                        "maximum": 180,
+                        "type": "number"
+                      },
+                      "tags": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^(.*)$": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "tags"
+                    ]
+                  }
+                },
+                "required": [
+                  "comment",
+                  "action",
+                  "element"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "comment": {
+                    "minLength": 1,
+                    "maxLength": 255,
+                    "type": "string"
+                  },
+                  "action": {
+                    "anyOf": [
+                      {
+                        "const": "create",
+                        "type": "string"
+                      },
+                      {
+                        "const": "modify",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "element": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "anyOf": [
+                          {
+                            "const": "node",
+                            "type": "string"
+                          },
+                          {
+                            "const": "way",
+                            "type": "string"
+                          },
+                          {
+                            "const": "relation",
+                            "type": "string"
+                          }
+                        ]
+                      },
+                      "id": {
+                        "type": "number"
+                      },
+                      "version": {
+                        "type": "number"
+                      },
+                      "lat": {
+                        "minimum": -90,
+                        "maximum": 90,
+                        "type": "number"
+                      },
+                      "lon": {
+                        "minimum": -180,
+                        "maximum": 180,
+                        "type": "number"
+                      },
+                      "tags": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^(.*)$": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "tags"
+                    ]
+                  }
+                },
+                "required": [
+                  "comment",
+                  "action",
+                  "element"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      },
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "osmType",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "osmId",
+            "required": false
+          }
+        ],
+        "operationId": "getOsmEdits",
+        "tags": [
+          "OSM"
+        ],
+        "summary": "List the user's pending quick edits",
+        "responses": {
+          "200": {}
+        }
+      }
+    },
     "/integrations/osm/callback": {
       "get": {
         "parameters": [
@@ -10058,6 +12318,127 @@
         }
       }
     },
+    "/proxy/barrelman/landmarks/{z}/{x}/{y}": {
+      "get": {
+        "operationId": "getProxyBarrelmanLandmarksByZByXByY",
+        "tags": [
+          "Proxy"
+        ],
+        "summary": "Proxy 3D landmark placement tiles",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "z",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "x",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "y",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/proxy/barrelman/landmarks/models/{file}": {
+      "get": {
+        "operationId": "getProxyBarrelmanLandmarksModelsByFile",
+        "tags": [
+          "Proxy"
+        ],
+        "summary": "Proxy 3D landmark models",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "file",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/proxy/barrelman/bridges/models/{file}": {
+      "get": {
+        "operationId": "getProxyBarrelmanBridgesModelsByFile",
+        "tags": [
+          "Proxy"
+        ],
+        "summary": "Proxy precomputed bridge meshes",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "file",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/proxy/barrelman/bridges/index/{z}/{x}/{y}": {
+      "get": {
+        "operationId": "getProxyBarrelmanBridgesIndexByZByXByY",
+        "tags": [
+          "Proxy"
+        ],
+        "summary": "Proxy bridge deck mesh indexes",
+        "description": "The precomputed deck meshes a zoom-14 tile meets, with their bounds, from Barrelman; revalidated by ETag.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "z",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "x",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "y",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {}
+        }
+      }
+    },
     "/proxy/barrelman/{source}/{z}/{x}/{y}": {
       "get": {
         "operationId": "getProxyBarrelmanBySourceByZByXByY",
@@ -10143,6 +12524,28 @@
           "Public"
         ],
         "summary": "Resolve a public-link token to a custom route",
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/public/canvases/{token}": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "token",
+            "required": true
+          }
+        ],
+        "operationId": "getPublicCanvasesByToken",
+        "tags": [
+          "Public"
+        ],
+        "summary": "Resolve a public-link token to a canvas",
         "responses": {
           "200": {}
         }
@@ -10539,6 +12942,208 @@
                 },
                 "required": [
                   "route"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/search/along-route": {
+      "post": {
+        "parameters": [],
+        "operationId": "postSearchAlong-route",
+        "tags": [
+          "Search"
+        ],
+        "summary": "Search ahead on the route being navigated",
+        "description": "Finds places within a corridor around the route still ahead (250 m walking, 500 m cycling, 2 km driving), ordered by distance along it. Each result carries `alongDistance` in metres and `detourSeconds`: the extra time stopping there adds over staying on the route, or null when the detour could not be routed. Send the remaining route from the current position, simplified to at most 500 points.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "route": {
+                    "minItems": 2,
+                    "maxItems": 500,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "lat": {
+                          "type": "number"
+                        },
+                        "lng": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "lat",
+                        "lng"
+                      ]
+                    }
+                  },
+                  "mode": {
+                    "anyOf": [
+                      {
+                        "const": "walking",
+                        "type": "string"
+                      },
+                      {
+                        "const": "cycling",
+                        "type": "string"
+                      },
+                      {
+                        "const": "driving",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "query": {
+                    "type": "string"
+                  },
+                  "categories": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "limit": {
+                    "minimum": 1,
+                    "maximum": 20,
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "route",
+                  "mode"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "route": {
+                    "minItems": 2,
+                    "maxItems": 500,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "lat": {
+                          "type": "number"
+                        },
+                        "lng": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "lat",
+                        "lng"
+                      ]
+                    }
+                  },
+                  "mode": {
+                    "anyOf": [
+                      {
+                        "const": "walking",
+                        "type": "string"
+                      },
+                      {
+                        "const": "cycling",
+                        "type": "string"
+                      },
+                      {
+                        "const": "driving",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "query": {
+                    "type": "string"
+                  },
+                  "categories": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "limit": {
+                    "minimum": 1,
+                    "maximum": 20,
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "route",
+                  "mode"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "route": {
+                    "minItems": 2,
+                    "maxItems": 500,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "lat": {
+                          "type": "number"
+                        },
+                        "lng": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "lat",
+                        "lng"
+                      ]
+                    }
+                  },
+                  "mode": {
+                    "anyOf": [
+                      {
+                        "const": "walking",
+                        "type": "string"
+                      },
+                      {
+                        "const": "cycling",
+                        "type": "string"
+                      },
+                      {
+                        "const": "driving",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "query": {
+                    "type": "string"
+                  },
+                  "categories": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "limit": {
+                    "minimum": 1,
+                    "maximum": 20,
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "route",
+                  "mode"
                 ]
               }
             }
@@ -11803,6 +14408,18 @@
         }
       }
     },
+    "/transit/service-at-stops": {
+      "get": {
+        "operationId": "getTransitService-at-stops",
+        "tags": [
+          "Transit"
+        ],
+        "summary": "Route ids with a departure at each of several stops",
+        "responses": {
+          "200": {}
+        }
+      }
+    },
     "/transit/route-detail": {
       "get": {
         "operationId": "getTransitRoute-detail",
@@ -11815,6 +14432,18 @@
         }
       }
     },
+    "/transit/resolve-route": {
+      "get": {
+        "operationId": "getTransitResolve-route",
+        "tags": [
+          "Transit"
+        ],
+        "summary": "Resolve a bare GTFS route id at a location",
+        "responses": {
+          "200": {}
+        }
+      }
+    },
     "/transit/departures": {
       "get": {
         "operationId": "getTransitDepartures",
@@ -11822,6 +14451,18 @@
           "Transit"
         ],
         "summary": "Upcoming departures at a stop",
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/transit/alerts": {
+      "get": {
+        "operationId": "getTransitAlerts",
+        "tags": [
+          "Transit"
+        ],
+        "summary": "GTFS-RT service alerts for routes, stops and trips",
         "responses": {
           "200": {}
         }
@@ -13115,11 +15756,28 @@
                         },
                         "metadataEncrypted": {
                           "type": "string"
+                        },
+                        "points": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "encryptedData": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "encryptedData"
+                            ]
+                          }
                         }
                       },
                       "required": [
-                        "id",
-                        "metadataEncrypted"
+                        "id"
                       ]
                     }
                   },
@@ -13197,11 +15855,28 @@
                         },
                         "metadataEncrypted": {
                           "type": "string"
+                        },
+                        "points": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "encryptedData": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "encryptedData"
+                            ]
+                          }
                         }
                       },
                       "required": [
-                        "id",
-                        "metadataEncrypted"
+                        "id"
                       ]
                     }
                   },
@@ -13279,11 +15954,28 @@
                         },
                         "metadataEncrypted": {
                           "type": "string"
+                        },
+                        "points": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "encryptedData": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "encryptedData"
+                            ]
+                          }
                         }
                       },
                       "required": [
-                        "id",
-                        "metadataEncrypted"
+                        "id"
                       ]
                     }
                   },

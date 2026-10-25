@@ -7,6 +7,12 @@ _openapi:
       title: Plan a multimodal trip
       url: '#plan-a-multimodal-trip'
     - depth: 2
+      title: Reroute the current segment during navigation
+      url: '#reroute-the-current-segment-during-navigation'
+    - depth: 2
+      title: Alternative routes for the rest of the current segment
+      url: '#alternative-routes-for-the-rest-of-the-current-segment'
+    - depth: 2
       title: Get available vehicle types
       url: '#get-available-vehicle-types'
     - depth: 2
@@ -25,6 +31,10 @@ _openapi:
     headings:
       - content: Plan a multimodal trip
         id: plan-a-multimodal-trip
+      - content: Reroute the current segment during navigation
+        id: reroute-the-current-segment-during-navigation
+      - content: Alternative routes for the rest of the current segment
+        id: alternative-routes-for-the-rest-of-the-current-segment
       - content: Get available vehicle types
         id: get-available-vehicle-types
       - content: Validate trip request
@@ -38,8 +48,40 @@ _openapi:
     contents:
       - content: >-
           Generate multiple trip options using different transportation modes
-          and combinations
+          and combinations. A request with more than two waypoints returns one
+          whole journey per travel strategy, each carried from stop to stop — a
+          journey that cycles to the first stop still has the bike at the
+          second. Segments carry `legIndex` to say which hop they belong to. A
+          transit leg's `routeOptions` lists the other lines running the same
+          stops at that time. Its `shortName` names the line; a line with no
+          GTFS short name reads by its long name, and the train number moves to
+          `trip.shortName`. A walking segment with `streetTransfer` leaves the
+          paid area between stations the agency does not connect, so the next
+          ride is a new fare. Street segments carry `hazards`: crosswalks, rail
+          crossings, tunnels, fords, steep grades, stairs, sharp curves and the
+          like, placed by distance along the segment. Comfort hazards (rough
+          surfaces, dismount sections, ferries) appear only for users with
+          premium navigation. Driving segments carry `drivingSide`, and where
+          the routing engine knows the lanes, `laneGeometry` (the route drawn in
+          the lanes it takes, with `measures` giving the distance along
+          `geometry` each coordinate stands for) and `lanePlan` (per instruction
+          index, the approach lanes left to right and which lead on).
         heading: plan-a-multimodal-trip
+      - content: >-
+          Plans a fresh street route from where the traveller is to the end of
+          the segment they are on, favouring the direction they are already
+          heading so the new route does not open with a U-turn. Send a position
+          projected a few seconds ahead of the last fix. Returns one segment in
+          the same shape as a `/directions` trip segment.
+        heading: reroute-the-current-segment-during-navigation
+      - content: >-
+          The same request as `/reroute`, answered with up to three routes from
+          where the traveller is to the end of their segment. Each is a segment
+          like `/reroute` returns, plus `metrics`: `duration`, `distance`,
+          `turns`, `protectedShare` and `majorRoadShare` (fractions of
+          distance), `crossings`, and `via`, the street carrying most of the
+          route.
+        heading: alternative-routes-for-the-rest-of-the-current-segment
       - content: List all supported vehicle types and their characteristics
         heading: get-available-vehicle-types
       - content: Validate a trip request without actually planning the trip
@@ -61,4 +103,4 @@ _openapi:
 
 Directions and trip planning
 
-<APIPage document={"openapi.json"} operations={[{"path":"/directions/","method":"post"},{"path":"/directions/vehicle-types","method":"get"},{"path":"/directions/validate","method":"post"},{"path":"/directions/status","method":"get"},{"path":"/directions/trips","method":"post"},{"path":"/directions/trips/{id}","method":"get"}]} webhooks={[]} hasHead={true} />
+<APIPage document={"openapi.json"} operations={[{"path":"/directions/","method":"post"},{"path":"/directions/reroute","method":"post"},{"path":"/directions/alternatives","method":"post"},{"path":"/directions/vehicle-types","method":"get"},{"path":"/directions/validate","method":"post"},{"path":"/directions/status","method":"get"},{"path":"/directions/trips","method":"post"},{"path":"/directions/trips/{id}","method":"get"}]} webhooks={[]} hasHead={true} />
