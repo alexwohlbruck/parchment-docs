@@ -42,7 +42,7 @@ Text is limited to 500 characters. Rate is optional and defaults to 1. Parchment
 
 A CPU test of the pinned v0.9.0 image with two CPU cores and a 3 GiB memory limit used about 1.1 GiB while idle after warmup. The image occupies about 3.3 GB uncompressed. Warm generation took 1.2–1.5 seconds for “Turn left”, 3.1 seconds for a longer English street instruction, and 2.1–2.7 seconds for longer Spanish or accelerated English instructions. Identical requests served from Barrelman's cache took under 2 ms. These are example measurements, not a performance guarantee.
 
-Parchment waits at most 1.5 seconds for synthesis before using browser speech. A small CPU allocation can therefore fall back frequently for uncached instructions; allow more CPU or use the NVIDIA override and measure on your host. Increasing speaking rate shortens the clip but does not guarantee synthesis meets the deadline. Playback also stops once an instruction expires, including when a browser decoder stalls.
+Parchment allows up to 3 seconds for the first non-urgent instruction while audio activates and the initial connection opens. Later and urgent instructions retain a 1.5-second synthesis budget; no request outlives its maneuver deadline. A small CPU allocation can therefore fall back frequently for uncached instructions; allow more CPU or use the NVIDIA override and measure on your host. Increasing speaking rate shortens the clip but does not guarantee synthesis meets the deadline. Playback also stops once an instruction expires, including when a browser decoder stalls.
 
 ## Before production
 
