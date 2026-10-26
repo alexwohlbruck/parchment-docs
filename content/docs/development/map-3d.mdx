@@ -19,6 +19,7 @@ The Mapbox engine draws Mapbox Standard's own cartography and none of this.
 | Solar arrays, flower beds, scrub, shrubs | Barrelman `object_areas`, planted in the browser | `ObjectLayer` (`areas.ts`) |
 | Roads at street zoom | Barrelman `road_surfaces`, `road_markings` and `road_glyphs`, from lane tags | Fill, line and symbol layers (`lib/map-style/road-markings.ts`) |
 | Bridges and elevated roads | Barrelman solves the heights and bakes indexed meshes, including road markings, during imports | `BakedBridgeLayer` (`lib/map-decks/baked`) |
+| Tunnel entrances | Barrelman `tunnel_cuts`: each portal's cut, walls and headwall, solved from OSM and the terrain | `TunnelLayer` (`lib/map-tunnels`), which also carves the terrain |
 
 ## The object layer
 
@@ -83,10 +84,18 @@ A mesh includes the surfaces and nearby ground ways needed to place objects on o
 
 Deploy the Barrelman schema/API and rebuild bridge data before enabling this client in production. A rebuild is also needed after changing the deck rules, the landmark catalog's bridge models, or road-marking geometry. API and ops must share `BRIDGE_MESH_DIR`. The directory holds the immutable mesh files, gzipped; database rows are updated only after their files are written. Existing profile-only data remains usable by older clients, while the new client shows flat bridges until it has meshes.
 
+## Tunnels
+
+From street zoom a tunnel mapped below ground (a negative `layer`) is drawn as the cut leading down to each portal: a ramp between retaining walls, a headwall over the opening, and the first stretch of the bore going dark through it. The flat tunnel lines are muted there, since the bore runs under the terrain.
+
+Barrelman solves the cuts with its "Build Tunnel Cuts" task and serves them as `tunnel_cuts`, a source of its own: a few kilobytes per zoom-14 tile, over-zoomed past it, so a view's cuts arrive well ahead of its detail tiles. Each cut is whole in every tile it nears. A cut follows the road it opens onto until a junction, as wide as the carriageway's surface, opening at a building's face where the road runs under one first, or at a wall mapped across the bore. The portal sits low enough for headroom under the ground over the bore, and the floor climbs back to the ground at a road's grade. OSM Update keeps them current.
+
+`TunnelLayer` reads a tile's cuts as the tile arrives, so they carve in the frame that first draws it. It builds the walls, headwall and bore from them and carves each floor into the terrain's elevation tiles, so the map's own ground, paths and paint drape down the ramp; the ground over the bore is filled up to the headwall. Carving needs finer elevation than the source serves, so street-zoom terrain tiles are upsampled on a worker, and held back until the cuts in view are known: served where a cut lies, turned away elsewhere so the map draws their parent. A held tile is upsampled while it waits, so it is ready the moment its cut is known. No cut is solved in the browser; against a Barrelman without `tunnel_cuts`, tunnels show no portals.
+
 ## Terrain rendering
 
 Over terrain MapLibre draws fills and lines into a texture per terrain tile and drapes it on the terrain mesh. A run of draped layers broken by a symbol, circle, extrusion or custom layer starts another texture and another pass over the whole mesh. The street style interleaves them into eight runs. Parchment sets the fork's `drapeBeneath` map option, which drapes them all in one pass beneath everything else; 3D layers and labels draw above the draped ground either way. A new layer that would sit between draped layers needs no special placement.
 
 ## Building for MapLibre Native
 
-Terrain and most detail data use standard vector tiles and GLB models. Bridges use a versioned binary container with a JSON header, aligned float32 vertex streams, uint32 indices, material roles and placement surfaces. A native renderer can upload these streams directly; no browser geometry compiler needs porting. The remaining browser-generated scenery, such as forest planting, is kept framework-free.
+Terrain and most detail data use standard vector tiles and GLB models. Bridges use a versioned binary container with a JSON header, aligned float32 vertex streams, uint32 indices, material roles and placement surfaces. A native renderer can upload these streams directly; no browser geometry compiler needs porting. Tunnel cuts arrive solved in the tile: a native client builds the walls from each cut's line and heights (`portalMesh` in `lib/map-tunnels/tunnels.ts` is the reference) and needs only a hook to write the floor into its elevation tiles. The remaining browser-generated scenery, such as forest planting, is kept framework-free.
