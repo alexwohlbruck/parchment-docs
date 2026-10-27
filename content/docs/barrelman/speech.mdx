@@ -23,7 +23,7 @@ In **Settings → Behavior → Navigation**, choose a voice for your app languag
 
 The rate range is 0.75×–1.5×. Kokoro changes the generated speech duration at synthesis time. **Faster speech for close turns** can increase this rate, up to 1.5×, when the estimated time to an upcoming maneuver is short. This is a bounded heuristic, not guaranteed timing: listening and actual driving/walking tests are needed. Inflection is not supported by the initial adapter.
 
-Route navigation begins with a one-time opening direction, such as “Head north on Main Street,” without waiting for movement or a position update. An immediate opening turn is spoken instead when present. Muting navigation still suppresses speech.
+Route navigation begins with a one-time opening direction, such as “Head north on Main Street,” without waiting for movement or a position update. An immediate opening turn is spoken instead when present. Muting navigation still suppresses speech. Nearby turns are combined into one spoken instruction when their predicted timing would overlap, including a turn shortly after the opening direction. Timing accounts for travel speed and your chosen speaking rate; combined turns are not repeated separately. Urgent hazards can interrupt speech.
 
 ## Fallback and cancellation
 
