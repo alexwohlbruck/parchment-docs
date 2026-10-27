@@ -23,6 +23,8 @@ In **Settings → Behavior → Navigation**, choose a voice for your app languag
 
 The rate range is 0.75×–1.5×. Kokoro changes the generated speech duration at synthesis time. **Faster speech for close turns** can increase this rate, up to 1.5×, when the estimated time to an upcoming maneuver is short. This is a bounded heuristic, not guaranteed timing: listening and actual driving/walking tests are needed. Inflection is not supported by the initial adapter.
 
+Route navigation begins with a one-time opening direction, such as “Head north on Main Street,” without waiting for movement or a position update. An immediate opening turn is spoken instead when present. Muting navigation still suppresses speech.
+
 ## Fallback and cancellation
 
 Parchment falls back to browser speech if the capability is disabled, the service fails, the requested locale/voice is unsupported, synthesis takes too long, or audio cannot play. Browser speech retains the selected rate; server voice IDs do not map to browser voices. Offline speech depends on locally installed browser voices. A late server clip is discarded after fallback. Urgent instructions interrupt playback; muting, rerouting and ending navigation cancel pending speech.
