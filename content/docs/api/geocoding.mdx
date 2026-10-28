@@ -18,11 +18,15 @@ _openapi:
     contents:
       - content: >-
           Convert an address or location query into geographic coordinates.
-          Optionally provide lat/lng for location bias.
+          Optionally provide lat/lng for location bias. Served by the
+          highest-priority configured geocoding integration, falling back to the
+          next when one is unavailable or has no coverage.
         heading: forward-geocode-an-address-to-coordinates
       - content: >-
           Convert geographic coordinates (latitude and longitude) into a
-          human-readable address.
+          human-readable address. Served by the highest-priority configured
+          geocoding integration, falling back to the next when one is
+          unavailable or has no coverage.
         heading: reverse-geocode-coordinates-to-an-address
 ---
 
