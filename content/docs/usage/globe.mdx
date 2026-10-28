@@ -1,6 +1,6 @@
 ---
 title: Globe view
-description: Explore the globe with stars, sunlight, and city lights.
+description: Explore the globe with stars, sunlight, lunar phases, and city lights.
 ---
 
 With the MapLibre map engine and Globe projection selected in Appearance, zoom
@@ -53,3 +53,24 @@ resized and compressed to about 1.5 MB. It downloads only in globe view and is
 cached afterward. Its brightness stays subtle so Earth remains the focus.
 
 ![Night-side exposure and the Milky Way](/images/globe-milky-way.png)
+
+## Moon phases
+
+Satellite and hybrid globes include the Moon at its current position in the
+sky, with sunlight revealing its live phase. Turn the globe to find it; Earth
+can hide it, and a new Moon is mostly dark. Its angular size is about half a
+degree, like the Sun.
+
+The Moon refreshes every minute while the view is open and immediately when
+you return to the page. It stays correctly lit even when **Day & Night** is
+off, and fades away with the sky as you zoom into the map.
+
+The bundled 92 KB surface map comes from
+[NASA's Scientific Visualization Studio](https://svs.gsfc.nasa.gov/4720/).
+No external service or account is needed for lunar phases. The orbit is an
+approximation for visual use; libration, eclipses, and lunar terrain shadows
+are not simulated.
+
+![Satellite globe with a waning gibbous Moon](/images/globe-moon.png)
+
+![First-quarter Moon beside the satellite globe](/images/globe-moon-quarter.png)
