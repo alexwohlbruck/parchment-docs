@@ -19,7 +19,7 @@ The feedback dialog now includes **Open feedback board**. **View post** after a 
 
 The signing secret stays on the Parchment server, encrypted with the integration configuration. Parchment signs a five-minute identity token using the current session's user ID, email, and name. It exchanges that identity for a one-time portal login link. Neither the signing secret nor Quackback's reusable session token is returned to the client.
 
-Existing customer accounts are matched by Quackback's external user ID or email. Quackback staff accounts use the portal's normal login instead; the integration never grants an admin session. This is login handoff, so signing out of Parchment does not revoke an existing Quackback browser session.
+Existing customer accounts are matched by Quackback's external user ID or email. Quackback staff accounts use the portal's normal login instead; the integration never grants an admin session. Enable email-link sign-in and configure email delivery in Quackback so staff whose accounts have no password can still sign in. This is login handoff, so signing out of Parchment does not revoke an existing Quackback browser session.
 
 ## Troubleshooting
 
