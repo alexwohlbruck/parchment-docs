@@ -66,6 +66,38 @@ Pass `{"feedId": "..."}` to limit it to one feed. Discovery needs a Transitland 
 
 ---
 
+## Bikes on transit
+
+Trips that take a bike aboard are offered only where the service allows it.
+Which services those are comes from the timetable, and this is one of the
+places the GTFS spec and the world disagree.
+
+GTFS has three states for `bikes_allowed` — *no information*, *allowed* and
+*not allowed* — but the routing engine collapses them to a yes or a no, and
+reads *no information* as no. Almost every agency omits the field: across the
+feeds Barrelman imports, two declared a single bike-carrying trip between them.
+Taken literally, bikes are banned from every train in the country.
+
+So Barrelman fills the blank at import time. A trip that says nothing becomes
+*allowed*; a trip that says *not allowed* is left exactly as it is, so an
+agency that has bothered to state its policy stays the authority on its own
+services.
+
+**Buses are the exception and stay unstated.** Most take only a folding bike,
+or have a front rack that holds two, and GTFS cannot express either — so
+guessing *allowed* would route riders onto a bus that turns them away. Rail,
+subway, tram and ferry get the benefit of the doubt; buses don't.
+
+<Callout type="info">
+This is a default, not a claim. Where an agency does publish `bikes_allowed`,
+that answer is used unchanged — including when it says no.
+</Callout>
+
+The fill happens when a feed is imported, so a policy change reaches trip
+planning on the next import rather than immediately.
+
+---
+
 ## Freshness
 
 Barrelman caches each feed's alerts for a minute, and Parchment caches an answer for a minute on top of that. An alert an agency posts mid-journey reaches an open trip within about two minutes; opening a route or stop page fetches on entry.
