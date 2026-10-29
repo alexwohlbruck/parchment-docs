@@ -96,7 +96,7 @@ Barrelman solves the cuts with its "Build Tunnel Cuts" task and serves them as `
 
 With 3D terrain and objects on, transit ribbons, the cycling network, and transit stations sit at the height of what they run on: on a bridge deck at the deck's own height, through a tunnel below the ground over it. Seen from straight above they look as they always have.
 
-Barrelman states the heights. From zoom 13 it adds an `elevation` property to `bicycle_ways` and to portolan's `ribbons`, `stations`, `markers` and `cat` features as it serves them:
+Barrelman states the heights, worked out when the data is built rather than per request: an `elevation` property on `bicycle_ways` (a column Martin serves, written by Elevate Bicycle Ways) and on portolan's `ribbons`, `stations`, `markers` and `cat` features from zoom 13 (written into each pyramid by portolan's tile hook before it goes live, and by Elevate Transit Tiles after the decks or tunnels change):
 
 - A line's property is runs separated by `;`, each a list of integer triples: the first `lng×1e7,lat×1e7,decimetres`, each later one the change in longitude and latitude and its own height. Heights are in the terrain's datum, as the decks are drawn; a run prefixed `~` is measured over the terrain instead. Outside every run the line lies on the ground.
 - A point's property is its height in metres, with the same `~` prefix.
