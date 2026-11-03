@@ -1,0 +1,83 @@
+---
+title: Indoor maps
+description: Floor plans of malls, airports and stations, with a floor picker to move between levels.
+---
+
+Zoom into a mall, an airport terminal or a station and Parchment draws its floor plan: rooms, walls with their doorways, corridors, platforms, stairs, escalators and lifts, and the shops and services inside. Each building shows one floor at a time, and a floor picker moves between them, down to underground concourses and platforms.
+
+![A mall's ground floor, with the floor picker on the right](/images/indoor-mall.jpg)
+
+Floor plans are drawn by the MapLibre engine on the standard basemap. With the Mapbox engine, the same setting shows Mapbox's own indoor maps and floor selector instead.
+
+---
+
+## Going inside
+
+Floor plans take over from the building around them at street zoom (zoom 16). The 3D building and any landmark model a plan stands in step aside so the plan shows through.
+
+Click a building that has an indoor map to go inside. From further out, the map flies in to it first.
+
+With 3D terrain on, the ground under a building with an indoor map is flattened so its floor plan sits level.
+
+While a floor plan shows, its shops and airport gates are labelled only by the plan, on their own floor, so nothing appears twice. A building shown from outside leaves those labels to the street map.
+
+## The floor picker
+
+The picker appears beside the map controls when a building with more than one floor reaches the middle of the screen. It serves the building under the centre of the view, or the nearest one when none is directly under it.
+
+- Floors are listed top first, as on a lift panel. They use the names on the building's own signs where they are mapped (`2F`, `Concourse`), otherwise `G` for the ground floor, `B1`, `B2`… for basements and numbers above.
+- The building button at the bottom shows the outside again: the 3D building returns and the plan is hidden.
+- A building opens on its ground floor, or on its busiest floor when it has none. An airport opens on the floor most of its gates are on. When that floor is underground, as in most subway stations, it opens on its outside until you pick a floor.
+- The floor you pick is remembered while you pan away and back.
+
+Other buildings in view keep showing their own opening floor.
+
+## Basements
+
+Picking a floor below ground clears the 3D buildings and landmarks, fades the streets and everything else on the surface, and dims it, so the underground plan reads clearly. The outlines of the buildings overhead stay visible so you can see which block you are under.
+
+![An underground station level under the dimmed city](/images/indoor-fulton.jpg)
+
+## What is drawn
+
+| On the plan | Drawn as |
+|---|---|
+| Rooms | Tinted by use: food, shops, health, services, baggage claim, staff areas |
+| Walls | Storey-high, with openings where doors are mapped |
+| Stairs and escalators | Treaded flights. Where OpenStreetMap says which way is up, they climb in 3D to the floor above |
+| Lift shafts | Tinted boxes |
+| Jet bridges | Walled corridors out to the aircraft stands |
+| Platforms | Their own tint |
+| Security checkpoints | A hatched zone |
+| Airport gates | The gate number on a yellow plate |
+| Shops and amenities | The same badges as on the street map, with their names |
+| Lifts, stairs, escalators, entrances | Small square icons, from zoom 17 |
+
+## Entrances and lifts
+
+Outside floor plans too, the map signs the ways in and up as small square icons when you zoom in close: subway and train station entrances and street lifts from zoom 17, and building entrances from zoom 18. Where a floor plan shows, it signs its own doors and lifts instead.
+
+## Turning it off
+
+Indoor maps are on by default. Turn them off in **Settings → Appearance → Map configuration → Indoor maps**.
+
+---
+
+## Where the data comes from
+
+Floor plans are built from [OpenStreetMap](https://www.openstreetmap.org) indoor mapping, using the [Simple Indoor Tagging](https://wiki.openstreetmap.org/wiki/Simple_Indoor_Tagging) scheme. A building only has an indoor map where someone has mapped its interior, so coverage varies a lot from place to place.
+
+### Improving coverage
+
+Anyone can map a building's interior in OpenStreetMap. For it to show in Parchment:
+
+- Draw rooms, areas and corridors as `indoor=room`, `indoor=area` and `indoor=corridor`, and walls as `indoor=wall`.
+- Give everything its floor with `level` (`0` for the ground floor, negative numbers below it). Use `repeat_on` for something on several floors.
+- Tag each floor's signage name with `level:ref` (`B1`, `Mezzanine`) so the picker shows it.
+- Map at least three indoor areas close together: a lone indoor corridor is not treated as a building to step into.
+- Map shops, amenities, doors (`door=*`, `entrance=*`), lifts (`highway=elevator`), stairs (`highway=steps`) and escalators (`highway=steps` with `conveying=*`) as their own features with a `level`.
+- For stairs and escalators to climb in 3D, give them both levels they join (`level=0;1`) and `incline=up` or `incline=down` in the direction they are drawn.
+- Map jet bridges as `aeroway=jet_bridge` lines from the gate.
+- Platforms are drawn when they are indoors or underground: give them a negative `level`, or `indoor`, `tunnel` or `location=underground`.
+
+Edits reach the map after Barrelman's next OpenStreetMap update. See [Indoor maps in Barrelman](/barrelman/indoor-maps) for exactly which tags are read.
