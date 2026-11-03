@@ -1,0 +1,138 @@
+---
+title: Indoor maps
+description: How Barrelman builds floor plans from OpenStreetMap indoor tagging and serves them as the indoor tile bundle.
+---
+
+Barrelman turns OpenStreetMap's [Simple Indoor Tagging](https://wiki.openstreetmap.org/wiki/Simple_Indoor_Tagging) into floor plans and serves them as vector tiles. Parchment draws them with a floor picker; see [Indoor maps](/usage/indoor-maps) for what users see.
+
+Everything is built in one materialized view, `indoor_features` (`import/create-indoor-views.sql`), with one row per feature per level it stands on. A client shows a floor with a single `level == n` filter.
+
+---
+
+## Tiles
+
+Two Martin sources read views over `indoor_features`, and the `indoor` bundle (`src/config/tile-bundles.ts`) serves both in one tile:
+
+```
+GET /tiles/indoor/{z}/{x}/{y}
+```
+
+### `indoor_venues` (zoom 15–17)
+
+One outline per venue: a terminal, a mall, a station's concourses. It arrives a zoom before the plans, so a client knows a floor plan is there before it draws one.
+
+| Property | Description |
+|---|---|
+| `venue` | Venue id |
+| `name` | The main building's name, else the nearest station's |
+| `levels` | Its levels, `;`-separated: `-1;0;1` |
+| `level_names` | Signage names by level: `-1=B1;0=G` |
+| `default_level` | The level it opens on |
+| `buildings` | `;`-separated ids of the building outlines it stands in, for a client to hide while the plan shows |
+
+### `indoor_map` (zoom 16–17)
+
+The plans themselves. Every row carries `venue` and `default_level`, so a style can show one venue at a chosen level and every other at its own default.
+
+| Property | Description |
+|---|---|
+| `venue`, `level`, `default_level` | The venue, the level this row is drawn on, and the venue's default |
+| `kind` | `floor`, `wall`, `area`, `line` or `poi` |
+| `class` | What the feature is (below) |
+| `subclass` | Detail for styling: a room's use, an escalator's `conveying`, a door's `entrance` value, a POI's tag value, or `security` for a screening checkpoint |
+| `name`, `ref` | From the OSM feature; `ref` carries a gate's number |
+| `id` | The OSM feature's place id |
+
+| Kind | Rows | Classes |
+|---|---|---|
+| `floor` | Each level's walkable outline. Above ground it also covers the venue's buildings, so a sparsely mapped floor still reads as the building | — |
+| `wall` | Room outlines, mapped walls and the floor's edge, merged per level and buffered to a drawn thickness (60 cm inside, 1 m outside), with openings cut at doors | — |
+| `area` | Rooms, areas, corridors, platforms, columns, stairs and lift shafts | `room`, `area`, `corridor`, `level`, `column`, `platform`, `stairs`, `elevator`, `wall` |
+| `line` | Steps, escalators, indoor footways and platforms mapped as lines | `steps`, `escalator`, `corridor`, `platform` |
+| `poi` | Shops, amenities, gates, doors, lifts, a label point for each named room, and a point at the middle of each flight of steps for its icon | The POI's key (`shop`, `amenity`, `aeroway`, `railway`, …), `door`, `elevator`, `steps`, `escalator`, `room` |
+
+Door openings use the door's `width`, defaulting to 0.9 m and clamped between 0.7 m and 4 m.
+
+---
+
+## Which OSM features are read
+
+A feature is considered when it has `level`, `repeat_on` or `indoor`, is a platform (`railway=platform` or `public_transport=platform`), or is an `aeroway=gate`. Anything tagged `indoor=no`, and building outlines without `indoor`, are left out.
+
+| Tags | Becomes |
+|---|---|
+| `indoor=room` / `area` / `corridor` / `level` / `column` | An area of that class. `room=stairs` or `stairs=yes` is stairs; `highway=elevator` or `room=elevator` is a lift shaft |
+| `indoor=wall` (area or line) | A wall |
+| `highway=steps` | Steps, or an escalator with a `conveying` value other than `no` |
+| `highway=footway` / `path` / `pedestrian` with `indoor`, or `highway=corridor` | An indoor footway |
+| Platforms | Only indoors or underground: with `indoor`, a negative `level` or `layer`, `location=underground` or `tunnel`. An open-air platform is the basemap's |
+| `shop`, `amenity`, `tourism`, `office`, `healthcare`, `craft`, `leisure`, `aeroway=gate`, station entrances, ticket validators | A POI |
+| `door`, `entrance`, `indoor=door` | A door, and an opening in the wall it sits on |
+| `amenity=security_control`, `police=checkpoint`, `room=security_check`, `aeroway=security_checkpoint` | Drawn as one screening zone (`subclass=security`) |
+| `level:ref` | The level's name on the signs |
+
+### Levels
+
+A feature's levels are its `level` plus any `repeat_on`. Lists (`0;1`), ranges (`0-2`, `-4--2`), decimals (`-0.5`) and any order are understood. Unparseable parts and anything past 200 floors either way are skipped rather than failing the feature, and a feature is drawn on at most 64 levels.
+
+Where `level` is missing:
+
+- A platform or indoor feature with a `layer` from `-1` to `-9` takes that as its level, one storey per layer.
+- Otherwise an indoor area, corridor, wall, column or level outline goes on level 0.
+- A gate goes on its venue's default level.
+- Anything else is left out, even with `repeat_on`.
+
+---
+
+## How venues are derived
+
+**Clustering.** Indoor shapes (not points) within about 25 m of each other form one venue. Clustering runs per cell of a quarter-degree grid, so a venue straddling a grid line splits in two. A cluster becomes a venue only with at least three rooms, areas, corridors, platforms or level outlines: a lone indoor passage is not a building to step into. The venue's outline is the convex hull of its shapes.
+
+**Points.** A shop, door or other point joins the venue whose outline contains it. Inside two, it joins the smaller, so it is drawn once.
+
+**Levels.** A venue's levels are those its rooms, areas, corridors, platforms and level outlines stand on. Each is named by the commonest `level:ref` (or `indoor=level` name) among the single-level shapes on it, up to 12 characters.
+
+**Default level.** Level 0 if the venue has one, otherwise its busiest level, so a station that is entirely below ground opens on its concourse.
+
+**Buildings.** The above-ground building and building-part outlines the venue stands in, for a client to clear while the plan shows:
+
+- outlines whose footprint is more than 30% covered by the venue's rooms at ground level or above;
+- parts, roofs and annexes standing mostly inside those or the rooms;
+- `building=roof` canopies touching them.
+
+The venue's own outline is not used here: under a station it can run beneath whole blocks of towers. Underground outlines (`location=underground`) are never cleared.
+
+---
+
+## Building and refreshing
+
+The view stores its rows rather than computing them per tile, because floors and walls union whole levels.
+
+- **Creation.** The API creates the view (empty) at startup, and fills it in the background if it has never been populated. `scripts/import-osm.sh` creates and fills it after an import.
+- **Refresh.** `scripts/update-osm.sh` refreshes it after every OSM update. To refresh by hand, run the **Refresh Indoor Maps** task in the admin console, or:
+
+  ```bash
+  scripts/refresh-view.sh indoor_features
+  ```
+
+  A populated view refreshes concurrently, so tiles keep serving the old rows until the new ones are ready.
+- **Index.** `import/create-detail-indexes.sql` builds the partial index `geo_places_indoor_geom_idx` concurrently. Without it the refresh scans all of `geo_places`; on a New York import it took 169 s without the index and about 4 s with it.
+- **Schema changes.** The view carries a version comment (`v9`). A changed query needs it bumped: the next run then drops and recreates the view.
+
+<Callout type="warn">
+A deployment with its own `martin-config.yaml` needs the `indoor_venues` and `indoor_map` entries added. Start the API first so the views exist: Martin exits on a source whose table is missing.
+</Callout>
+
+---
+
+## How Parchment draws it
+
+Parchment's MapLibre style adds the `indoor` source and drives it through three style state keys, so changing floors rebuilds no filters:
+
+| State | Holds |
+|---|---|
+| `indoorVenue` | The venue the floor picker serves, `0` for none |
+| `indoorLevel` | The level shown in that venue; `1000` shows its outside |
+| `indoorBuildings` | `;id;` list of building ids hidden from the 3D buildings layer |
+
+Every other venue shows its `default_level`, or its outside when that level is below ground. The layers live in `web/src/lib/map-style/indoor-layers.ts`, the picker logic in `web/src/lib/indoor/indoor-venue.ts` and `web/src/services/map/indoor.service.ts`.
