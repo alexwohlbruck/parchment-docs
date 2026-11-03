@@ -42,20 +42,20 @@ The plans themselves. Every row carries `venue` and `default_level`, so a style 
 | `subclass` | Detail for styling: a room's use, an escalator's `conveying`, a door's `entrance` value, a POI's tag value, `security` for a screening checkpoint, or `jet_bridge` |
 | `name`, `ref` | From the OSM feature; `ref` carries a gate's number |
 | `id` | The OSM feature's place id |
-| `height` | On `flight` rows: the top of this tread, as a share of a storey |
+| `width`, `length`, `bearing` | On `flight` rows: the flight's width and length in metres, and the bearing it climbs, in degrees |
 
 | Kind | Rows | Classes |
 |---|---|---|
 | `floor` | Each level's walkable outline. Above ground it also covers the venue's buildings, so a sparsely mapped floor still reads as the building | — |
-| `wall` | Room outlines, mapped walls and the floor's edge, merged per level and buffered to a drawn thickness (60 cm inside, 1 m outside), with openings cut at doors | — |
+| `wall` | Room outlines (not stairwells or lift shafts), mapped walls and the floor's edge, merged per level and buffered to a drawn thickness (60 cm inside, 1 m outside), with openings cut at doors | — |
 | `area` | Rooms, areas, corridors, platforms, columns, stairs, lift shafts and jet bridges | `room`, `area`, `corridor`, `level`, `column`, `platform`, `stairs`, `elevator`, `wall` |
-| `line` | Steps, escalators, indoor footways and platforms mapped as lines | `steps`, `escalator`, `corridor`, `platform` |
-| `flight` | The treads of a stair or escalator that climbs between levels, on the lower level, each with its `height` | `steps`, `escalator` |
+| `line` | Steps, escalators, indoor footways and platforms mapped as lines. A flight has none on the level it climbs from | `steps`, `escalator`, `corridor`, `platform` |
+| `flight` | A point at the middle of each stair or escalator that climbs between levels, on the lower level | `steps`, `escalator` |
 | `poi` | Shops, amenities, gates, doors, lifts, a label point for each named room, and a point at the middle of each flight of steps for its icon | The POI's key (`shop`, `amenity`, `aeroway`, `railway`, …), `door`, `elevator`, `steps`, `escalator`, `room` |
 
 Door openings use the door's `width`, defaulting to 0.9 m and clamped between 0.7 m and 4 m.
 
-**Flights.** A stair or escalator line on more than one level, with `incline=up` or `incline=down`, is cut into treads from its lower level, climbing in the direction `incline` gives. Each tread is about 30 cm of run, with 4 to 20 per flight, 1.5 m wide (1.2 m for an escalator) unless `width` says otherwise. The last tread's `height` is 1, a full storey.
+**Flights.** A stair or escalator line on more than one level, with `incline=up` or `incline=down`, becomes a flight on its lower level, climbing in the direction `incline` gives. Its `length` runs from end to end of the line, and it is 1.5 m wide (1.2 m for an escalator) unless `width` says otherwise. A `down` flight within 6 m of a parallel `up` one climbs the same way, since `down` is often tagged for where an escalator carries you rather than how its way slopes. Clients draw the flight as a model, rising a storey over its length.
 
 **Jet bridges.** An `aeroway=jet_bridge` line within about 50 m of a venue joins the nearest one as a corridor (`class=corridor`, `subclass=jet_bridge`), 3 m wide unless `width` says otherwise (clamped to 2–6 m). It stands on its `level`, or on the venue's default level, and is part of that level's floor and walls.
 
