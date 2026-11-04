@@ -1,6 +1,6 @@
 ---
 title: Transit
-description: Live departures, vehicle positions, and service alerts from GTFS-RT feeds.
+description: Live departures, vehicle positions, service alerts, and signed directions.
 ---
 
 Parchment reads the same real-time feeds agencies publish for their own apps. Where an agency publishes GTFS-RT, departures carry live predictions rather than the timetable, vehicles move on the map, and anything the agency has said about a disruption is shown alongside them.
@@ -41,6 +41,16 @@ Some agencies leave `cause`, `effect` and `severity_level` unset on every alert 
 Barrelman reads those extensions, so an MTA detour is drawn as a detour rather than as an unlabelled grey note. The extension also carries the time the agency published the alert, which is what the card's "Posted" line shows.
 
 Support is a registry (`src/services/alert-extensions.ts` in Barrelman): each agency's extension is one entry giving the protobuf field number it occupies and a function that reads it. Adding another agency's format needs no change to the alerts service, and an alert's own spec fields always win — an extension only fills a gap the feed left.
+
+---
+
+## Signed directions and entrances
+
+Platform signs name a direction, not a terminal: "Uptown & The Bronx", "Manhattan". Where Barrelman knows that label, a planned trip leads with it ("A · Uptown & The Bronx") and shows the terminal underneath, departure boards group runs by it, and navigation says "Board the A, Uptown & The Bronx". Without a label everything reads as before, by headsign.
+
+The walk into a station uses the entrance that makes the whole walk shortest, never one signed only for the other direction's platform, and never an exit-only one. The walk out never uses an entry-only entrance. Entrances are named by their OSM name or ref, else by the corner they stand on: "Enter at Broadway & West 28th Street · NW corner".
+
+Both come from OSM, enriched with agency open data where an agency publishes it (the MTA does for the NYC subway). See [station labels](https://docs.barrelman.dev/self-hosting/importing-data#station-labels) in Barrelman's docs.
 
 ---
 
