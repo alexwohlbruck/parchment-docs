@@ -61,6 +61,8 @@ Barrelman builds a walking graph of each rail station from OSM, with its stairs,
 - **Where to board**: front, middle or back of the train, so it stops next to the exit or the next line's stairs. Only given where OSM maps the stairs along the platform and it saves at least 45 s.
 - **Steps inside**: where the station is mapped, a transfer or station walk has a drawn path across levels and written steps ("Take the stairs down to the mezzanine", "Follow signs for the 7 · Queens"), with distances and times for guidance without GPS. Elsewhere the time is an estimate and nothing is drawn.
 
+In a trip's details, a chip between two rides names the transfer ("In-station · 1 min 22 s", "Exit and re-enter · free re-entry"), the boarding stop says where to stand ("Board toward the back · saves 2 min"), and walks inside a station expand into their steps. Estimated times are marked with ≈. On the map, walked paths inside stations are drawn dashed and fade when the indoor floor picker shows a different level. In navigation, these walks switch to step cards that move on by themselves after each step's expected time, or with Next, and GPS guidance picks up again once you are back on the street.
+
 How good this is depends on how well OSM maps a station. A station moves from estimated times to drawn paths by itself once its stairs and mezzanines are mapped.
 
 ---
