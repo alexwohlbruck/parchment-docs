@@ -1,6 +1,6 @@
 ---
 title: Transit
-description: Live departures, vehicle positions, and service alerts from GTFS-RT feeds.
+description: Live departures, vehicle positions, service alerts, and signed directions.
 ---
 
 Parchment reads the same real-time feeds agencies publish for their own apps. Where an agency publishes GTFS-RT, departures carry live predictions rather than the timetable, vehicles move on the map, and anything the agency has said about a disruption is shown alongside them.
@@ -41,6 +41,29 @@ Some agencies leave `cause`, `effect` and `severity_level` unset on every alert 
 Barrelman reads those extensions, so an MTA detour is drawn as a detour rather than as an unlabelled grey note. The extension also carries the time the agency published the alert, which is what the card's "Posted" line shows.
 
 Support is a registry (`src/services/alert-extensions.ts` in Barrelman): each agency's extension is one entry giving the protobuf field number it occupies and a function that reads it. Adding another agency's format needs no change to the alerts service, and an alert's own spec fields always win — an extension only fills a gap the feed left.
+
+---
+
+## Signed directions and entrances
+
+Platform signs name a direction, not a terminal: "Uptown & The Bronx", "Manhattan". Where Barrelman knows that label, a planned trip leads with it ("A · Uptown & The Bronx") and shows the terminal underneath, departure boards group runs by it, and navigation says "Board the A, Uptown & The Bronx". Without a label everything reads as before, by headsign.
+
+The walk into a station uses the entrance that makes the whole walk shortest, never one signed only for the other direction's platform, and never an exit-only one. The walk out never uses an entry-only entrance. Entrances are named by their OSM name or ref, else by the corner they stand on: "Enter at Broadway & West 28th Street · NW corner".
+
+Both come from OSM, enriched with agency open data where an agency publishes it (the MTA does for the NYC subway). See [station labels](https://docs.barrelman.dev/self-hosting/importing-data#station-labels) in Barrelman's docs.
+
+## Inside the station
+
+Barrelman builds a walking graph of each rail station from OSM, with its stairs, escalators, lifts and levels, and plans through it:
+
+- **Transfers** are classed as cross-platform, in-station, a long passage between stations, or out of system (tap out and back in, counted as 20 s for the gates). Each says whether it goes up to the street.
+- **Entrance and exit**: the one that makes the street walk plus the walk inside shortest.
+- **Where to board**: front, middle or back of the train, so it stops next to the exit or the next line's stairs. Only given where OSM maps the stairs along the platform and it saves at least 45 s.
+- **Steps inside**: where the station is mapped, a transfer or station walk has a drawn path across levels and written steps ("Take the stairs down to the mezzanine", "Follow signs for the 7 · Queens"), with distances and times for guidance without GPS. Elsewhere the time is an estimate and nothing is drawn.
+
+In a trip's details, a chip between two rides names the transfer ("In-station · 1 min 22 s", "Exit and re-enter · free re-entry"), the boarding stop says where to stand ("Board toward the back · saves 2 min"), and walks inside a station expand into their steps. Estimated times are marked with ≈. On the map, walked paths inside stations are drawn dashed and fade when the indoor floor picker shows a different level. In navigation, these walks switch to step cards that move on by themselves after each step's expected time, or with Next, and GPS guidance picks up again once you are back on the street.
+
+How good this is depends on how well OSM maps a station. A station moves from estimated times to drawn paths by itself once its stairs and mezzanines are mapped.
 
 ---
 
