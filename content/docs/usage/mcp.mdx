@@ -21,7 +21,7 @@ A stateless [Streamable HTTP](https://modelcontextprotocol.io/specification/2025
 
 ## Access
 
-Every request needs a signed-in user with the `premium:ask` permission (the Premium role). A request without a valid session gets `401`; a user without the permission gets `403`. Both carry a JSON-RPC error body.
+Every request needs a signed-in user with the `premium:ask` permission (the Premium role) and Ask turned on in their settings. A request without a valid session gets `401`; a user without the permission gets `403`. Both carry a JSON-RPC error body.
 
 Authenticate with a session token in the `Authorization` header:
 
