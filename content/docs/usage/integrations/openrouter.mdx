@@ -22,7 +22,9 @@ OpenRouter can be configured in two places:
 
 ## Configuration
 
-In **Settings → Integrations**, open the OpenRouter card.
+In **Settings → Integrations**, OpenRouter has two cards: **For everyone** (the system key, admins only) and **Just you** (your own key).
+
+Users can also connect their own OpenRouter account without copying a key: when Ask is locked, **Connect OpenRouter** signs in to OpenRouter and saves a key for you. This works in the web app; the desktop and mobile apps use **Paste a key** instead.
 
 | Field | Value |
 |---|---|
@@ -35,11 +37,18 @@ A self-hosted instance can also supply the system key through the `OPENROUTER_AP
 
 ---
 
+## Monthly allowance
+
+Questions answered on the system key count against a monthly allowance per user, set with `ASK_MONTHLY_QUESTIONS` (default 200, `0` for no limit). It resets at midnight UTC on the 1st. Account settings shows how many have been used. Questions on a user's own key are never limited.
+
 ## How Ask works
 
 1. Type a question in search. When it reads like one, the **Ask** row is selected first. Press **Tab** to ask anything.
 2. The model searches Parchment's own place data (text search, category browse with tag filters, place details, and places within a travel time) and shows each search as it runs.
-3. The answer is one sentence plus place cards. It can only cite places that a search returned, so it never names a place that isn't on the map. Open or closed status comes from the map's opening hours, not from the model.
+3. When the question names a kind of place, **More nearby** opens the same search as a classic list.
+4. The answer is one sentence plus place cards. It can only cite places that a search returned, so it never names a place that isn't on the map. Open or closed status comes from the map's opening hours, not from the model.
+
+You can also ask about one place from its page (the question-mark button next to Share). Its details and recent reviews are read first, so answers like "good for working?" can point to what reviewers said.
 
 The model sees your question, your map's centre, and the place data its searches return. It does not see your saved places, history, or account details.
 
