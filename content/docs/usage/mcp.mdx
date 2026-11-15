@@ -1,0 +1,113 @@
+---
+title: AI assistants (MCP)
+description: Search Parchment's places from Claude and other assistants over the Model Context Protocol.
+---
+
+Parchment serves the same place searches that power **Ask** over the [Model Context Protocol](https://modelcontextprotocol.io) (MCP). Connect an MCP client, and its model can search your server's places directly: your assistant does the reasoning, Parchment supplies the real places.
+
+Unlike Ask, MCP needs no OpenRouter key. The client brings its own model.
+
+---
+
+## Endpoint
+
+```
+https://<your server>/mcp
+```
+
+A stateless [Streamable HTTP](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports#streamable-http) server: one JSON-RPC message per `POST`, answered with JSON. There is no event stream and no session, so `GET` and `DELETE` answer `405`.
+
+---
+
+## Access
+
+Every request needs a signed-in user with the `premium:ask` permission (the Premium role). A request without a valid session gets `401`; a user without the permission gets `403`. Both carry a JSON-RPC error body.
+
+Authenticate with a session token in the `Authorization` header:
+
+```
+Authorization: Bearer <session token>
+```
+
+### Getting a token
+
+Parchment has no personal access tokens yet. A token is an ordinary sign-in session, so the cleanest way to get one is to sign in once from the command line. That makes a separate session for the assistant, which you can revoke without signing out anywhere else.
+
+```bash
+# 1. Email yourself a sign-in code
+curl -X POST https://<your server>/auth/verify \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"you@example.com"}'
+
+# 2. Exchange the code for a session token
+curl -X POST https://<your server>/auth/sessions \
+  -H 'Content-Type: application/json' \
+  -d '{"method":"otp","email":"you@example.com","token":"<code from the email>"}'
+```
+
+The response's `token` field is the session token.
+
+- It expires after 30 days without use. Each use within that time extends it.
+- It shows up under **Settings → Account → Sessions**, where you can revoke it.
+- It is a full sign-in for your account, not a token limited to search. Keep it as private as a password.
+
+<Callout type="warn">
+Hosted connectors in claude.ai and ChatGPT expect to sign in with OAuth, which Parchment does not offer yet. Use a client that lets you set a request header, like Claude Code, or a bridge such as `mcp-remote`.
+</Callout>
+
+---
+
+## Connecting a client
+
+### Claude Code
+
+```bash
+claude mcp add --transport http parchment https://<your server>/mcp \
+  --header "Authorization: Bearer <session token>"
+```
+
+### Claude Desktop
+
+Claude Desktop's config file cannot set headers on a remote server, so bridge it with [`mcp-remote`](https://www.npmjs.com/package/mcp-remote). In `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "parchment": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://<your server>/mcp",
+        "--header",
+        "Authorization:${PARCHMENT_AUTH}"
+      ],
+      "env": {
+        "PARCHMENT_AUTH": "Bearer <session token>"
+      }
+    }
+  }
+}
+```
+
+The header goes through an environment variable because some platforms split arguments that contain a space.
+
+Any other client that speaks Streamable HTTP and can send a header works the same way.
+
+---
+
+## Tools
+
+| Tool | What it does | Returns |
+|---|---|---|
+| `find_places` | Search by name or free text ("ramen", "Blue Bottle") around `near` | Places ranked by relevance and distance |
+| `find_categories` | Look up category ids for a kind of place ("bakery") | Category ids and names |
+| `browse_category` | List one category nearest-first, optionally filtered by OpenStreetMap tags | Places, nearest first |
+| `get_place` | Full details for one place id | Hours, amenities, website and recent reviews |
+| `locate` | Resolve an address, neighbourhood, city or landmark | Up to 3 matches with coordinates |
+| `places_within_reach` | Places within a travel time by walking, cycling, driving or transit from `from` | Places inside the reachable area |
+
+Each result is JSON in a text block. Place lists include each place's id, name, type, address, coordinates, distance, opening hours and whether it is open now. Pass an id to `get_place` for the rest.
+
+There is no map here, so a search needs coordinates. Pass `near` (or `from` for `places_within_reach`), or call `locate` first with a place name. A search without either fails with `isError: true` and a message telling the model to do that, which most models act on by themselves.
+
+Searches run as your account, in the language your client sends in `Accept-Language`. The assistant sees only what the tools return: not your saved places, history or account details.
