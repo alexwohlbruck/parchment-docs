@@ -45,16 +45,19 @@ Questions answered on the system key count against a monthly allowance per user,
 
 1. Type a question in search. When it reads like one, the **Ask** row is selected first. Press **Tab** to ask anything.
 2. The model searches Parchment's own place data (text search, category browse with tag filters, place details, places within a travel time) and, when you ask how to get somewhere, transit timetables, travel times, bike share and weather. It shows each search as it runs.
-3. The answer is one sentence plus place cards. It can only cite places that a search returned, so it never names a place that isn't on the map. Open or closed status comes from the map's opening hours, not from the model.
-4. When the question names a kind of place, **More nearby** opens the same search as a classic list.
+3. For what the map can't know, like market days, events or a menu, it searches the web through OpenRouter's web plugin and lists the pages it read under **Sources**. Places it learns about there are looked up on the map before they are cited.
+4. Users with premium data access also get Foursquare and Google ratings, reviews and busy hours in place details, from whichever of those integrations are configured.
+5. The answer is one sentence plus place cards. It can only cite places that a search returned, so it never names a place that isn't on the map. Open or closed status comes from the map's opening hours, not from the model.
+6. When the question names a kind of place, **More nearby** opens the same search as a classic list.
 
 You can also ask about one place from its page (the question-mark button next to Share). Its details and recent reviews are read first, so answers like "good for working?" can point to what reviewers said.
 
-The model sees your question, your map's centre, and the place data its searches return. It does not see your saved places, history, or account details.
+The model sees your question, your map's centre, and the place data its searches return. Web search queries go to OpenRouter's search provider. It does not see your history or account details.
 
 ---
 
 ## Notes
 
 - A question takes up to six model calls. With a small model like the default, that is usually a few seconds and a fraction of a cent.
+- A web search reads up to 5 pages, which OpenRouter bills at about 2 cents on top of the model call. It counts toward the same key as the rest of the question.
 - If no system key is configured and a user has no key of their own, the Ask row is hidden.

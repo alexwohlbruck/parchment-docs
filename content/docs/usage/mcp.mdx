@@ -102,7 +102,7 @@ Any other client that speaks Streamable HTTP and can send a header works the sam
 | `find_places` | Search by name or free text ("ramen", "Blue Bottle") around `near` | Places ranked by relevance and distance |
 | `find_categories` | Look up category ids for a kind of place ("bakery") | Category ids and names |
 | `browse_category` | List one category nearest-first, optionally filtered by OpenStreetMap tags | Places, nearest first |
-| `get_place` | Full details for one place id | Hours, amenities, website and recent reviews |
+| `get_place` | Full details for one place id | Hours, busiest hours, amenities, website, and ratings (out of 5) and reviews with their source. Foursquare and Google data needs premium data access |
 | `locate` | Resolve an address, neighbourhood, city or landmark | Up to 3 matches with coordinates |
 | `places_within_reach` | Places within a travel time by walking, cycling, driving or transit from `from` | Places inside the reachable area |
 | `search_along_route` | Places along the route between two points, optionally through `stops`, by `category_ids` or `query` | Places with distance along the route and the minutes each stop adds |
@@ -114,6 +114,8 @@ Any other client that speaks Streamable HTTP and can send a header works the sam
 | `weather` | Conditions at `at` | Temperature, wind, air quality, and whether rain is due in the next few hours |
 | `saved_places` | Your saved places outside private collections, filtered by `query` | Names, addresses and coordinates |
 | `my_vehicles` | Your cars, bikes and scooters | Where each was last parked |
+
+The in-app Ask can also search the web. MCP has no `web_search` tool, since your client can search the web itself.
 
 Each result is JSON in a text block. Place lists include each place's id, name, type, address, coordinates, distance, opening hours and whether it is open now. Pass an id to `get_place` for the rest.
 
