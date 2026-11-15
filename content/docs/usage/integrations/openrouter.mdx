@@ -76,6 +76,6 @@ The model sees your question, your map's centre, and the place data its searches
 
 ## Notes
 
-- A question takes up to six model calls. With a small model like the default, that is usually a few seconds and a fraction of a cent.
-- A web search reads up to 5 pages, which OpenRouter bills at about 2 cents on top of the model call. It counts toward the same key as the rest of the question.
+- A question takes up to six model calls. On the default model that is usually about 0.2 cents: Anthropic models cache the tools and earlier steps between calls, which halves the cost.
+- A web search reads up to 3 pages, which OpenRouter bills at about 1 cent on top of the model calls. It counts toward the same key as the rest of the question.
 - If no system key is configured and a user has no key of their own, the Ask row is hidden.
