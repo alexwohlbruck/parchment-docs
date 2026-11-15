@@ -1,0 +1,51 @@
+---
+title: OpenRouter
+description: The language model behind Ask, set system-wide or with your own key.
+---
+
+[OpenRouter](https://openrouter.ai) gives one API key access to most hosted language models. Parchment uses it to answer **Ask** questions: plain-language searches like "quiet cafe with outdoor seating open now".
+
+OpenRouter can be configured in two places:
+
+- **System-wide**, by an admin. Users with the `premium:ask` permission (the Premium role) can use Ask on this key.
+- **Per user**, with your own key. Your key always works for you, whatever your plan, and its usage is billed to your OpenRouter account.
+
+---
+
+## Capabilities
+
+| Capability | Description |
+|---|---|
+| **Language Model** | Answers Ask questions by searching Parchment's place data |
+
+---
+
+## Configuration
+
+In **Settings → Integrations**, open the OpenRouter card.
+
+| Field | Value |
+|---|---|
+| **API key** | An OpenRouter key from [openrouter.ai/keys](https://openrouter.ai/keys). |
+| **Model** | Optional. Any OpenRouter model id that supports tool calling. Defaults to `anthropic/claude-haiku-5.5`. |
+
+Click **Test Connection** before saving.
+
+A self-hosted instance can also supply the system key through the `OPENROUTER_API_KEY` environment variable (and optionally `OPENROUTER_MODEL`) instead of saving it in Settings.
+
+---
+
+## How Ask works
+
+1. Type a question in search. When it reads like one, the **Ask** row is selected first. Press **Tab** to ask anything.
+2. The model searches Parchment's own place data (text search, category browse with tag filters, place details, and places within a travel time) and shows each search as it runs.
+3. The answer is one sentence plus place cards. It can only cite places that a search returned, so it never names a place that isn't on the map. Open or closed status comes from the map's opening hours, not from the model.
+
+The model sees your question, your map's centre, and the place data its searches return. It does not see your saved places, history, or account details.
+
+---
+
+## Notes
+
+- A question takes up to six model calls. With a small model like the default, that is usually a few seconds and a fraction of a cent.
+- If no system key is configured and a user has no key of their own, the Ask row is hidden.
