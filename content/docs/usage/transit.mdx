@@ -9,6 +9,14 @@ All of it comes through [Barrelman](/docs/barrelman), which discovers each feed'
 
 ---
 
+## Finding a line
+
+Transit lines are search results. Type a line the way a rider says it — "7 train", "route 40", "Flushing Local" — and the line appears alongside places, in the palette and on the results page; picking it opens the route detail with its stops, vehicles and alerts. Stations only the transit feed knows about show up too, opening on their departure board.
+
+Behind it, Barrelman matches the query against the GTFS routes it has imported and drops anything that duplicates an OpenStreetMap result, so a station never appears twice under two spellings.
+
+---
+
 ## Service alerts
 
 A service alert is the agency's own word on a disruption — a detour around roadworks, a suspended line, a lift out of service. Parchment reads the GTFS-RT `ServiceAlerts` feed and shows each alert wherever it applies:
