@@ -94,3 +94,21 @@ SMTP_FROM=Parchment <noreply@yourdomain.com>
 After setting your SMTP variables, restart the server. If the configuration is correct, sign-in emails and user invitations will be delivered. If something is wrong, check the server logs for SMTP errors.
 
 Without email configured, the server logs a warning on each send attempt and prints OTP codes directly to the console — useful during development or if you only use passkey authentication.
+
+## Verification code recognition
+
+Parchment sends verification codes as HTML and localized plain text. Verification
+emails also include the experimental [`OTP-Token` header](https://datatracker.ietf.org/doc/html/draft-goto-otp-token),
+which pairs the code with the canonical origin from `CLIENT_ORIGIN`. Set this to
+the public website where users enter their codes, rather than the API origin.
+The header is omitted when the origin is missing, invalid, or uses HTTP outside
+localhost/loopback development.
+
+Barrelman sign-in and account deletion emails use the same header, bound to
+`BARRELMAN_CONSOLE_ORIGIN` (or `BARRELMAN_SERVER_ORIGIN` when the console origin
+is unset).
+
+The header is an Internet-Draft, not a finalized standard. Gmail and Apple Mail
+support has not been confirmed, and adding it does not guarantee a copy-code
+card or AutoFill suggestion. Recognition also depends on the mail client and
+recipient settings. Test delivered messages in the clients you support.
