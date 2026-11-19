@@ -96,6 +96,18 @@ networks:
 
 Replace `your_proxy_network` with your actual network name. Then run `docker compose up -d` from your project root (with the include) so the override is applied.
 
+### Rate limits behind a proxy
+
+Parchment rate-limits sign-in, search, directions and other costly endpoints by client IP. It reads the IP from `X-Forwarded-For`, trusting only the entries your own proxies appended. Set `TRUSTED_PROXY_HOPS` to the number of proxies in front of the API:
+
+| Setup | `TRUSTED_PROXY_HOPS` |
+|---|---|
+| API exposed directly | `0` |
+| One reverse proxy (Caddy, nginx, Traefik) | `1` (default) |
+| Cloudflare in front of a reverse proxy | `2` |
+
+Too high and clients can dodge limits with a forged header; too low and every user shares one limit keyed on the proxy's address.
+
 ## Updating
 
 From the repository directory:
