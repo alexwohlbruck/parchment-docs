@@ -1,6 +1,6 @@
 ---
 title: Measuring
-description: Measure distances, circles and travel time, then keep the result in a canvas or a file.
+description: Measure distances, circles and travel time, then keep the result in a canvas or export it as GeoJSON, KML, GPX or CSV.
 ---
 
 Right-click the map (long-press on a phone) to open one of three measuring
@@ -10,8 +10,11 @@ tools:
   to close the path into an area, and the area appears too.
 - **Circle** shows the radius, circumference and area of a circle around a
   point.
-- **Travel time** shades the area you can reach from a point within a set time
-  on foot, by bike, by car or by transit.
+- **Travel time** shades the area you can reach from a point, or that can
+  reach it, within a set time on foot, by bike, by car or by transit.
+
+Switch units with **km** and **mi** at the top of each panel, or tap a figure to
+cycle its unit.
 
 ## Keeping a measurement
 
@@ -22,16 +25,27 @@ has two buttons for that:
   It measures exactly as it did in the tool, and you can label it, restyle it
   or draw more around it. A travel-time result becomes one shape per time
   band.
-- **Export** saves the shape as a GeoJSON file. On a phone it opens the share
-  sheet.
+- **Export** saves the shape as a file, in whichever format the place you're
+  taking it to reads. On a phone it opens the share sheet.
+
+## Export formats
+
+| Format | Use it for | Comes back as marks |
+|---|---|---|
+| GeoJSON | Other mapping tools, such as QGIS or geojson.io | Yes |
+| Google Earth (KML) | Google Earth and Google My Maps | Yes |
+| GPS device (GPX) | Hiking and cycling apps and GPS units. Areas become closed tracks. | No, shapes only |
+| Spreadsheet (CSV) | Excel, Sheets or a database. Points get latitude and longitude columns; lines and areas get a `wkt` column. | No, shapes only |
+
+GeoJSON and KML files keep each mark's label, colour, icon and style, and
+importing one into a canvas brings back editable marks. Other tools read the
+colours too.
+
+A spreadsheet you import can describe lines and areas the same way, in a `wkt`
+or `geometry` column.
 
 ## Exporting a canvas
 
-Choose **Export GeoJSON** in a canvas's menu to save everything drawn on it,
-plus any data you imported into it, as one file. The file keeps each mark's
-label, colour, icon and style. Importing it into a canvas brings the marks back
-as editable marks rather than plain data, so a canvas can be copied or moved
-this way.
-
-The file also carries standard colour properties, so other GeoJSON tools such as
-geojson.io show the marks in their colours.
+Choose **Export** in a canvas's menu, then a format, to save everything drawn
+on it plus any data you imported into it as one file. That is also how to copy
+a canvas or move it to another account.
