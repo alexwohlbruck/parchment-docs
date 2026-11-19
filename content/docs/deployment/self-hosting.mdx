@@ -110,7 +110,7 @@ Too high and clients can dodge limits with a forged header; too low and every us
 
 With Cloudflare in front of Caddy, `TRUSTED_PROXY_HOPS=2` is not enough on its own. Caddy replaces the `X-Forwarded-For` it gets from any peer it doesn't trust, so unless it trusts Cloudflare the API sees a Cloudflare edge address, and everyone behind that edge shares one limit. Add Cloudflare's ranges, from [cloudflare.com/ips](https://www.cloudflare.com/ips/), to Caddy's global options:
 
-```caddy
+```text
 {
 	servers {
 		trusted_proxies static 173.245.48.0/20 103.21.244.0/22 ... 2c0f:f248::/32
