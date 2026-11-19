@@ -3,6 +3,7 @@
   "pages": [
     "index",
     "globe",
+    "measuring",
     "transit",
     "indoor-maps",
     "mcp",
