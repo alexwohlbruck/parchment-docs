@@ -106,7 +106,7 @@ Any other client that speaks Streamable HTTP and can send a header works the sam
 | `locate` | Resolve an address, neighbourhood, city or landmark | Up to 3 matches with coordinates |
 | `places_within_reach` | Places within a travel time by walking, cycling, driving or transit from `from` | Places inside the reachable area |
 | `search_along_route` | Places along the route between two points, optionally through `stops`, by `category_ids` or `query` | Places with distance along the route and the minutes each stop adds |
-| `plan_trip` | A door-to-door trip as Directions plans it, optionally through `stops` with time spent at each, a `kind` of travel and a time | When to leave and arrive, and each move: walks, rides, bike share stations, transit lines |
+| `plan_trip` | A door-to-door trip as Directions plans it, optionally through `stops` with time spent at each, a `kind` of travel and a time. A `kind` plans on that Directions tab: `biking` is your own bike, never bike share | When to leave and arrive, and each move: walks, rides, bike share stations, transit lines |
 | `transit_trips` | Transit trips from `from` to `to`, departing at `depart_at` or arriving by `arrive_by` | When to leave and arrive, each line, direction and stop, and live delays |
 | `transit_departures` | Live departure board at a named station or near a point | Next runs per line with minutes away, delays, cancellations and service alerts |
 | `travel_times` | Door-to-door time by walking, cycling, driving and transit, to compare them. Needs premium navigation | Minutes per mode, or null where there is no route |
@@ -114,14 +114,16 @@ Any other client that speaks Streamable HTTP and can send a header works the sam
 | `weather` | Conditions at `at` | Temperature, wind, air quality, and whether rain is due in the next few hours |
 | `saved_places` | Your saved places outside private collections, filtered by `query` | Names, addresses and coordinates |
 | `my_vehicles` | Your cars, bikes and scooters | Where each was last parked |
-| `create_canvas` | Save a canvas to your library from place ids other tools returned, one layer per `layers` entry. Needs library access (Basic or Premium) | The new canvas's name and layer count |
+| `create_route` | Build a route through `points` in order, as the route builder snaps one, by `cycling`, `walking` or `driving`, and save it to Routes in your library. `loop` returns to the start. Needs library access (Basic or Premium) | The route's id, distance, minutes and climb |
+| `my_routes` | Your saved routes | Each route's id, name, mode, distance, minutes and climb |
+| `create_canvas` | Save a canvas to your library with saved routes (`route_ids`) and points in named `layers`. Points can be place ids, saved places like `home`, or coordinates. Needs library access (Basic or Premium) | The new canvas's id, name and layer count |
 
 The in-app Ask can also search the web. MCP has no `web_search` tool, since your client can search the web itself.
 
 Each result is JSON in a text block. Place lists include each place's id, name, type, address, coordinates, distance, opening hours and whether it is open now. Pass an id to `get_place` for the rest.
 
-There is no map here, so a tool needs a point. Pass coordinates, a place id another tool returned, or a place name, which is looked up near you. A search without either fails with `isError: true` and a message telling the model to do that, which most models act on by themselves.
+There is no map here, so a tool needs a point. Pass coordinates, a place id another tool returned, the name of one of your saved places (`home`, `work`), or a place name, which is looked up near you. Saved places are offered only when Ask is allowed to use your location in its settings. A search without either fails with `isError: true` and a message telling the model to do that, which most models act on by themselves.
 
 Times are written and read in the trip's own time zone: give `depart_at` as local time, like `2026-11-20T18:30`, and results come back as `Fri 18:42`.
 
-Searches run as your account, in the language your client sends in `Accept-Language`. The assistant sees only what the tools return. Saved places in private collections, saved routes, friends' locations and location history are end-to-end encrypted, so the server cannot hand them over.
+Searches run as your account, in the language your client sends in `Accept-Language`, with your unit system and your active vehicles. The assistant sees only what the tools return. Saved places in private collections, private routes, the names you give routes, friends' locations and location history are end-to-end encrypted, so the server cannot hand them over. A route the assistant builds is named by the assistant until you rename it.
