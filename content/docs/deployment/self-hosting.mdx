@@ -136,11 +136,13 @@ To update images automatically, add [Watchtower](https://containrrr.dev/watchtow
 
 ## Backup
 
-Only the database is stateful. Back it up regularly:
+Back up the database regularly:
 
 ```bash
 docker exec parchment-db pg_dump -U server_user parchment > backup.sql
 ```
+
+With the default local [file storage](/docs/development/environment#file-storage-optional), profile photos live on the `server-data` volume. Back that up too, or point `STORAGE_DRIVER` at a bucket.
 
 ## Troubleshooting
 
