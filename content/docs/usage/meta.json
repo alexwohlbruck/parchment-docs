@@ -3,6 +3,7 @@
   "pages": [
     "index",
     "globe",
+    "map-styles",
     "measuring",
     "transit",
     "indoor-maps",
