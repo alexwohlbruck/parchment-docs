@@ -1,6 +1,6 @@
 ---
 title: Offline maps
-description: Save an area of the map, with the layers you choose, and see it with no connection.
+description: Save an area of the map, then see it, search it and get directions in it with no connection.
 ---
 
 Open **Offline maps** from the sidebar, or from the dashboard on a phone, then
@@ -11,7 +11,10 @@ choose **Save an area**.
 2. Pick what to include. The map itself is always saved. Layers that are on
    the map now start switched on: transit lines, cycling, street imagery,
    3D terrain and any custom layer with map tiles.
-3. Check the size estimate under the switches, then tap **Download**.
+3. Under **Use offline**, keep **Search places** and **Get directions** on to
+   search the area and plan trips in it with no connection. Turn them off to
+   save only the map.
+4. Check the size estimate under the switches, then tap **Download**.
 
 The area is named after the place in its middle; rename it from its menu. A
 square that would take too long to save turns red, and you need to zoom in
@@ -19,8 +22,8 @@ before you can download it.
 
 ## Managing saved areas
 
-Each saved area shows its size and when it was last updated. From its menu you
-can:
+Each saved area shows its size, and either when it was last updated or, when
+it holds transit times, the last day they cover. From its menu you can:
 
 - **Update** it to pick up the latest map data
 - **Rename** or **Delete** it
@@ -35,9 +38,17 @@ inside a city you already saved costs very little.
 
 - The map and the layers you saved, inside the saved area
 - Your location on the map
+- **Search** for places, streets and transit stops in saved areas. Your saved
+  and recent places come first.
+- **Place pages** with the address, opening hours, phone and website
+- **Departures** at a stop or station, from the timetable
+- **Directions** on foot, by bike and by transit, when both ends are inside
+  one saved area
 
-Search, directions and live transit times still need a connection. Offline
-search and offline routing are planned.
+Offline departures and transit trips use scheduled times, not live ones. A
+saved area holds two weeks of timetable, and Parchment fetches a fresh one
+every few days whenever you're online, so it doesn't run out. Driving
+directions, reviews, photos and live arrivals still need a connection.
 
 ## Keeping saved maps
 
@@ -60,3 +71,19 @@ Online, it refreshes the saved copy in the background.
 
 The size estimate measures one real tile per layer at the centre of the square
 and scales it for each zoom level.
+
+Search and directions come from three packages the server builds for the
+square and saves next to the tiles:
+
+- **Places**: every named place, street and transit stop, with its category,
+  address, hours, phone and website
+- **Timetable**: the stops, lines, trips and walking transfers of every transit
+  feed in the area, for two weeks
+- **Streets**: a walking and cycling street graph, with one-way streets for
+  bikes, stairs, bike lanes and busy roads
+
+A background worker on the device loads them the first time you search or ask
+for directions offline. Walking and cycling use a shortest-path search over the
+street graph. Transit uses RAPTOR, a round-based search that finds the fastest
+trip for each number of changes, with walks to and from stops along real
+streets.
