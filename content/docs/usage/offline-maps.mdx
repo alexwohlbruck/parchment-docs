@@ -1,0 +1,63 @@
+---
+title: Offline maps
+description: Save an area of the map, with the layers you choose, and see it with no connection.
+---
+
+Open **Offline maps** from the sidebar, or from the dashboard on a phone, then
+choose **Save an area**.
+
+1. Move and zoom the map until the area you want fills the square. The square
+   stays still while the map moves, so zooming out saves a bigger area.
+2. Pick what to include. The map itself is always saved. Layers that are on
+   the map now start switched on: transit lines, cycling, street imagery,
+   3D terrain and any custom layer with map tiles.
+3. Check the size estimate under the switches, then tap **Download**.
+
+The area is named after the place in its middle; rename it from its menu. A
+square that would take too long to save turns red, and you need to zoom in
+before you can download it.
+
+## Managing saved areas
+
+Each saved area shows its size and when it was last updated. From its menu you
+can:
+
+- **Update** it to pick up the latest map data
+- **Rename** or **Delete** it
+
+A download keeps going after a reload. If the connection drops it waits, and it
+carries on once you're back online. Tap pause to stop it yourself.
+
+Overlapping areas share what they have in common, so saving a neighbourhood
+inside a city you already saved costs very little.
+
+## What works offline
+
+- The map and the layers you saved, inside the saved area
+- Your location on the map
+- Your saved places and collections
+
+Search, directions and live transit times still need a connection. Offline
+search and offline routing are planned.
+
+## Keeping saved maps
+
+Parchment asks the browser to keep saved maps when space runs low. On iPhone
+and iPad, add Parchment to your home screen: Safari clears data for sites you
+haven't opened in a while, but not for apps on the home screen.
+
+Some layers can't be saved, because their providers don't allow it. These are
+the OpenStreetMap standard tiles, Esri satellite imagery, OpenTopoMap,
+OpenRailwayMap, OpenSeaMap and Mapbox layers. They are left out of the list.
+
+## How it works
+
+Saving an area lists every tile each chosen layer has inside the square, from
+zoom 0 to the layer's deepest zoom (up to 16; 12 for terrain). It then saves the
+tiles, plus the fonts, icons and manifests the map needs, to a Cache Storage
+bucket called `offline-regions`. The service worker answers from that bucket
+before anything else, so a saved tile is drawn with or without a connection.
+Online, it refreshes the saved copy in the background.
+
+The size estimate measures one real tile per layer at the centre of the square
+and scales it for each zoom level.
