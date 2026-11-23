@@ -15,11 +15,12 @@ source can sit on top of a coarser global one. The stack syncs with your account
 | **USGS NAIP** | Contiguous US, zoom 13 and closer | 0.3–0.6 m | Public domain |
 | **Sentinel-2 cloudless** (EOX, 2016) | Worldwide | 10 m | CC BY 4.0 |
 | **USGS Imagery** | US, up to zoom 16 | ~1 m | Public domain |
-| **Esri World Imagery** | Worldwide | Up to ~0.3 m in cities | Esri terms of use |
-| **Esri Clarity** | Worldwide | Often newer than World Imagery | Esri terms of use |
+| **Esri World Imagery** | Worldwide | Up to ~0.3 m in cities | Needs the [Esri integration](/docs/usage/integrations/esri) |
 
 The default stack is USGS NAIP over Esri World Imagery: public-domain aerial
-photos across the contiguous US, and Esri everywhere else. USGS Imagery fills areas outside its coverage with white, so put it
+photos across the contiguous US, and Esri everywhere else. Esri appears only
+once the Esri integration has a key; without one, the satellite map shows NAIP
+alone. USGS Imagery fills areas outside its coverage with white, so put it
 at the bottom of a stack, or use it alone.
 
 ## Adding your own
