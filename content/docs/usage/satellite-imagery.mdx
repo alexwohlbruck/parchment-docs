@@ -31,9 +31,9 @@ Google's 3D tiles are a Premium source: only users with the
 imagery settings, and the proxy answers anyone else with `401` or `403`.
 
 Google's 3D tiles are meshes rather than images, so they are drawn by their own
-layer on top of the raster sources instead of taking a place among them. The
-rasters still matter: they show while the 3D tiles load, and below zoom 12,
-where the map is a globe and the 3D tiles are not drawn. While the mesh is on
+layer instead of taking a place among the raster sources. From zoom 12 in,
+only the mesh is drawn, with no flat imagery under it. Below zoom 12, where
+the map is a globe and the 3D tiles are not drawn, the rasters show instead. While the mesh is on
 screen, Parchment's own 3D buildings, trees, landmarks and bridge decks are
 hidden, since the mesh already contains them, and the Google Maps logo and the
 data providers' credits appear beside the map's info button.
