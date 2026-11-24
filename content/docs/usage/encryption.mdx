@@ -1,0 +1,103 @@
+---
+title: Encryption
+description: What Parchment encrypts on your device, what the server can still read, and how you get your keys back.
+---
+
+Some of what you keep in Parchment is encrypted on your device before it is sent anywhere, with keys the server never holds. Some of it is not. This page says which is which, so you don't have to take "end-to-end encrypted" on trust.
+
+---
+
+## Your keys
+
+Everything starts from one 32-byte secret, the **seed**, generated on your device when you set up your identity. The server never receives it.
+
+From the seed, your device derives:
+
+| Key | Used for |
+|---|---|
+| Signing key (Ed25519) | Proving messages and key slots came from you |
+| Encryption key (X25519) | Receiving things other people encrypt for you |
+| Personal key (AES-256) | Data only you read, like search history |
+| One key per private collection, canvas and route | The contents of that item |
+
+Only the two public halves, for signing and encryption, are uploaded. They are how friends and other servers address you.
+
+On desktop the seed is kept in the operating system's keychain. In a browser or the mobile apps it is kept in local storage, encrypted with a secret the server holds for that device, so a copy of the browser's files alone is not enough to read it. "Sign out of all devices" replaces those secrets, and every browser or phone has to unlock again. A desktop keychain entry is not affected by this.
+
+## Getting your keys onto a new device
+
+There are three ways, and no fourth. If you lose all three, encrypted data is gone; nobody at Parchment or on your server can restore it.
+
+### A passkey
+
+When you add a passkey, your device asks it for a secret that only that passkey can produce (the WebAuthn PRF extension), uses that to encrypt a copy of the seed, and uploads the result. On a new device, tapping the passkey produces the same secret and decrypts the copy.
+
+Each passkey gets its own copy. Each copy is signed with your signing key, and a new device checks that signature before using it, so a server cannot substitute a copy of its own.
+
+Not every passkey can do this. It depends on where the passkey is stored: iCloud Keychain, Google Password Manager, Windows Hello on an up-to-date Windows 11, 1Password and most hardware keys can; Bitwarden and Dashlane currently cannot. A passkey that can't is still fine for signing in. Settings shows which of your passkeys have recovery turned on.
+
+### Recovery words
+
+Your seed written as 24 ordinary words. They are shown when you set up your identity, and again whenever you ask in **Settings → Account → Recovery words**. Parchment asks you to type 3 of them back to confirm you kept a copy.
+
+The words follow the BIP-39 standard and include a checksum, so a misspelt or misplaced word is caught when you type them in. Anyone who has them can read your encrypted data, so keep them the way you would keep a password: on paper somewhere safe, or in a password manager.
+
+Recovery keys from before the words existed, a 44-character string, still work in the same field.
+
+### Another signed-in device
+
+**Settings → Account → Set up another device** shows a QR code on the new device. The device you already use scans it, both show the same 6-digit number for you to compare, and the seed is sent encrypted for that one device. The server relays the message for up to a minute and cannot read it.
+
+## What is encrypted on your device
+
+The server stores these but cannot read them.
+
+| Data | Notes |
+|---|---|
+| Private collections | Name, description, icon, and every place in them: name, address and coordinates |
+| Private canvases | Name and everything drawn on them |
+| Saved routes | The name and description always. For a private route, the waypoints and path too |
+| Search history and recent places | |
+| Integrations set to private | The API keys and tokens you entered |
+| Live location shared with friends | Encrypted separately for each friend, with a fresh key for every update |
+
+Each item is sealed with AES-256-GCM and tied to your account and to the record it belongs to, so the server cannot swap one encrypted item for another without your device noticing.
+
+## What the server can read
+
+Shareable collections, canvases and routes are stored readable, because that is what lets them have a public link and be searched on the server. **A new collection is shareable unless you make it private.** You can switch either way at any time from the item's privacy setting; making something private encrypts it on your device and removes its public link.
+
+Besides those, the server can read:
+
+- Your email, name, picture and username
+- Your sessions: IP address, browser and when each was last used
+- Who your friends are, and who you share location or collections with
+- Trips you plan, which are kept for a short time so they can be reopened or shared
+- Edits you make to OpenStreetMap, which are public anyway
+- Vehicles you add, including where one was last parked
+- Settings, and integrations left on the default, which are encrypted with a key the server holds
+
+Searches and directions requests are answered by the server and the services behind it, so it sees them as they happen even though your saved history is encrypted.
+
+## What stays visible about encrypted items
+
+Encryption hides contents, not existence. For an encrypted item the server still knows who owns it, when it was created and changed, roughly how large it is, which collection a place belongs to, and who it is shared with. For live location it knows which friend each update is for and when it was sent, and keeps only the latest one.
+
+## Sharing
+
+Sharing a private collection sends its key to each person, encrypted with a secret that only your device and theirs can compute from each other's public keys. If they are on another server, that server sees that you shared something with them and with what role, not the key or the contents.
+
+Removing someone gives the collection a new key and sends it to everyone who is left.
+
+## Starting over
+
+**Rotate encryption keys** makes a new seed and re-encrypts your collections and personal data under it. Your recovery words change with it, and each passkey has to be tapped once to keep working for recovery.
+
+If you have lost every passkey, your recovery words and every signed-in device, the only way forward is **Lost your words?** on the restore screen. It erases everything tied to your old keys: collections and saved places, canvases, routes, friends and shares. Your email, passkeys and settings stay, so you can sign in and set up a new identity.
+
+## For the curious
+
+- Key derivation: HKDF-SHA256 from the seed, with a separate label for each key.
+- Signatures: Ed25519. Key agreement: X25519. Encryption: AES-256-GCM.
+- Libraries: the [noble](https://paulmillr.com/noble/) and [scure](https://github.com/paulmillr/scure-bip39) packages, which are independently audited.
+- The code is in [`web/src/lib/identity`](https://github.com/alexwohlbruck/parchment/tree/main/web/src/lib/identity).
