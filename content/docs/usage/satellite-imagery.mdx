@@ -16,7 +16,7 @@ source can sit on top of a coarser global one. The stack syncs with your account
 | **Sentinel-2 cloudless** (EOX, 2016) | Worldwide | 10 m | CC BY 4.0 |
 | **USGS Imagery** | US, up to zoom 16 | ~1 m | Public domain |
 | **Esri World Imagery** | Worldwide | Up to ~0.3 m in cities | Needs the [Esri integration](/docs/usage/integrations/esri) |
-| **Google Photorealistic 3D** | Worldwide, 3D in most cities | 3D meshes | Needs the [Google Maps integration](/docs/usage/integrations/google-maps) |
+| **Google Photorealistic 3D** | Worldwide, 3D in most cities | 3D meshes | Premium; needs the [Google Maps integration](/docs/usage/integrations/google-maps) |
 
 The default stack is USGS NAIP over Esri World Imagery: public-domain aerial
 photos across the contiguous US, and Esri everywhere else. Esri appears only
@@ -26,6 +26,10 @@ at the bottom of a stack, or use it alone.
 
 ## Google Photorealistic 3D
 
+Google's 3D tiles are a Premium source: only users with the
+`premium:photorealistic_3d` permission (the Premium role) see them in the
+imagery settings, and the proxy answers anyone else with `401` or `403`.
+
 Google's 3D tiles are meshes rather than images, so they are drawn by their own
 layer on top of the raster sources instead of taking a place among them. The
 rasters still matter: they show while the 3D tiles load, and below zoom 12,
@@ -34,8 +38,12 @@ screen, Parchment's own 3D buildings, trees, landmarks and bridge decks are
 hidden, since the mesh already contains them, and the Google Maps logo and the
 data providers' credits appear beside the map's info button.
 
-The tiles go through the server's `/proxy/google/3dtiles/` route, which adds the
-Google Maps integration's key, so the key needs the **Map Tiles API** enabled.
+In hybrid with 3D terrain on, street names and one-way arrows on a bridge are
+raised onto Google's bridge, using the same bridge deck data that lifts them on
+the standard map. The decks themselves stay hidden.
+
+The tiles go through the server's `/proxy/google/3dtiles/` route, which checks
+the user's session and adds the Google Maps integration's key, so the key needs the **Map Tiles API** enabled.
 Google bills each session (one root tileset request, good for about three
 hours): 1,000 free a month, then $6 per 1,000. The tiles honour Google's own
 caching headers and are never saved for offline use.
