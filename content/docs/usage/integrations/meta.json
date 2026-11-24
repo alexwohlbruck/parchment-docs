@@ -11,6 +11,7 @@
     "graphhopper",
     "valhalla",
     "geoapify",
+    "esri",
     "mapillary",
     "transitland",
     "overpass",
