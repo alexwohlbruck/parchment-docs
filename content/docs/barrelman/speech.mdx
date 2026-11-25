@@ -1,0 +1,51 @@
+---
+title: Navigation speech
+description: Run optional self-hosted speech alongside Barrelman and select navigation voices and speed.
+---
+
+Parchment can use a self-hosted speech model for navigation, with browser speech as a fallback. Speech is an integration capability, so other providers can be added without changing navigation callers. The first provider uses Kokoro in a separate Docker service in the Barrelman stack.
+
+## Enable the service
+
+In Barrelman's `.env`, set `TTS_URL=http://tts:8880`. Start the optional service and recreate the API to apply its environment:
+
+```sh
+docker compose --profile tts up -d tts barrelman
+```
+
+The pinned CPU image is `ghcr.io/remsky/kokoro-fastapi-cpu:v0.9.0`. It runs privately inside Barrelman's Compose network. An optional `docker-compose.tts-gpu.yml` override selects the NVIDIA image; include it after the base Compose file and any development override. NVIDIA Container Toolkit is required. Apple Silicon Docker uses CPU.
+
+In Parchment **Settings → Integrations → Barrelman**, configure the instance host and its `BARRELMAN_API_KEY` service credential, then enable **Speech synthesis**. Speech currently requires the instance service credential rather than a customer account key. It does not add paid inference API usage. A service outage does not prevent routing.
+
+## Choose voice and speed
+
+In **Settings → Behavior → Navigation**, choose a voice for your app language, choose a speaking speed, and use **Listen** to audition it. The available voice list comes from the configured service. Navigation instructions still use the app's language; selecting a speaker does not translate text. Kokoro's catalog covers eight languages with uneven voice choice, while the app currently translates navigation into English and Spanish.
+
+The rate range is 0.75×–1.5×. Kokoro changes the generated speech duration at synthesis time. **Faster speech for close turns** can increase this rate, up to 1.5×, when the estimated time to an upcoming maneuver is short. This is a bounded heuristic, not guaranteed timing: listening and actual driving/walking tests are needed. Inflection is not supported by the initial adapter.
+
+Route navigation begins with a one-time opening direction, such as “Head north on Main Street,” without waiting for movement or a position update. An immediate opening turn is spoken instead when present. Muting navigation still suppresses speech. Nearby turns are combined into one spoken instruction when their predicted timing would overlap, including a turn shortly after the opening direction. Timing accounts for travel speed and your chosen speaking rate; combined turns are not repeated separately. Urgent hazards can interrupt speech.
+
+## Fallback and cancellation
+
+Parchment falls back to browser speech if the capability is disabled, the service fails, the requested locale/voice is unsupported, synthesis takes too long, or audio cannot play. Browser speech retains the selected rate; server voice IDs do not map to browser voices. Offline speech depends on locally installed browser voices. A late server clip is discarded after fallback. Urgent instructions interrupt playback; muting, rerouting and ending navigation cancel pending speech.
+
+The service is optional. There are no database migrations or client model downloads. Generated audio is cached in bounded server memory; cache identity includes model revision, voice, language, rate and text. Models stay resident in the separate container. Set `TTS_MODEL_REVISION` in Barrelman's environment when changing model assets.
+
+## API
+
+Authenticated Parchment endpoints:
+
+* `GET /speech`: available voices, languages and controls.
+* `POST /speech`: `{ "text": "Turn left", "language": "en-US", "voice": "af_heart", "rate": 1.25 }`, returning MP3.
+
+Text is limited to 500 characters. Rate is optional and defaults to 1. Parchment bounds requests per user and synthesis deadlines. Barrelman bounds concurrent inference and audio-cache size. Both expose route-level OpenAPI documentation.
+
+## CPU sizing and deadlines
+
+A CPU test of the pinned v0.9.0 image with two CPU cores and a 3 GiB memory limit used about 1.1 GiB while idle after warmup. The image occupies about 3.3 GB uncompressed. Warm generation took 1.2–1.5 seconds for “Turn left”, 3.1 seconds for a longer English street instruction, and 2.1–2.7 seconds for longer Spanish or accelerated English instructions. Identical requests served from Barrelman's cache took under 2 ms. These are example measurements, not a performance guarantee.
+
+Parchment allows up to 3 seconds for non-urgent instructions and 1.5 seconds for urgent turns; no request outlives its maneuver deadline. Interrupted audio is resumed before playback. A failed request falls back for that instruction, then the next announcement tries the selected server voice again. A small CPU allocation can therefore fall back frequently for uncached instructions; allow more CPU or use the NVIDIA override and measure on your host. Increasing speaking rate shortens the clip but does not guarantee synthesis meets the deadline. Playback also stops once an instruction expires, including when a browser decoder stalls.
+
+## Before production
+
+The container and official Kokoro weights use Apache-2.0; retain notices and review voice/dependency terms. Self-hosting has compute and maintenance costs. Test very short phrases, local street names, faster speaking rates, multilingual pronunciation and concurrent routing load on the deployment host. Mobile audio activation, Bluetooth and background/screen-lock reliability require device testing.
