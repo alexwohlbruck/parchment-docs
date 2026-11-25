@@ -1,0 +1,32 @@
+---
+title: Location sharing
+description: Share your live location with a friend for an hour, a few hours, until tomorrow or for as long as you like.
+---
+
+Share your live location with a friend from their card in **Friends**, or from their profile under **Share my location**. Turning the switch on asks how long to share:
+
+| Option | Sharing ends |
+|---|---|
+| For 1 hour | 1 hour from now |
+| For 4 hours | 4 hours from now |
+| Until tomorrow | 9:00 the next morning, in your time zone |
+| Until you turn it off | Never, until you switch it off |
+
+"Until tomorrow" covers an evening out and the night after it. Between midnight and 4:00 it means the morning that is about to come, so sharing at 1:30 ends at 9:00 the same day rather than a day later.
+
+While a timed share is running, the friend's card shows how long is left, and their profile shows when it ends ("Until 9:00 AM · 7 hr left"). Tap either to pick a new duration, which starts again from now.
+
+Your location is [end-to-end encrypted](/docs/usage/encryption) for each friend, whichever duration you choose.
+
+## When a share ends
+
+The server enforces the end time, whatever the app does:
+
+- Once a share's time is up, the server stops accepting location updates for that friend and stops handing your last location to them, even if your device is offline or running an old version of the app.
+- Within a minute it deletes the share and the location it held for that friend, and tells their app to remove your marker.
+
+Turning sharing off by hand works the same way, straight away.
+
+## Shares from before this feature
+
+Shares turned on before durations existed have no end time and keep running until you turn them off.
