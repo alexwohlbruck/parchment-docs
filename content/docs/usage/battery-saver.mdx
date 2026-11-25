@@ -1,0 +1,44 @@
+---
+title: Battery saver
+description: Two levels of savings, switched by hand or when the battery runs low.
+---
+
+Battery saver trades the map's extras for battery life. Turn it on in **Settings → Behavior → Battery saver**, from the command palette ("Battery saver"), or let it turn itself on when the battery gets low. While it's on, a leaf button sits next to the weather on the map; tap it to get back to the setting.
+
+Your own settings are never changed. Battery saver holds things off while it's on, and everything returns as you left it when it turns off.
+
+---
+
+## Levels
+
+| | On | Extreme |
+|---|---|---|
+| 3D terrain, buildings, trees and shadows | Off | Off |
+| Map sharpness | 1.5× pixel density | 1× pixel density |
+| Map frame rate | Up to 30 fps | Up to 30 fps |
+| Your location | Wi-Fi and cell, no GPS | Wi-Fi and cell, no GPS, refreshed less often |
+| Live vehicles on a route or trip | Every 15 s | Every 30 s |
+| Basemap | Usual style | Grey roads, paths and place names on black |
+| App theme | Your choice | Dark |
+| Animations | On | Off |
+
+Navigation always gets full GPS accuracy, whatever the level, so turn-by-turn stays precise. Its own frame-rate and 3D limits follow the level too: On caps the frame rate, Extreme also drops the tilted 3D camera.
+
+## Turning on automatically
+
+**Turn on when battery is low** switches battery saver on below one level (20% by default) and Extreme below another (10%), and only while the device isn't charging. A short message says why when it happens. A level you set by hand always wins if it's stronger.
+
+The automatic option needs the browser to report the battery level. Chrome and Android do; Safari and iOS don't, so on an iPhone the option is hidden and battery saver is switched by hand.
+
+## Measured savings
+
+Measured in headless Chrome on a shared dev machine, against battery saver off. Processor time covers the page, GPU and browser processes; GPU calls count every WebGL call the map makes, which tracks the work sent to the graphics chip.
+
+| Scenario | On | Extreme |
+|---|---|---|
+| Opening the map | 44% less processor time, 82% fewer GPU calls | 75% less, 99% fewer |
+| Sitting idle on a flat map | 24% less processor time | 91% less |
+| Tilting into a 3D city | 51% less, 71% fewer GPU calls | 96% less, 99% fewer |
+| Panning around | 36% less, 62% fewer GPU calls | 88% less, 91% fewer |
+
+Tile downloads while panning fell from 22 MB to 3.7 MB (On) and 2.3 MB (Extreme). Screen power, which Extreme's black map saves on OLED displays, and GPS power need a real device to measure.

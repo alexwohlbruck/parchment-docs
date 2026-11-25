@@ -5,7 +5,9 @@
     "environment",
     "development",
     "sheet-layout",
+    "map-3d",
     "testing",
+    "toasts",
     "mobile-desktop",
     "license"
   ]

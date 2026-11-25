@@ -1,4 +1,12 @@
 {
   "title": "Barrelman",
-  "pages": ["index", "setup", "import", "connecting", "troubleshooting"]
+  "pages": [
+    "index",
+    "setup",
+    "import",
+    "connecting",
+    "troubleshooting",
+    "speech",
+    "indoor-maps"
+  ]
 }

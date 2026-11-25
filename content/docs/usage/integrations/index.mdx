@@ -70,6 +70,8 @@ If a capability has no active integration (or all configured integrations fail t
 - Map tiles fall back to the next configured map engine
 - Features with no provider available are hidden from the UI rather than surfacing errors
 
+When a connected integration's own service starts failing (for example, a self-hosted location history server goes down), Parchment doesn't show error popups. Instead the integration is flagged as **Not responding**: a warning badge appears on its card in **Settings → Integrations** and a dot marks the Integrations entry in the settings navigation. The flag clears automatically once a request succeeds, a connection test passes, or the configuration is saved again.
+
 ---
 
 ## Available integrations
@@ -98,6 +100,7 @@ Parchment has two types of integrations:
 | [OpenWeatherMap](integrations/openweathermap) | Weather |
 | [Axiom](integrations/axiom) | Logging |
 | [OpenStreetMap](integrations/openstreetmap) | *(configuration only — stores OAuth credentials for user authentication)* |
+| [OpenRouter](integrations/openrouter) | Language Model |
 
 ### User integrations
 
@@ -107,5 +110,6 @@ Some integrations require a corresponding system integration to be configured fi
 |---|---|---|---|
 | [OpenStreetMap Account](integrations/openstreetmap-account) | Edit Map | Server-stored | OpenStreetMap (system) |
 | [Dawarich](integrations/dawarich) | *(plumbing only — no capabilities yet)* | End-to-end | Identity setup |
+| [OpenRouter](integrations/openrouter) | Language Model | Server-stored | — |
 
 **End-to-end** integrations require identity setup (Settings → Encryption keys) so your device has a key to encrypt with. **Server-stored** integrations work without it, since the server holds the key.
