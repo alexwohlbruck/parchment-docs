@@ -1,0 +1,43 @@
+---
+title: Map time
+description: See transit service and daylight at another time of the week.
+---
+
+Some layers change with the time: **Transit** draws only the lines running at
+that moment, and **Day & Night** shades the parts of the Earth in darkness.
+While either one is on, the layers selector shows a **Time** section under the
+overlays.
+
+- **Now** follows the clock and updates every minute. It is where every
+  session starts; a chosen time is never restored after a reload.
+- Tap a day or drag the slider to pick another time in the coming week. Every
+  time-aware layer moves to it together, so the transit network and the
+  terminator always show the same moment.
+- Tap **Now** to go back to the live map.
+
+Transit only reads the time while it shows **Live** service. Its **Full
+service** look draws every line whenever it runs, so with only that on, the
+time section is hidden.
+
+With Day & Night on, the globe's sunlight, the Moon and the stars follow the
+chosen time too.
+
+## For developers
+
+A temporal layer is a built-in layer group listed in `TEMPORAL_LAYERS`
+(`web/src/lib/map-time/temporal-layers.ts`), optionally limited to the
+appearances that read the time. The time control appears whenever
+`activeTemporalLayerIds` returns at least one of them.
+
+The chosen time lives in `useMapTimeStore` (`web/src/stores/map-time.store.ts`).
+Layers read it one of two ways:
+
+- From a store, by watching `useMapTimeStore().time`. The transit store does
+  this and refilters the network.
+- From a service or a custom layer, through `mapTime()` and
+  `onMapTimeChange()` in `web/src/services/map/map-time.service.ts`. The
+  Day & Night overlay redraws on change, and the globe sky reads `mapTime()`
+  each frame. While live, `mapTime()` is the clock.
+
+To add one: declare its group in `TEMPORAL_LAYERS`, then draw from `mapTime()`
+or the store's `time` instead of `new Date()`.
