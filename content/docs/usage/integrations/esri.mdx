@@ -1,0 +1,41 @@
+---
+title: Esri
+description: Esri World Imagery for the satellite map, through ArcGIS Location Platform.
+---
+
+The Esri integration supplies **Esri World Imagery** to the
+[satellite map](/docs/usage/satellite-imagery). The server proxies the tiles at
+`/proxy/esri/world-imagery/{z}/{y}/{x}` and adds the key itself, so the key never
+reaches the browser. The imagery source shows up only once the integration is
+configured.
+
+---
+
+## Capabilities
+
+| Capability | Description |
+|---|---|
+| **Map Layer** | Esri World Imagery as a satellite imagery source |
+
+---
+
+## Configuration
+
+1. Sign up for [ArcGIS Location Platform](https://location.arcgis.com/sign-up/).
+2. Under **Developer credentials**, create credentials for a **Public application**.
+   Grant only the **Basemaps** location service privilege. Leave referrers empty,
+   since only the server uses the key.
+3. Set the longest expiration allowed (one year). Tiles stop loading when the key
+   expires, so note the date.
+4. In **Settings → Integrations**, open the Esri card and paste the key.
+
+Click **Test Connection** before saving.
+
+---
+
+## Notes
+
+ArcGIS Location Platform includes 2,000,000 basemap tiles a month at no cost,
+then $0.15 per 1,000 tiles. Every tile the proxy fetches counts. Browsers and
+the app's service worker cache tiles for a day, so revisits are free. Esri
+imagery can't be saved for offline use.

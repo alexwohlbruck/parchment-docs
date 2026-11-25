@@ -1,0 +1,115 @@
+---
+title: The 3D map
+description: How Parchment draws terrain, objects, roads and bridges in 3D, where each piece comes from, and what it needs from Barrelman.
+---
+
+The MapLibre engine draws the city in 3D at street zoom: lidar terrain, street furniture, sport pitches, forests, fences and power lines, lane-level roads and bridges standing on piers. Most of it is built from OpenStreetMap at Barrelman's import, so a client only has to draw it. The rest is generated in the browser from tiles it already has.
+
+The Mapbox engine draws Mapbox Standard's own cartography and none of this.
+
+## Where each piece comes from
+
+| Piece | Built | Drawn by |
+|---|---|---|
+| Terrain | [Mapterhorn](https://mapterhorn.com) terrarium tiles: USGS 3DEP lidar in the US, Copernicus elsewhere | MapLibre terrain (`lib/map-style/terrain.ts`) |
+| Street furniture | Barrelman `street_furniture`, each object's `direction` filled from its nearest road or path | `ObjectLayer` (`lib/map-objects/furniture.ts`) |
+| Sport pitches | Barrelman `sport_pitches`: surfaces, regulation markings, nets, hoops and goals | Fill and line layers, plus `ObjectLayer` (`sports.ts`) |
+| Forests | The basemap's wood polygons, planted in the browser | `ObjectLayer` (`forest.ts`, `planting.ts`) |
+| Fences, walls, hedges, power lines, catenary | Barrelman `object_lines` | `ObjectLayer`, stretching one model per segment (`lines.ts`) |
+| Solar arrays, flower beds, scrub, shrubs | Barrelman `object_areas`, planted in the browser | `ObjectLayer` (`areas.ts`) |
+| Roads at street zoom | Barrelman `road_surfaces`, `road_markings` and `road_glyphs`, from lane tags | Fill, line and symbol layers (`lib/map-style/road-markings.ts`) |
+| Bridges and elevated roads | Barrelman solves the heights and bakes indexed meshes, including road markings, during imports | `BakedBridgeLayer` (`lib/map-decks/baked`) |
+| Tunnel entrances | Barrelman `tunnel_cuts`: each portal's cut, walls and headwall, solved from OSM and the terrain | `TunnelLayer` (`lib/map-tunnels`), which also carves the terrain |
+
+## The object layer
+
+`ObjectLayer` is a MapLibre custom layer that draws instanced GLB models. Each `ObjectSourceSpec` in `lib/map-objects/index.ts` turns features from a source into instances:
+
+- `positions` places objects on a feature (a point, a walk along a line, a planting grid).
+- `toInstance` gives each one a model, height, heading and shade.
+- `distinct: false` keeps every tile piece of a feature that crosses tiles; each piece places only what falls inside its own tile.
+- `budget` caps a spec's objects, keeping those nearest the view centre, and `followsView` regathers on pan.
+- An instance's `length` stretches its model along x to span a segment, which is how one fence model covers any stretch of fence.
+
+Models are generated, not authored: `bun run build:models` writes every GLB in `public/models` from `scripts/build-3d-objects.mjs`. Each is normalised to one unit tall, with a cheap far variant, and colours come from material roles resolved per theme.
+
+## Roads
+
+At street zoom the basemap's roads fade to asphalt and Barrelman's carriageways draw over them at their real width, with rounded kerbs. Lane, centre, edge and bike lines, stop lines, crosswalks, and turn arrows and bike symbols from the sprite are drawn on top.
+
+Barrelman builds the geometry with its "Build Road Markings" task. Where lanes are added or dropped, the lines ease across over the MUTCD taper length for the road's speed. Against a Barrelman without road geometry, streets still draw at street zoom, just unpainted.
+
+## Bridges
+
+Barrelman's bridge-generation jobs build the deck structure, parapets, piers, carriageway surfaces and markings ahead of time. The `bridge_decks` vector layer carries a `mesh` filename; `/tiles/bridges/models/{file}` serves that content-addressed BRM1 file. Parchment proxies it through `/proxy/barrelman/bridges/models/{file}`.
+
+Meshes are BRM version 3: positions, ground and lift as integer steps of 1e-10 mercator units (about 3 mm), each the difference from the vertex before; normals as bytes; palette slots as integers; header coordinates rounded to the same 3 mm. Gzipped, a mesh is under half the size of the float version 2 files, which clients still read.
+
+With 3D terrain and objects on, the detail tiles are asked for with `decks=1` and carry the decks drawn over them: Barrelman cuts each deck's mesh to the tile (the triangles whose centroid lies in it, with the stretch of surface and the ground ways near it) and appends the pieces to the tile in protobuf field 20, which MVT readers skip. Below zoom 16 the pieces leave out paint and rails. `BakedBridgeLayer` reads a tile's pieces from MapLibre's raw tile data as the tile loads, decodes them on a small worker pool, and uploads them on the next frame, so a deck appears with its tile rather than after it. Tiles past the source's maxzoom take their zoom-16 ancestor's pieces from the HTTP cache. The layer draws the pieces of the tiles MapLibre renders; a parent's pieces draw beside its children's until all four children are in.
+
+A tile whose pieces could not be read keeps the flat bridges in its view and is read again after 10 seconds. Against a Barrelman that does not cut decks into tiles, the layer falls back to fetching one mesh per deck, up to 12 at once (`/tiles/bridges/index/14/{x}/{y}` lists a view's meshes ahead of its tiles). Shader compilation is started ahead of uploads and polled asynchronously where parallel compilation is available. Camera movements reuse the buffers; they do not solve profiles, triangulate decks, or clip road markings. Material roles are resolved in the shader so changing themes does not rebuild geometry. Active navigation routes remain a small dynamic overlay.
+
+### Deck heights
+
+A deck arches over what it crosses: roads, railways and water below it, and lower decks where OSM's `layer` puts it above them. Where a road climbing from the street cannot clear a lesser road it crosses within a 6% grade, the lesser road dips under it. Two ways meeting alone carry one deck on when one of them has no `layer`, which is how a bridge's anchorage stretch is usually mapped.
+
+Where OSM records it, a bridge's own height sets its deck:
+
+| Tag | Read as |
+|---|---|
+| `seamark:bridge:clearance_height` on the bridge | Clearance over the water; the deck is 2 m above it |
+| `height` on the `man_made=bridge` outline | The deck's height over the water or ground under its span. On a suspension or cable-stayed bridge only when clearly below its towers' own `height`, since it may be theirs |
+| `bridge:support=pylon` / `abutment` areas | The towers and anchorages: a suspended span hangs between them on no piers, cambered 1% of the span down to each tower |
+| `ele`, `layer` | Not heights: ground elevation, and drawing order |
+
+Where OSM has none of these, Barrelman's `config/bridge-elevations.json` can give a deck height by the bridge's Wikidata item. It is a fallback; adding the tag to OSM is better.
+
+### Continuous decks
+
+Approaches and interchanges are drawn as continuous ribbons. A deck shaped to its `man_made=bridge` outline keeps to the outline that holds most of it, so a ramp passing under another bridge does not widen out to that bridge's outline, and a short tab where a side strays into a landing or gore is dropped. A ramp running into the deck it joins takes that deck's height along the merge. A named walkway mapped as short footbridges over each street with untagged stretches between them is one deck down to the street, and a roadway's side stops short of a walkway running beside it. A scrap of footbridge meeting nothing at either end is left out. A bridge's own low abutments and piers (`bridge:support`, under 20 m) are not extruded as buildings: the deck stands in for them.
+
+### Terrain exaggeration
+
+The terrain is drawn exaggerated (1.2×); buildings and landmark models keep their true height over it. Decks do too: each vertex carries a lift, the ground under it smoothed over about 25 m (the exact ground at a pier's foot or an at-grade end), and is drawn at `z + (exaggeration − 1) × lift`. A deck therefore meets a landmark tower at the height the model was built for. Meshes baked before lifts (BRM version 1) still draw, exaggerated as a whole.
+
+### Bridges with landmark models
+
+A landmark model may stand in for a whole bridge rather than its towers. It draws the bridge's structure inside the `man_made=bridge` outline it lists in `replaces`, out to its own reach: towers, anchorages, cables, suspenders, trusses, railings, the promenade's frame. The baked decks keep the road surfaces and their markings there, and leave out their own piers and parapets; walkways and tracks there, such as an elevated promenade, are the model's entirely. Approaches outside the model's reach are entirely the decks'. Activating or changing such a landmark needs a bridge rebuild for its decks to drop their structure.
+
+### Landmarks at night
+
+In the dark theme a landmark is lit by its glTF material names and one optional vertex attribute. `window*` materials take the procedural facade, `entrance` glows with a pool of light at the door, and `lamp*` materials (a bridge's cable lights, lantern heads) are drawn unshaded in warm white at night and not at all by day. A `_FLOODLIGHT` float attribute, 0–1 per vertex, washes floodlit stone back toward its own colour in warm white light, so a bridge's towers can be lit without lighting its anchorages. The landmarks repository's `STYLE.md` describes how models set them.
+
+A mesh includes the surfaces and nearby ground ways needed to place objects on or below bridges. Until every mesh in view has arrived, the ordinary flat bridges remain visible; the margin's meshes keep loading after the decks are drawn, and objects are re-stood on them in one pass rather than per mesh. There is no expensive client-side geometry fallback.
+
+Deploy the Barrelman schema/API and rebuild bridge data before enabling this client in production. A rebuild is also needed after changing the deck rules, the landmark catalog's bridge models, or road-marking geometry. API and ops must share `BRIDGE_MESH_DIR`. The directory holds the immutable mesh files, gzipped; database rows are updated only after their files are written. Existing profile-only data remains usable by older clients, while the new client shows flat bridges until it has meshes.
+
+## Tunnels
+
+From street zoom a tunnel mapped below ground (a negative `layer`) is drawn as the cut leading down to each portal: a ramp between retaining walls, a headwall over the opening, and the first stretch of the bore going dark through it. The flat tunnel lines are muted there, since the bore runs under the terrain.
+
+Barrelman solves the cuts with its "Build Tunnel Cuts" task and serves them as `tunnel_cuts`, a source of its own: a few kilobytes per zoom-14 tile, over-zoomed past it, so a view's cuts arrive well ahead of its detail tiles. Each cut is whole in every tile it nears. A cut follows the road it opens onto until a junction, as wide as the carriageway's surface, opening at a building's face where the road runs under one first, or at a wall mapped across the bore. The portal sits low enough for headroom under the ground over the bore, and the floor climbs back to the ground at a road's grade. OSM Update keeps them current.
+
+`TunnelLayer` fetches the view's cut tiles itself and reads them with a small property-only reader, rather than through a map source, where they would wait in MapLibre's tile worker behind the heavy detail tiles; each tile's cuts carve in the frame after it lands. It builds the walls, headwall and bore from them and carves each floor into the terrain's elevation tiles, so the map's own ground, paths and paint drape down the ramp; the ground over the bore is filled up to the headwall. Carving needs finer elevation than the source serves, so street-zoom terrain tiles are upsampled on a worker, and held back until the cuts in view are known: served where a cut lies, turned away elsewhere so the map draws their parent. A held tile is upsampled while it waits, so it is ready the moment its cut is known. No cut is solved in the browser; against a Barrelman without `tunnel_cuts`, tunnels show no portals.
+
+## Transit and cycling lines
+
+With 3D terrain and objects on, transit ribbons, the cycling network, and transit stations sit at the height of what they run on: on a bridge deck at the deck's own height, through a tunnel below the ground over it. Seen from straight above they look as they always have.
+
+Barrelman states the heights, worked out when the data is built rather than per request: an `elevation` property on `bicycle_ways` (a column Martin serves, written by Elevate Bicycle Ways) and on portolan's `ribbons`, `stations`, `markers` and `cat` features from zoom 13 (written into each pyramid by portolan's tile hook before it goes live, and by Elevate Transit Tiles after the decks or tunnels change):
+
+- A line's property is runs separated by `;`, each a list of integer triples: the first `lng×1e7,lat×1e7,decimetres`, each later one the change in longitude and latitude and its own height. Heights are in the terrain's datum, as the decks are drawn; a run prefixed `~` is measured over the terrain instead. Outside every run the line lies on the ground.
+- A point's property is its height in metres, with the same `~` prefix.
+- A cycle way rides only the decks and tunnels of its own OSM way. A ribbon rides only those of the OSM ways its portolan tile lists under `ways`; without them it falls back to matching by shape and mode. What a line rides is chosen along its whole length, so a line passing under or over another structure keeps to its own.
+- Tunnels lie one depth below the smoothed ground (rail 9 m, road 8 m, path 5 m), climbing to the ground at the portals the tunnel cuts solve, never steeper than their grade.
+- A station, stop mark or route bullet takes the height of the nearest ribbon of one of its own routes.
+
+Parchment's MapLibre fork draws a line with `line-elevation-profile` in 3D rather than draped, depth-tested against decks and buildings after the last 3D layer; its underground stretches draw at the layer's place in the style, under what stands on the ground but over the ground itself. Ribbons keep their width and offsets in pixels under tilt (`line-pitch-alignment: viewport`). Stations use `symbol-height-offset` with a per-feature `symbol-height-anchor`. Tile URLs carry `elevation=<format>` so a change to the heights reaches cached tiles.
+
+## Terrain rendering
+
+Over terrain MapLibre draws fills and lines into a texture per terrain tile and drapes it on the terrain mesh. A run of draped layers broken by a symbol, circle, extrusion or custom layer starts another texture and another pass over the whole mesh. The street style interleaves them into eight runs. Parchment sets the fork's `drapeBeneath` map option, which drapes them all in one pass beneath everything else; 3D layers and labels draw above the draped ground either way. A new layer that would sit between draped layers needs no special placement.
+
+## Building for MapLibre Native
+
+Terrain and most detail data use standard vector tiles and GLB models. Bridges use a versioned binary container with a JSON header, aligned float32 vertex streams, uint32 indices, material roles and placement surfaces. A native renderer can upload these streams directly; no browser geometry compiler needs porting. Overlay lines and stations arrive with their heights as tile properties; a native renderer needs per-vertex line elevation and a per-feature symbol height anchor. Tunnel cuts arrive solved in the tile: a native client builds the walls from each cut's line and heights (`portalMesh` in `lib/map-tunnels/tunnels.ts` is the reference) and needs only a hook to write the floor into its elevation tiles. The remaining browser-generated scenery, such as forest planting, is kept framework-free.

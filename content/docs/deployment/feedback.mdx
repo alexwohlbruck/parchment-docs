@@ -1,0 +1,33 @@
+---
+title: Feedback login
+description: Connect your Quackback feedback board to signed-in Parchment users.
+---
+
+Parchment can submit feedback on behalf of its users and open your Quackback portal without asking them to sign in again.
+
+## Connect Quackback
+
+In Parchment's server integration settings, add Quackback with its HTTPS instance URL and an admin-role API key. Create at least one feedback board in Quackback. An API key alone enables the in-app submission form and attributes posts to the user's name and email.
+
+## Enable automatic portal login
+
+1. In Quackback, open **Settings → Widget → Install**, enable the widget, and copy its signing secret.
+2. Enable **Widget sign-in** under **Portal access** in Quackback's security settings.
+3. Paste the signing secret into **Widget signing secret** in Parchment's Quackback integration and save.
+
+The feedback dialog now includes **Open feedback board**. **View post** after a submission also signs the user in before opening their post. Allow pop-ups in web browsers; native apps open the portal in the system browser.
+
+The signing secret stays on the Parchment server, encrypted with the integration configuration. Parchment signs a five-minute identity token using the current session's user ID, email, and name. It exchanges that identity for a one-time portal login link. Neither the signing secret nor Quackback's reusable session token is returned to the client.
+
+Existing customer accounts are matched by Quackback's external user ID or email. Quackback staff accounts use the portal's normal login instead; the integration never grants an admin session. Enable email-link sign-in and configure email delivery in Quackback so staff whose accounts have no password can still sign in. This is login handoff, so signing out of Parchment does not revoke an existing Quackback browser session.
+
+## Troubleshooting
+
+- **Widget is not enabled:** enable the widget in Quackback, even if you do not embed it in your website.
+- **Invalid or expired token:** confirm the signing secret matches Quackback. After rotating it, update Parchment's integration too.
+- **Portal access refused:** check Widget sign-in and the user's board permissions. Blocked users remain blocked.
+- **Login works but the page does not load:** verify the instance URL resolves publicly and serves valid HTTPS.
+
+## API
+
+Authenticated clients can call `POST /feedback/portal-login` with `{}` to open the board, or `{ "postUrl": "https://feedback.example.com/b/bugs/posts/post_123" }` to open a post. The response is `{ "url": "..." }` and must not be cached. Destination URLs must point to a post on the configured feedback instance. Staff accounts receive the ordinary portal URL.
