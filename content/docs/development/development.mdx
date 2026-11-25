@@ -103,6 +103,21 @@ To seed with a custom user:
 docker exec parchment-server bun run seed:dev "FirstName" "LastName" "email@example.com" "https://example.com/picture.jpg"
 ```
 
+## Signing in without the auth flow
+
+For agents and scripts, mint a session for a local account directly:
+
+```bash
+cd server
+bun run dev:sign-in                    # oldest admin; prints the session token
+bun run dev:sign-in email@example.com  # a specific user
+bun run dev:sign-in --revoke           # delete every session it has minted
+```
+
+Use the token as `Authorization: Bearer <token>` against the API, or set it as the `auth_session` cookie on the API's host to sign a browser in. Running it again revokes that user's previous token, and minted sessions show up under the user agent `parchment-dev-sign-in`.
+
+It only runs with `NODE_ENV=development` against a local database (`localhost` or `parchment-db`), and it is a command-line script rather than an API route, so it adds nothing reachable over the network.
+
 ## Debugging
 
 Development mode includes:
