@@ -1,0 +1,73 @@
+---
+title: Satellite imagery
+description: Choose which aerial and satellite sources the satellite map draws, add your own, and set fallbacks for areas they don't cover.
+---
+
+The satellite and hybrid maps draw from a **stack** of imagery sources, set under
+**Settings → Appearance → Style → Satellite imagery**. The top source wins. Where
+it has no imagery, the next one down fills in, and so on, so a sharp regional
+source can sit on top of a coarser global one. The stack syncs with your account.
+
+## Built-in sources
+
+| Source | Coverage | Detail | License |
+|---|---|---|---|
+| **USGS NAIP** | Contiguous US, zoom 13 and closer | 0.3–0.6 m | Public domain |
+| **Sentinel-2 cloudless** (EOX, 2016) | Worldwide | 10 m | CC BY 4.0 |
+| **USGS Imagery** | US, up to zoom 16 | ~1 m | Public domain |
+| **Esri World Imagery** | Worldwide | Up to ~0.3 m in cities | Needs the [Esri integration](/docs/usage/integrations/esri) |
+| **Google Photorealistic 3D** | Worldwide, 3D in most cities | 3D meshes | Premium; needs the [Google Maps integration](/docs/usage/integrations/google-maps) |
+
+The default stack is USGS NAIP over Esri World Imagery: public-domain aerial
+photos across the contiguous US, and Esri everywhere else. Esri appears only
+once the Esri integration has a key; without one, the satellite map shows NAIP
+alone. USGS Imagery fills areas outside its coverage with white, so put it
+at the bottom of a stack, or use it alone.
+
+## Google Photorealistic 3D
+
+Google's 3D tiles are a Premium source: only users with the
+`premium:photorealistic_3d` permission (the Premium role) see them in the
+imagery settings, and the proxy answers anyone else with `401` or `403`.
+
+Google's 3D tiles are meshes rather than images, so they are drawn by their own
+layer instead of taking a place among the raster sources. From zoom 12 in,
+only the mesh is drawn, with no flat imagery under it. Below zoom 12, where
+the map is a globe and the 3D tiles are not drawn, the rasters show instead. While the mesh is on
+screen, Parchment's own 3D buildings, trees, landmarks and bridge decks are
+hidden, since the mesh already contains them, and the Google Maps logo and the
+data providers' credits appear beside the map's info button.
+
+In hybrid with 3D terrain on, street names and one-way arrows on a bridge are
+raised onto Google's bridge, using the same bridge deck data that lifts them on
+the standard map. The decks themselves stay hidden.
+
+The tiles go through the server's `/proxy/google/3dtiles/` route, which checks
+the user's session and adds the Google Maps integration's key, so the key needs the **Map Tiles API** enabled.
+Google bills each session (one root tileset request, good for about three
+hours): 1,000 free a month, then $6 per 1,000. The tiles honour Google's own
+caching headers and are never saved for offline use.
+
+The map's camera does not know about the mesh, so at a steep pitch among tall
+buildings it can end up inside one.
+
+## Adding your own
+
+Create a raster layer in **Library → Layers → New layer**, or choose **Add →
+New source…** in the imagery settings. Then, under **Options**, turn on
+**Satellite imagery**. An imagery layer is never drawn as an overlay, and a new
+one goes to the top of your stack.
+
+Tile URLs can use `{z}/{x}/{y}` or, for WMS and ArcGIS export endpoints,
+`{bbox-epsg-3857}`:
+
+```text
+https://example.com/ImageServer/exportImage?bbox={bbox-epsg-3857}&bboxSR=3857&imageSR=3857&size=512,512&format=png32&f=image
+```
+
+For a source to work as a fallback, it should return no tile, or a transparent
+one, where it has no imagery. Set `bounds`, `minzoom` and `maxzoom` on the
+source to limit where it is requested.
+
+Satellite imagery is drawn by the MapLibre engine only. Mapbox uses its own
+satellite style.
