@@ -9,6 +9,12 @@ Parchment can submit feedback on behalf of its users and open your Quackback por
 
 In Parchment's server integration settings, add Quackback with its HTTPS instance URL and an admin-role API key. Create at least one feedback board in Quackback. An API key alone enables the in-app submission form and attributes posts to the user's name and email.
 
+## Screenshots
+
+Users can attach up to 4 screenshots to a post. Parchment re-encodes each one as WebP, strips its metadata, stores it under `feedback/` in the server's file storage, and adds it to the post as an image. Quackback then copies the image into its own storage.
+
+Quackback has to download the image, so the storage's public URL (`STORAGE_PUBLIC_URL`, or the server's `/files` route) must be reachable from your Quackback instance. If it isn't, the post shows broken images. If Quackback's file storage isn't configured, the post keeps linking to Parchment's copy.
+
 ## Enable automatic portal login
 
 1. In Quackback, open **Settings → Widget → Install**, enable the widget, and copy its signing secret.
