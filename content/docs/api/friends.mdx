@@ -55,15 +55,25 @@ _openapi:
         heading: get-friends
       - content: Get pending friend invitations
         heading: get-friends-invitations
-      - content: Send a friend invitation to a user (local or remote)
+      - content: >-
+          Send a friend invitation to a user (local or remote). Remote
+          invitations need the nonce and timestamp the client signed into its v2
+          FRIEND_INVITE envelope.
         heading: post-friends-invite
-      - content: Accept a pending friend invitation
+      - content: >-
+          Accept a pending friend invitation. For a remote sender, the signed v2
+          FRIEND_ACCEPT envelope is forwarded to their server.
         heading: post-friends-invitations-by-id-accept
-      - content: Reject a pending friend invitation
+      - content: >-
+          Reject a pending friend invitation. For a remote sender, a signed v2
+          FRIEND_REJECT envelope is forwarded when provided.
         heading: post-friends-invitations-by-id-reject
       - content: Cancel an outgoing friend invitation
         heading: delete-friends-invitations-by-id
-      - content: Remove a friend
+      - content: >-
+          Remove a friend. For a remote friend, pass the signed v2
+          RELATIONSHIP_REVOKE envelope; without it, or if delivery fails, the
+          revocation is queued for retry.
         heading: delete-friends-by-handle
       - content: Resolve a handle to user info (local or remote)
         heading: get-friends-resolve-by-handle

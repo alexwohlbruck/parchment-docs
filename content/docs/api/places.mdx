@@ -24,8 +24,10 @@ _openapi:
       - content: >-
           Lookup and enrich place data. Supports ID-based lookup (source+id),
           name-based lookup (name+lat+lng), or coordinate-based lookup
-          (lat+lng). Coordinate-based lookups perform reverse geocoding and run
-          full enrichment if an OSM object is found.
+          (lat+lng). Coordinate-based lookups reverse geocode; when the
+          coordinate lands on a named place, that place is returned fully
+          enriched with its center pinned to the coordinate, otherwise the
+          coordinate itself with its address.
         heading: get-place-details-by-id-namelocation-or-coordinates
       - content: >-
           Fetch additional widget data (transit departures, etc.) separately

@@ -7,6 +7,9 @@ _openapi:
       title: Post Federation Inbox
       url: '#post-federation-inbox'
     - depth: 2
+      title: Post Users Me Identity Reset Step up
+      url: '#post-users-me-identity-reset-step-up'
+    - depth: 2
       title: Post Users Me Identity Reset
       url: '#post-users-me-identity-reset'
     - depth: 2
@@ -34,6 +37,8 @@ _openapi:
     headings:
       - content: Post Federation Inbox
         id: post-federation-inbox
+      - content: Post Users Me Identity Reset Step up
+        id: post-users-me-identity-reset-step-up
       - content: Post Users Me Identity Reset
         id: post-users-me-identity-reset
       - content: Get Users Me Revocations Pending
@@ -51,12 +56,24 @@ _openapi:
       - content: Put Users Me Keys
         id: put-users-me-keys
     contents:
-      - content: Receive federation messages from other servers
+      - content: >-
+          Receive a v2 federation message from another server. The request must
+          carry a valid server signature, the `from` handle must live on the
+          sending server, and the transport nonce must equal the message nonce
+          so each user-signed message is accepted once.
         heading: post-federation-inbox
       - content: >-
+          Start the re-authentication an identity reset requires. Returns
+          passkey assertion options when the user has a passkey, otherwise
+          emails a one-time code. Pass `method: "email"` to force the code.
+          Shares a limit of 10 a user every 15 minutes with the reset itself.
+        heading: post-users-me-identity-reset-step-up
+      - content: >-
           Last-resort: wipe all of this user's encrypted data and clear the
-          federation identity so they can re-run identity setup. Session +
-          passkeys survive; everything encrypted under the old seed is gone.
+          federation identity so they can re-run identity setup. Requires a
+          fresh step-up from `/me/identity/reset/step-up`: the passkey assertion
+          as `passkey`, or the emailed code as `code`. Session + passkeys
+          survive; everything encrypted under the old seed is gone.
           Irreversible.
         heading: post-users-me-identity-reset
       - content: List peer handles queued for revocation after an identity reset.
@@ -67,13 +84,18 @@ _openapi:
         heading: post-users-me-revocations-flush
       - content: Drop a queued revocation without delivering it.
         heading: delete-users-me-revocations-pending-by-peer-handle
-      - content: Get current user federation identity (handle, keys)
+      - content: >-
+          Get current user federation identity (handle, keys, and the master-key
+          version those keys belong to)
         heading: get-users-me-identity
       - content: Update current user alias (username for federation)
         heading: patch-users-me-alias
       - content: Check if an alias is available
         heading: get-users-alias-check
-      - content: Register or update federation public keys
+      - content: >-
+          Register federation public keys. Succeeds when the account has none
+          yet or already holds exactly these; 409 when different keys are
+          registered (those change only via rotation commit or identity reset).
         heading: put-users-me-keys
 ---
 
@@ -81,4 +103,4 @@ _openapi:
 
 Federation and external identity
 
-<APIPage document={"openapi.json"} operations={[{"path":"/federation/inbox","method":"post"},{"path":"/users/me/identity/reset","method":"post"},{"path":"/users/me/revocations/pending","method":"get"},{"path":"/users/me/revocations/flush","method":"post"},{"path":"/users/me/revocations/pending/{peerHandle}","method":"delete"},{"path":"/users/me/identity","method":"get"},{"path":"/users/me/alias","method":"patch"},{"path":"/users/alias/check","method":"get"},{"path":"/users/me/keys","method":"put"}]} webhooks={[]} hasHead={true} />
+<APIPage document={"openapi.json"} operations={[{"path":"/federation/inbox","method":"post"},{"path":"/users/me/identity/reset/step-up","method":"post"},{"path":"/users/me/identity/reset","method":"post"},{"path":"/users/me/revocations/pending","method":"get"},{"path":"/users/me/revocations/flush","method":"post"},{"path":"/users/me/revocations/pending/{peerHandle}","method":"delete"},{"path":"/users/me/identity","method":"get"},{"path":"/users/me/alias","method":"patch"},{"path":"/users/alias/check","method":"get"},{"path":"/users/me/keys","method":"put"}]} webhooks={[]} hasHead={true} />
