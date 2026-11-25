@@ -74,6 +74,14 @@ When a connected integration's own service starts failing (for example, a self-h
 
 ---
 
+## Matched business listings
+
+For users with premium data access, a place opened from OpenStreetMap is matched to its listing at Google Maps and Foursquare, which supply photos, hours, ratings and reviews. The first open finds the listing by searching near the place by name; Parchment then saves the matched listing id against the place, in the `place_provider_matches` table.
+
+Later opens fetch the saved listing directly, so they skip the search, cost fewer provider requests, and always show the same listing. If a provider no longer returns a saved listing (it closed, or its id changed), Parchment searches again and saves the new match, or forgets the old one if nothing matches. A saved id for a provider that isn't configured is kept for when it is.
+
+---
+
 ## Available integrations
 
 Parchment has two types of integrations:
