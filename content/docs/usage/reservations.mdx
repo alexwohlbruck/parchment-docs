@@ -22,9 +22,9 @@ When Parchment knows a restaurant's page on a booking site, the link goes straig
 | Tock | `exploretock.com/<restaurant>` |
 | SevenRooms | `sevenrooms.com/reservations/<restaurant>` |
 
-For a site where the page isn't known, the card searches that site for the restaurant: OpenTable everywhere, Resy in US cities. A general web search is offered only when nothing direct is known.
-
 A booking page on any other site is listed under that site's name.
+
+When no booking page is known, the card offers searches instead, labelled as such: **Search OpenTable**, **Search Resy** (US cities) and **Search the web**. Searches never appear next to a known page, so a button with a site's name always opens the restaurant's own page there.
 
 If the place delivers, the card also links to order from it on Uber Eats, DoorDash, Grubhub and similar services.
 
@@ -37,9 +37,9 @@ With hotel prices configured, **Compare prices** lists every seller of the room 
 - the total with taxes and fees
 - whether it cancels free
 
-Tap a row to book with that seller. **Book here** is the server's own booking partner. Turn on **Free cancellation only** to hide the rest.
+Tap a row to book with that seller. The **Parchment** row, marked **Book in app**, is booked through the server's own booking partner. Turn on **Free cancellation only** to hide the rest.
 
-Links to the hotel's pages on Booking.com, Expedia and Hotels.com sit underneath, and go straight to the hotel when its page is known. Google Hotels is always a search.
+Below the prices, **More on Google Hotels** opens the full comparison. Without prices, the card links to the hotel's pages on Booking.com, Expedia and Hotels.com when they're known, and otherwise offers searches.
 
 ## Where the data comes from
 
@@ -59,7 +59,7 @@ The card appears for places tagged `reservation=yes`, `recommended` or `required
 People with permission to edit listings see a **Business listings** section on the place page. For each booking site:
 
 - **OpenTable, Resy, Tock, SevenRooms, Booking.com, Expedia, Hotels.com:** choose **Change**, then paste the place's page from that site. A search results page isn't accepted.
-- **Google Hotels and LiteAPI:** choose **Change** and pick the hotel from the nearby list.
+- **Google Hotels and LiteAPI:** choose **Change** and pick the hotel from the nearby list. The hotel's name is kept, so the listing reads as the hotel rather than an id.
 - **Not on …** says the site doesn't list the place, so it isn't searched there again.
 
 A correction applies for everyone.
