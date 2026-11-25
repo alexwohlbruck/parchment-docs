@@ -4,6 +4,9 @@ full: true
 _openapi:
   toc:
     - depth: 2
+      title: Proxy Esri basemap tiles
+      url: '#proxy-esri-basemap-tiles'
+    - depth: 2
       title: Proxy Loom tile service
       url: '#proxy-loom-tile-service'
     - depth: 2
@@ -32,6 +35,8 @@ _openapi:
       url: '#proxy-barrelman-tile-requests'
   structuredData:
     headings:
+      - content: Proxy Esri basemap tiles
+        id: proxy-esri-basemap-tiles
       - content: Proxy Loom tile service
         id: proxy-loom-tile-service
       - content: Proxy Mapillary vector tiles
@@ -52,6 +57,10 @@ _openapi:
         id: proxy-barrelman-tile-requests
     contents:
       - content: >-
+          Raster tiles from ArcGIS Location Platform, with the Esri integration
+          key attached server-side. `service` is `world-imagery`.
+        heading: proxy-esri-basemap-tiles
+      - content: >-
           The precomputed deck meshes a zoom-14 tile meets, with their bounds,
           from Barrelman; revalidated by ETag.
         heading: proxy-bridge-deck-mesh-indexes
@@ -61,4 +70,4 @@ _openapi:
 
 Map tile proxying — keeps provider keys server-side and sidesteps CORS for tile sources MapLibre fetches directly
 
-<APIPage document={"openapi.json"} operations={[{"path":"/proxy/loom/{service}/geo/{z}/{x}/{y}","method":"get"},{"path":"/proxy/mapillary/{dataset}/{version}/{z}/{x}/{y}","method":"get"},{"path":"/proxy/transitland/routes/{z}/{x}/{y}","method":"get"},{"path":"/proxy/transitland/stops/{z}/{x}/{y}","method":"get"},{"path":"/proxy/barrelman/landmarks/{z}/{x}/{y}","method":"get"},{"path":"/proxy/barrelman/landmarks/models/{file}","method":"get"},{"path":"/proxy/barrelman/bridges/models/{file}","method":"get"},{"path":"/proxy/barrelman/bridges/index/{z}/{x}/{y}","method":"get"},{"path":"/proxy/barrelman/{source}/{z}/{x}/{y}","method":"get"}]} webhooks={[]} hasHead={true} />
+<APIPage document={"openapi.json"} operations={[{"path":"/proxy/esri/{service}/{z}/{y}/{x}","method":"get"},{"path":"/proxy/loom/{service}/geo/{z}/{x}/{y}","method":"get"},{"path":"/proxy/mapillary/{dataset}/{version}/{z}/{x}/{y}","method":"get"},{"path":"/proxy/transitland/routes/{z}/{x}/{y}","method":"get"},{"path":"/proxy/transitland/stops/{z}/{x}/{y}","method":"get"},{"path":"/proxy/barrelman/landmarks/{z}/{x}/{y}","method":"get"},{"path":"/proxy/barrelman/landmarks/models/{file}","method":"get"},{"path":"/proxy/barrelman/bridges/models/{file}","method":"get"},{"path":"/proxy/barrelman/bridges/index/{z}/{x}/{y}","method":"get"},{"path":"/proxy/barrelman/{source}/{z}/{x}/{y}","method":"get"}]} webhooks={[]} hasHead={true} />

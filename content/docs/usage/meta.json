@@ -4,7 +4,15 @@
     "index",
     "navigation",
     "globe",
+    "map-styles",
+    "satellite-imagery",
+    "measuring",
+    "offline-maps",
     "transit",
+    "battery-saver",
+    "indoor-maps",
+    "encryption",
+    "mcp",
     "integrations"
   ]
 }

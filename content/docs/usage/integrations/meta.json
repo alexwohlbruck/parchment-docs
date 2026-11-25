@@ -11,6 +11,7 @@
     "graphhopper",
     "valhalla",
     "geoapify",
+    "esri",
     "mapillary",
     "transitland",
     "overpass",
@@ -18,6 +19,7 @@
     "openweathermap",
     "axiom",
     "openstreetmap",
+    "openrouter",
     "---User Integrations---",
     "openstreetmap-account",
     "dawarich"

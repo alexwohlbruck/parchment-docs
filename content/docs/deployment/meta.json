@@ -3,6 +3,7 @@
   "pages": [
     "self-hosting",
     "email",
-    "billing"
+    "billing",
+    "feedback"
   ]
 }

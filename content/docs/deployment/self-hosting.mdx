@@ -96,6 +96,30 @@ networks:
 
 Replace `your_proxy_network` with your actual network name. Then run `docker compose up -d` from your project root (with the include) so the override is applied.
 
+### Rate limits behind a proxy
+
+Parchment rate-limits sign-in, search, directions and other costly endpoints by client IP. It reads the IP from `X-Forwarded-For`, trusting only the entries your own proxies appended. Set `TRUSTED_PROXY_HOPS` to the number of proxies in front of the API:
+
+| Setup | `TRUSTED_PROXY_HOPS` |
+|---|---|
+| API exposed directly | `0` |
+| One reverse proxy (Caddy, nginx, Traefik) | `1` (default) |
+| Cloudflare in front of a reverse proxy | `2` |
+
+Too high and clients can dodge limits with a forged header; too low and every user shares one limit keyed on the proxy's address.
+
+With Cloudflare in front of Caddy, `TRUSTED_PROXY_HOPS=2` is not enough on its own. Caddy replaces the `X-Forwarded-For` it gets from any peer it doesn't trust, so unless it trusts Cloudflare the API sees a Cloudflare edge address, and everyone behind that edge shares one limit. Add Cloudflare's ranges, from [cloudflare.com/ips](https://www.cloudflare.com/ips/), to Caddy's global options:
+
+```text
+{
+	servers {
+		trusted_proxies static 173.245.48.0/20 103.21.244.0/22 ... 2c0f:f248::/32
+	}
+}
+```
+
+Caddy then forwards `<client>, <cloudflare edge>`, which `2` reads correctly. If you also set `client_ip_headers CF-Connecting-IP` and rewrite the header with `header_up X-Forwarded-For {client_ip}`, the API gets the client address alone, so use `1` instead.
+
 ## Updating
 
 From the repository directory:

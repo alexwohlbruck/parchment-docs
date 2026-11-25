@@ -7,6 +7,9 @@ _openapi:
       title: Plan a multimodal trip
       url: '#plan-a-multimodal-trip'
     - depth: 2
+      title: Estimate travel time per mode
+      url: '#estimate-travel-time-per-mode'
+    - depth: 2
       title: Reroute the current segment during navigation
       url: '#reroute-the-current-segment-during-navigation'
     - depth: 2
@@ -31,6 +34,8 @@ _openapi:
     headings:
       - content: Plan a multimodal trip
         id: plan-a-multimodal-trip
+      - content: Estimate travel time per mode
+        id: estimate-travel-time-per-mode
       - content: Reroute the current segment during navigation
         id: reroute-the-current-segment-during-navigation
       - content: Alternative routes for the rest of the current segment
@@ -57,16 +62,48 @@ _openapi:
           GTFS short name reads by its long name, and the train number moves to
           `trip.shortName`. A walking segment with `streetTransfer` leaves the
           paid area between stations the agency does not connect, so the next
-          ride is a new fare. Street segments carry `hazards`: crosswalks, rail
-          crossings, tunnels, fords, steep grades, stairs, sharp curves and the
-          like, placed by distance along the segment. Comfort hazards (rough
-          surfaces, dismount sections, ferries) appear only for users with
-          premium navigation. Driving segments carry `drivingSide`, and where
-          the routing engine knows the lanes, `laneGeometry` (the route drawn in
-          the lanes it takes, with `measures` giving the distance along
-          `geometry` each coordinate stands for) and `lanePlan` (per instruction
-          index, the approach lanes left to right and which lead on).
+          ride is a new fare. Where the station graph knows the station, a
+          transit leg's `transitDetails` carry `transfer` (how the change from
+          the previous ride is made: its class, time and the walk), `entrance`
+          and `exit` (the entrance used for the first ride and the exit after
+          the last, with the walk inside the station) and `boardingPosition`
+          (where to stand on the train). A station walk that is not an
+          `estimate` carries `geometry`, a level per vertex and written `steps`.
+          Street instructions carry `exitNumber` for roundabouts and, where the
+          map signposts the maneuver, `exitRef` (a motorway exit's number) and
+          `destination` (where the signs point). Street segments carry
+          `hazards`: crosswalks, traffic lights, stop and give-way signs, rail
+          and tram crossings, tunnels, fords, steep grades, stairs, sharp
+          curves, low clearances, school zones, where a bike lane ends or starts
+          partway along a road, and the like, placed by distance along the
+          segment. Some depend on conditions: unlit paths after sunset,
+          flood-prone roads when rain is forecast, bridges at 2 °C or below, and
+          speed cameras only where warning of them is lawful. Comfort hazards
+          (rough surfaces, dismount sections, ferries, tolls, traffic calming,
+          movable bridges, speed cameras, bike lanes starting) appear only for
+          users with premium navigation. Driving and cycling segments carry
+          `drivingSide`, and where the routing engine knows the lanes,
+          `laneGeometry`: the route drawn in the lanes it takes (for cycling,
+          the bike lane, or beside the traffic), with `measures` giving the
+          distance along `geometry` each coordinate stands for. Driving segments
+          also carry `lanePlan`: per instruction index, the approach lanes left
+          to right and which lead on. An origin with `heading` starts driving
+          routes, and cycling routes above 4 m/s `speed`, in that direction;
+          walking routes ignore it. A trip with transit legs may carry
+          `departureProfile`: for each catchable run of its first transit leg,
+          when to leave, when it arrives through the connections on the stop
+          boards, and the tightest transfer. Runs stop where the boards end;
+          `validUntil` is the last leave time covered.
         heading: plan-a-multimodal-trip
+      - content: >-
+          Rough door-to-door seconds for each requested mode between the
+          waypoints, in order, without planning full trips: no geometry,
+          alternatives or vehicle pickups. A mode comes back `null` when it has
+          no route, or is out of reach (a walk over 100 km, a ride over 300 km).
+          Transit is the earliest-arriving ride departing at `departureTime`,
+          and is only estimated between two waypoints. Results are cached
+          briefly. Requires premium navigation.
+        heading: estimate-travel-time-per-mode
       - content: >-
           Plans a fresh street route from where the traveller is to the end of
           the segment they are on, favouring the direction they are already
@@ -103,4 +140,4 @@ _openapi:
 
 Directions and trip planning
 
-<APIPage document={"openapi.json"} operations={[{"path":"/directions/","method":"post"},{"path":"/directions/reroute","method":"post"},{"path":"/directions/alternatives","method":"post"},{"path":"/directions/vehicle-types","method":"get"},{"path":"/directions/validate","method":"post"},{"path":"/directions/status","method":"get"},{"path":"/directions/trips","method":"post"},{"path":"/directions/trips/{id}","method":"get"}]} webhooks={[]} hasHead={true} />
+<APIPage document={"openapi.json"} operations={[{"path":"/directions/","method":"post"},{"path":"/directions/estimates","method":"post"},{"path":"/directions/reroute","method":"post"},{"path":"/directions/alternatives","method":"post"},{"path":"/directions/vehicle-types","method":"get"},{"path":"/directions/validate","method":"post"},{"path":"/directions/status","method":"get"},{"path":"/directions/trips","method":"post"},{"path":"/directions/trips/{id}","method":"get"}]} webhooks={[]} hasHead={true} />

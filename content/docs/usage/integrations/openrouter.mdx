@@ -1,0 +1,81 @@
+---
+title: OpenRouter
+description: The language model behind Ask, set system-wide or with your own key.
+---
+
+[OpenRouter](https://openrouter.ai) gives one API key access to most hosted language models. Parchment uses it to answer **Ask** questions: plain-language searches like "quiet cafe with outdoor seating open now".
+
+OpenRouter can be configured in two places:
+
+- **System-wide**, by an admin. Every plan can use Ask on this key, up to its monthly allowance.
+- **Per user**, with your own key. Your key always works for you, whatever your plan, and its usage is billed to your OpenRouter account.
+
+---
+
+## Capabilities
+
+| Capability | Description |
+|---|---|
+| **Language Model** | Answers Ask questions by searching Parchment's place data |
+
+---
+
+## Configuration
+
+In **Settings → Integrations**, OpenRouter has two cards: **For everyone** (the system key, admins only) and **Just you** (your own key).
+
+Users can also connect their own OpenRouter account without copying a key: when Ask is locked, **Connect OpenRouter** signs in to OpenRouter and saves a key for you. This works in the web app; the desktop and mobile apps use **Paste a key** instead.
+
+| Field | Value |
+|---|---|
+| **API key** | An OpenRouter key from [openrouter.ai/keys](https://openrouter.ai/keys). |
+| **Model** | Optional. Any OpenRouter model id that supports tool calling. Defaults to `anthropic/claude-haiku-5.5`. |
+
+Click **Test Connection** before saving.
+
+A self-hosted instance can also supply the system key through the `OPENROUTER_API_KEY` environment variable (and optionally `OPENROUTER_MODEL`) instead of saving it in Settings.
+
+---
+
+## Monthly allowance
+
+Questions answered on the system key count against a monthly allowance that depends on the user's permissions. A user with several gets the largest:
+
+| Permission | Role | Default | Variable |
+|---|---|---|---|
+| `ask:trial` | User (free) | 5 | `ASK_QUESTIONS_TRIAL` |
+| `ask:basic` | Basic | 50 | `ASK_QUESTIONS_BASIC` |
+| `premium:ask` | Premium | 1,000 | `ASK_QUESTIONS_PREMIUM` |
+
+`0` means no limit. Allowances reset at midnight UTC on the 1st, and **Settings → Ask** shows how many have been used. Questions on a user's own key are never limited.
+
+## Settings
+
+**Settings → Ask** holds each user's choices, saved to their account:
+
+- **Use Ask**: off hides Ask everywhere and refuses `/ask` and `/mcp` for that user.
+- **Press Enter to ask**: whether a search that reads like a question selects Ask first.
+- **Your location**: whether questions carry where the user is and their Home and Work.
+- **Web search**: whether Ask may search the web.
+- **Save conversations** and **Keep for** (1 day to forever): conversations are kept end-to-end encrypted on the account, like recent searches, and expire after that long unused. **Clear history** deletes them from every device.
+
+## How Ask works
+
+1. Type a question in search. When it reads like one, the **Ask** row is selected first. Press **Tab** to ask anything.
+2. The model searches Parchment's own place data (text search, category browse with tag filters, place details, places within a travel time) and, when you ask how to get somewhere, transit timetables, travel times, bike share and weather. It shows each search as it runs.
+3. For what the map can't know, like market days, events or a menu, it searches the web through OpenRouter's web plugin and lists the pages it read under **Sources**. Places it learns about there are looked up on the map before they are cited.
+4. Users with premium data access also get Foursquare and Google ratings, reviews and busy hours in place details, from whichever of those integrations are configured.
+5. The answer is one sentence plus place cards. It can only cite places that a search returned, so it never names a place that isn't on the map. Open or closed status comes from the map's opening hours, not from the model.
+6. When the question names a kind of place, **More nearby** opens the same search as a classic list.
+
+You can also ask about one place from its page (the question-mark button next to Share). Its details and recent reviews are read first, so answers like "good for working?" can point to what reviewers said.
+
+The model sees your question, your map's centre, and the place data its searches return. Web search queries go to OpenRouter's search provider. It does not see your history or account details.
+
+---
+
+## Notes
+
+- A question takes up to six model calls. On the default model that is usually about 0.2 cents: Anthropic models cache the tools and earlier steps between calls, which halves the cost.
+- A web search reads up to 3 pages, which OpenRouter bills at about 1 cent on top of the model calls. It counts toward the same key as the rest of the question.
+- If no system key is configured and a user has no key of their own, the Ask row is hidden.
