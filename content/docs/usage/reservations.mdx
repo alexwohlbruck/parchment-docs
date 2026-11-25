@@ -1,0 +1,27 @@
+---
+title: Reservations
+description: Book a table from a place's page when it takes reservations.
+---
+
+When a place takes bookings, its page shows a **Book a table** card at the top of the overview, with links to book it. Places that aren't restaurants, like campsites or tours, show **Book ahead** instead.
+
+The line under the title says how much booking matters there: it takes reservations, recommends them, or requires them.
+
+## Where the links go
+
+| Link | Shown | Opens |
+|---|---|---|
+| Their website | The place lists its own booking page | That page |
+| OpenTable | Restaurants, cafés and bars | An OpenTable search for the place's name around its location |
+| Resy | Restaurants, cafés and bars in US cities | A Resy search for the name in that city |
+| Search the web | Always | A web search for the name, its city and "reservations" |
+
+When the place's own booking page is on OpenTable or Resy, that link replaces the search for the same service.
+
+Every link opens in your browser. Parchment doesn't sign you in to these services or see your booking.
+
+## Where the data comes from
+
+The card appears for places tagged in OpenStreetMap with `reservation=yes`, `recommended` or `required`. Places tagged `reservation=no` show nothing. A place's own booking page comes from `reservation:website`, `website:booking`, `website:reservation` or `website:reservations`.
+
+To add or fix this for a place, use **Suggest an edit** on its page.
