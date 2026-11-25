@@ -5,6 +5,7 @@
     "environment",
     "development",
     "navigation",
+    "sheet-layout",
     "map-3d",
     "testing",
     "toasts",

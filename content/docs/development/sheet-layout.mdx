@@ -1,0 +1,166 @@
+---
+title: Sheet Layout
+description: How views are laid out inside the mobile bottom sheet and the desktop side panel.
+---
+
+Every panel view in Parchment — a place, directions, a collection, the
+dashboard — is rendered inside a *sheet*: the drag-to-expand bottom sheet on
+mobile (`components/BottomSheet.vue`), the fixed side panel on desktop
+(`components/LeftSheet.vue`). A view is written once and hosted by both, so it
+follows one layout contract.
+
+## The three regions
+
+```
+┌──────────────────────────────┐
+│ chrome (drag handle, actions)│  owned by the sheet, floats over everything
+├──────────────────────────────┤
+│ STICKY HEADER   <SheetHeader>│  pins to the top; sizes the peek detent
+├──────────────────────────────┤
+│                              │
+│ SCROLLABLE CONTENT           │  the one and only scroll surface
+│  (may contain horizontally   │
+│   scrolling rows)            │
+├──────────────────────────────┤
+│ PINNED FOOTER   <SheetFooter>│  rides the sheet's visible bottom edge
+└──────────────────────────────┘
+```
+
+All three are optional. A plain view is just content; a list with an endless
+tail wants a footer; a view with filters or tabs wants a header.
+
+```vue
+<template>
+  <PanelLayout>
+    <SheetHeader class="px-3 py-2">
+      <SearchField v-model="query" />
+    </SheetHeader>
+
+    <ResultList :results="results" />
+
+    <SheetFooter class="border-t px-3 py-2">
+      <AccountRow />
+    </SheetFooter>
+  </PanelLayout>
+</template>
+```
+
+Both components are in `components/sheet` and render in place — they work the
+same from a routed view inside the mobile sheet, from a direct child, and inside
+the desktop side panel, where they degrade to ordinary sticky positioning.
+
+## One scroll surface
+
+The sheet owns exactly one vertical scroll surface, tagged `data-sheet-scroll`.
+**A view must not create its own.** The shape to watch for is `h-full` plus
+`flex-1 overflow-y-auto` on an inner element.
+
+Nested scrollers fight the drag gesture on touch. The inner one swallows the
+upward pan, so the sheet can neither be expanded from inside its content nor
+dragged back down once you have scrolled — and the sheet's own at-top detection
+ends up reading the wrong element.
+
+So a hosted view is a plain, unbounded column that grows as tall as its content.
+`<PanelLayout>` is the normal wrapper: `min-h-full` so it fills a short sheet,
+never `h-full`, which would cap it at one viewport and unstick sticky children
+as soon as content scrolled past.
+
+Horizontally scrolling rows — photo galleries, chip rows — are fine anywhere
+inside. They only claim the x axis, so vertical pans still reach the sheet.
+
+### Reading the scroll position
+
+A view that needs the scrolling element itself, to restore a position or to
+drive infinite scroll, resolves it with `findScrollAncestor()` from `lib/scroll`
+rather than assuming a particular ancestor:
+
+```ts
+import { findScrollAncestor } from '@/lib/scroll'
+
+const rootEl = ref<HTMLElement | null>(null)
+let scrollEl: HTMLElement | null = null
+
+onMounted(() => {
+  scrollEl = findScrollAncestor(rootEl.value)
+  scrollEl?.addEventListener('scroll', onScroll, { passive: true })
+})
+onUnmounted(() => scrollEl?.removeEventListener('scroll', onScroll))
+```
+
+A sentinel observed with `IntersectionObserver` is not a substitute here: it only
+enters view on the sheet's very last pixel of scroll, and not at all once the
+list has trailing padding.
+
+## The peek detent
+
+The collapsed bottom sheet rests at its *peek* height. With `dynamic-peek` the
+sheet measures that height from its own top down to the bottom of a registered
+element, so the collapsed sheet rests exactly around the header.
+
+`<SheetHeader>` registers itself, which covers most views. When the peek region
+isn't the sticky header — Place collapses around its title and action buttons,
+which don't pin; the layer picker collapses around its whole tab panel, so it
+rests on its content and re-snaps as groups expand — mark it with
+`useSheetPeek()` instead:
+
+```vue
+<script setup>
+const { peekRef } = useSheetPeek()
+</script>
+
+<template>
+  <PlaceHeader />
+  <div ref="peekRef"><PlaceActions /></div>  <!-- peek ends here -->
+  <PlaceGallery />                           <!-- revealed when expanded -->
+</template>
+```
+
+Registrations are held per caller, so a `<SheetHeader peek="false">` above
+content that anchors the peek itself, or a sub-page pushed over the view it came
+from, can't clear an anchor it doesn't own.
+
+The peek belongs to the peek content alone. A pinned footer is parked below the
+fold at that detent and slides up as the sheet is dragged open, arriving fully
+once there is its own height to spare — so a collapsed sheet shows the header
+and nothing else.
+
+## Why the footer is portaled
+
+A snap-point bottom sheet is a full-viewport-tall panel translated down by the
+detent: only its top `activeSnapPoint` pixels are on screen, and its own bottom
+edge sits far below the fold. The sheet's *visible* bottom edge is therefore the
+viewport bottom, which nothing in the content flow can reach —
+`position: sticky; bottom: 0` sticks to the off-screen edge.
+
+`BottomSheet` keeps a thin layer pinned to that visible edge, and `<SheetFooter>`
+teleports into it. The layer holds only the footer, so resizing it as the sheet
+is dragged never touches the content's layout. Outside a bottom sheet the
+component falls back to ordinary sticky positioning, which is correct there.
+
+## CSS custom properties
+
+The sheet publishes these to everything it hosts:
+
+| Property | Meaning |
+|----------|---------|
+| `--sheet-sticky-top` | Where a sticky header docks, below the chrome bar |
+| `--sheet-visible-height` | How much of the sheet is currently on screen |
+| `--sheet-footer-height` | Height of the pinned footer, `0px` when there is none |
+| `--sheet-footer-space` | How much of that footer has been revealed above the peek |
+
+`useVirtualKeyboard`, called once in `App`, publishes one more app-wide:
+
+| Property | Meaning |
+|----------|---------|
+| `--keyboard-inset-height` | Screen the on-screen keyboard is covering, `0px` when none |
+
+It's read off the gap the keyboard opens between the layout and visual
+viewports, so it correctly reports `0px` on browsers that shrink the layout
+viewport instead — the page has already been laid out around the keyboard
+there. The bottom sheet reserves that much extra room at the end of its scroll
+surface and lifts its pinned footer above it, so reaching the end of a list
+never means dismissing the keyboard you're typing into.
+
+A hand-rolled sticky element should dock with
+`top: var(--sheet-sticky-top, 0px)` rather than `top: 0`, so it lands below the
+drag handle and navigation buttons instead of underneath them.
