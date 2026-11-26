@@ -16,8 +16,15 @@ site it read and which fields it kept or dropped. The lookup:
 
 1. Searches the web for the business's **own website**. Search results are only
    used to find that site. Directory, review, booking, delivery and social
-   sites (Google, Yelp, Foursquare, Tripadvisor, Facebook and the like) are
-   never used as a source.
+   sites (Google, Yelp, Foursquare, Tripadvisor and the like) are never used
+   as a source.
+
+   A business with no website of its own often has only a Facebook page, and
+   that page counts as its own site: what the business says of itself. Only
+   the page itself is read, from what Facebook serves without signing in
+   (usually its title and description, with the street address). No other
+   Facebook pages are followed, and the business's link goes into
+   `contact:facebook` rather than `website`.
 2. Reads the site. Its schema.org JSON-LD comes first; the homepage and up to
    two pages on the same site are checked, locations, visit, hours and contact
    pages ahead of an about page.
