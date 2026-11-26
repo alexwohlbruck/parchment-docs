@@ -104,6 +104,7 @@ Any other client that speaks Streamable HTTP and can send a header works the sam
 | `browse_category` | List one category nearest-first, optionally filtered by OpenStreetMap tags | Places, nearest first |
 | `get_place` | Full details for one place id | Hours, busiest hours, amenities, website, and ratings (out of 5) and reviews with their source. Foursquare and Google data needs premium data access |
 | `locate` | Resolve an address, neighbourhood, city or landmark | Up to 3 matches with coordinates |
+| `find_place_on_web` | Read a business the map doesn't have from its own `website` (see [Places from the web](/docs/usage/web-places)) | The place, marked not on the map yet; the mapped place if the map has it after all; or why it couldn't be confirmed |
 | `what_is_here` | What is at a point `at` | The address and up to 5 places right there, nearest first |
 | `places_within_reach` | Places within a travel time by walking, cycling, driving or transit from `from` | Places inside the reachable area |
 | `search_along_route` | Places along the route between two points, optionally through `stops`, by `category_ids` or `query` | Places with distance along the route and the minutes each stop adds |

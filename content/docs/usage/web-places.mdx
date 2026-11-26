@@ -1,0 +1,181 @@
+---
+title: Places from the web
+description: When Ask can't find a business on the map, it looks for the business's own website and offers to add it to OpenStreetMap.
+---
+
+Ask searches the map first. When a business you name isn't there, it calls
+`find_place_on_web`. You can also start it from search: under text results
+(or on their own when there are none), **Find “…” on the web** opens a new Ask
+chat headed **Find on the web** and the name you searched. The prompt behind it
+is written on the server; the app sends only the name and the `find-on-web`
+skill. When the lookup finds the place, its page opens on its own, and Back
+returns to the chat.
+
+Each stage shows as a step in the chat while it runs: **Finding the website**,
+**Reading the website**, **Figuring out what kind of place it is**, **Getting
+the details** (with the kind of place and the details the site gave, like
+"Restaurant · cuisine, reservations"), **Finding the address** and **Checking
+the map**.
+
+The place card builds up in the chat as the lookup reads: its name and kind
+first, then the address, phone and hours the site gives. Its icon appears on
+the map once the address is placed. If a page turns out to be the wrong one,
+its card goes away and the next page's takes its place. The answer replaces
+the card when it arrives.
+
+The lookup:
+
+1. Searches the web for the business's **own website**. Search results are only
+   used to find that site. Directory, review, booking, delivery and social
+   sites (Google, Yelp, Foursquare, Tripadvisor and the like) are never used
+   as a source.
+
+   A business with no website of its own often has only a Facebook page or an
+   Instagram profile, and those count as its own site: what the business says
+   of itself. Only the page itself is read, from what it serves without
+   signing in (the title and description, where a Facebook page or an
+   Instagram bio usually gives the street address). No other pages there are
+   followed, and the link goes into `contact:facebook` or `contact:instagram`
+   rather than `website`.
+
+   The search returns the website and the business's own social pages, and
+   each is tried in turn until one gives a street address. A Facebook page
+   with only a city falls through to the Instagram bio, and a namesake's
+   website in another state falls through to the right business's pages.
+2. Reads the site. Its schema.org JSON-LD comes first; the homepage and up to
+   two pages on the same site are checked, locations, visit, hours and contact
+   pages ahead of an about page.
+
+   When a site lists several locations, the model is told what was searched
+   ("La Cabra, Chelsea") and where, and reads only the location its
+   neighbourhood or city names, else the nearest one. That location's own name
+   goes into OSM's `branch` tag (`branch=Chelsea`), and only if the page
+   states it. Among several locations in the site's JSON-LD, one in the
+   named area comes first.
+
+   When those pages don't give the named location's street ("Joe Coffee,
+   Upper West Side" finding only the Village cafe), the model opens the site's
+   locations page if it hasn't yet, picks that location's own page from the
+   site's links, subdomains included, and reads it. If the site has
+   no structured data, the model reads the page text (see
+   [Checking what the model reads](#checking-what-the-model-reads)).
+   Pages that ship as a script-unpacked bundle (their markup as a JSON string
+   and their images inline) are unpacked first, so their text and images can
+   be read like any other page.
+
+   If the text gives no street address, up to two of the site's images are
+   read by the model: ones whose alt text, file name or class mentions a logo,
+   sign, location, map, hours or contact details, ahead of those in the header
+   or footer. Icons, social badges and photos are skipped. Each image is shrunk
+   to 1000 px across. Models that can't read images skip this step.
+
+   An address you give Ask yourself ("it's at 215 Union St, Brooklyn") stands
+   in for one the site doesn't state. Only an address you typed counts: Ask
+   can't pass one it found on another website.
+3. Checks the result: the name must match, allowing one slipped or swapped
+   letter in a word of five or more ("bookie lab" finds Boogie Lab) and a
+   kind of place typed after the name ("Ruby's cafe" finds Ruby's), the address must be within 60 km of
+   where you're looking, and the site must not say the business has closed.
+   The address only counts when a geocoder finds that house number on that
+   street, so 119 Avenue A never lands on 119 New York Avenue. Each geocoder
+   is tried in turn until one does, searching near where you're looking. A
+   floor and door after the house number ("Århusgade 48 st. th") are left
+   out of the search. The address is then spelt the way the geocoder spells
+   it ("215 UNION ST" becomes "215 Union Street"), keeping the city the site
+   gives.
+   The place is named the way the site names itself, not the way you typed
+   it. Its JSON-LD name comes first, then its declared site name, logo and
+   page title, taking the fullest form when the added words are more name
+   ("Boogie Lab Bakery & Bistro") rather than a description ("coffee cup").
+   A logo linking home ("Fairfax Home") and titles that describe the place
+   ("Bakery in New York, NY") don't count, and a name in capitals takes the
+   site's other spelling or title case ("SMOR Bakery" becomes "Smør Bakery").
+   It drops a country or company form the site appends ("La Cabra USA" and
+   "Joe's Pizza LLC" become "La Cabra" and "Joe's Pizza"), and is placed at the geocoded point for its
+   house number, falling back to the coordinates the site gives.
+4. Looks for the same name in OpenStreetMap within 300 m. If it's there, Ask
+   cites that place instead.
+
+What's left is a place that isn't on the map yet. Ask cites it like any other,
+and its page says **Not on the map yet**, with two actions:
+
+- **Add to map** opens the add-a-place form with the type, name, address,
+  phone, email, opening hours and website already filled in. You check them and
+  submit under your own OpenStreetMap account.
+- A site that says it hasn't opened yet ("coming soon", "opening this fall")
+  shows **Opening soon** on the card, and the business goes to OpenStreetMap
+  under the `construction:` lifecycle prefix, e.g. `construction:amenity=cafe`.
+- **Update map** takes its place when OpenStreetMap already has a node or way
+  at the same house number and street within 60 m with no business on it now:
+  a plain address point, a `shop=vacant`, or a closed business under
+  `disused:*` or `old_name`. Named buildings and entrances are never taken
+  over. The edit form opens on that element with the former tenant's tags
+  removed (lifecycle prefixes, `old_name`, name, contact, hours, cuisine,
+  brand and operator), the mapped address kept as it is, and the business's
+  tags added. If the element has been deleted since, the add-a-place form opens
+  instead.
+- **Tell mappers** opens a new OpenStreetMap note at the place for someone
+  else to map it. The note says what's missing, whether it hasn't opened yet,
+  and which element it takes over, and that it was found on the business's
+  site with Parchment. Then it lists every suggested tag as `key=value`, one per
+  line: the type and name first, the address last, so a mapper can paste them
+  into an editor.
+
+Nothing is added to the map until you submit it yourself. If no one adds the
+place or leaves a note for it within a day, Parchment leaves that note for
+mappers itself, from the OpenStreetMap account of whoever found the place. It
+doesn't when:
+
+- the map has gained the place in the meantime;
+- an open note nearby already names it;
+- the person who found it hasn't connected an OpenStreetMap account.
+
+Development servers only post these notes to the OpenStreetMap sandbox.
+
+## Checking what the model reads
+
+The model never decides what a tag means on its own. Everything it returns is
+checked against OpenStreetMap's [iD tagging schema](https://github.com/openstreetmap/id-tagging-schema)
+and the page text before it reaches the edit:
+
+- **Type.** The model picks from the schema's own list of business presets.
+  Anything not on that list is dropped, and the mapper picks the type.
+- **Name, address and contact details.** Each has to appear in the page text.
+  Phone numbers are compared digit by digit.
+- **Opening hours.** These need a quote from the page and must be valid
+  `opening_hours` syntax that the parser reads without correcting anything.
+  Ranges that overlap within a day are rejected. Days with the same hours are
+  merged (`Mo-Su 08:00-17:00`), a day with a second sitting keeps both ranges
+  (`We-Sa 08:30-15:30,17:30-22:00`), and a JSON-LD day that opens and closes
+  at midnight is read as closed.
+- **Other details.** The model is given every field of the chosen preset, with
+  the values the schema allows, and has to answer each one. The answer is
+  either null or a value with the exact words from the page that state it.
+  Fields it skips are asked again once. An answer is kept only if:
+  - the field belongs to the preset;
+  - the value is one the schema allows, or is named in the quote;
+  - the quote is really on the page.
+
+Fields a website can't settle, such as `level`, `building` and reference
+numbers, are never asked about. Neither are `brand` and `branch`, which belong
+to chains.
+
+## Why only the business's own site
+
+OpenStreetMap can't take data copied from Google, Yelp, Foursquare and other
+listings, because of their licences. Facts a business publishes about itself
+on its own site are what a mapper would use, so only those fill in the edit.
+
+## How long a place lasts
+
+A place found this way is kept for a day, so its page and links work, even
+across a server restart. After that, Ask finds it again. Its id is
+`web/<hash>`, and `GET /places/details?source=web&id=<hash>` returns it while
+it's kept. Adding it to the map or leaving a note for it with **Tell mappers**
+marks it done (`webPlaceId` on `POST /osm/edits` and `POST /notes/create`), so
+it gets no automatic note.
+
+## Over MCP
+
+MCP clients get `find_place_on_web` too. Parchment has no model to search the
+web with there, so pass the business's `website` yourself.
