@@ -116,11 +116,21 @@ and its page says **Not on the map yet**, with two actions:
   instead.
 - **Tell mappers** opens a new OpenStreetMap note at the place for someone
   else to map it. The note says what's missing, whether it hasn't opened yet,
-  and which element it takes over, then lists every suggested tag as
-  `key=value`, one per line: the type and name first, the address last, so a
-  mapper can paste them into an editor.
+  and which element it takes over, and that it was found on the business's
+  site with Parchment. Then it lists every suggested tag as `key=value`, one per
+  line: the type and name first, the address last, so a mapper can paste them
+  into an editor.
 
-Nothing is sent to OpenStreetMap until you submit one of these yourself.
+Nothing is added to the map until you submit it yourself. If no one adds the
+place or leaves a note for it within a day, Parchment leaves that note for
+mappers itself, from the OpenStreetMap account of whoever found the place. It
+doesn't when:
+
+- the map has gained the place in the meantime;
+- an open note nearby already names it;
+- the person who found it hasn't connected an OpenStreetMap account.
+
+Development servers only post these notes to the OpenStreetMap sandbox.
 
 ## Checking what the model reads
 
@@ -158,10 +168,12 @@ on its own site are what a mapper would use, so only those fill in the edit.
 
 ## How long a place lasts
 
-A place found this way isn't stored. The server keeps it in memory for a day so
-its page and links work; after that, or after a restart, Ask finds it again.
-Its id is `web/<hash>`, and `GET /places/details?source=web&id=<hash>` returns
-it while it's kept.
+A place found this way is kept for a day, so its page and links work, even
+across a server restart. After that, Ask finds it again. Its id is
+`web/<hash>`, and `GET /places/details?source=web&id=<hash>` returns it while
+it's kept. Adding it to the map or leaving a note for it with **Tell mappers**
+marks it done (`webPlaceId` on `POST /osm/edits` and `POST /notes/create`), so
+it gets no automatic note.
 
 ## Over MCP
 
