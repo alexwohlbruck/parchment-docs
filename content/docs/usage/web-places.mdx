@@ -22,12 +22,18 @@ the map**. The lookup:
    sites (Google, Yelp, Foursquare, Tripadvisor and the like) are never used
    as a source.
 
-   A business with no website of its own often has only a Facebook page, and
-   that page counts as its own site: what the business says of itself. Only
-   the page itself is read, from what Facebook serves without signing in
-   (usually its title and description, with the street address). No other
-   Facebook pages are followed, and the business's link goes into
-   `contact:facebook` rather than `website`.
+   A business with no website of its own often has only a Facebook page or an
+   Instagram profile, and those count as its own site: what the business says
+   of itself. Only the page itself is read, from what it serves without
+   signing in (the title and description, where a Facebook page or an
+   Instagram bio usually gives the street address). No other pages there are
+   followed, and the link goes into `contact:facebook` or `contact:instagram`
+   rather than `website`.
+
+   The search returns the website and the business's own social pages, and
+   each is tried in turn until one gives a street address. A Facebook page
+   with only a city falls through to the Instagram bio, and a namesake's
+   website in another state falls through to the right business's pages.
 2. Reads the site. Its schema.org JSON-LD comes first; the homepage and up to
    two pages on the same site are checked, locations, visit, hours and contact
    pages ahead of an about page.
