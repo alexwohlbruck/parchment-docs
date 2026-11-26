@@ -15,6 +15,16 @@ Transit lines are search results. Type a line the way a rider says it — "7 tra
 
 Behind it, Barrelman matches the query against the GTFS routes it has imported and drops anything that duplicates an OpenStreetMap result, so a station never appears twice under two spellings.
 
+## Following a run
+
+Tap any departure on a stop's board (a countdown, a later time, or a direction's row for the next run) and the line's route page opens following that run. The stop list turns to face its direction, shows when the run reaches each stop ahead, and greys out the stops it has already left.
+
+If the vehicle reports a position, it is selected on the map and the timeline. If not, a marker sits where the run's predicted times put it. The run stays in the page's address (`?trip=<trip id>`), so a reload or a shared link opens the same run.
+
+<Callout type="info">
+Stop times come from the agency's GTFS-RT trip updates. A run with no realtime prediction opens on the right line and direction, without times.
+</Callout>
+
 ---
 
 ## Service alerts
