@@ -12,10 +12,13 @@ Ask searches the map first. When a business you name isn't there, it calls
    never used as a source.
 2. Reads the site. Its schema.org JSON-LD comes first; the homepage and up to
    two contact or location pages on the same site are checked. If the site has
-   no structured data, the model reads the page text into a fixed set of
-   fields.
+   no structured data, the model reads the page text (see
+   [Checking what the model reads](#checking-what-the-model-reads)).
 3. Checks the result: the name must match, the address must be within 60 km of
    where you're looking, and the site must not say the business has closed.
+   The place is named the way the site names itself (its declared site name or
+   logo), not the way you typed it, and is placed at the geocoded point for its
+   house number, falling back to the coordinates the site gives.
 4. Looks for the same name in OpenStreetMap within 300 m. If it's there, Ask
    cites that place instead.
 
@@ -29,6 +32,31 @@ and its page says **Not on the map yet**, with two actions:
   its name, address and website, for someone else to map it.
 
 Nothing is sent to OpenStreetMap until you submit one of these yourself.
+
+## Checking what the model reads
+
+The model never decides what a tag means on its own. Everything it returns is
+checked against OpenStreetMap's [iD tagging schema](https://github.com/openstreetmap/id-tagging-schema)
+and the page text before it reaches the edit:
+
+- **Type.** The model picks from the schema's own list of business presets.
+  Anything not on that list is dropped, and the mapper picks the type.
+- **Name, address and contact details.** Each has to appear in the page text.
+  Phone numbers are compared digit by digit.
+- **Opening hours.** These need a quote from the page and must be valid
+  `opening_hours` syntax that the parser reads without correcting anything.
+  Ranges that overlap within a day are rejected.
+- **Other details.** The model is given every field of the chosen preset, with
+  the values the schema allows, and has to answer each one. The answer is
+  either null or a value with the exact words from the page that state it.
+  Fields it skips are asked again once. An answer is kept only if:
+  - the field belongs to the preset;
+  - the value is one the schema allows, or is named in the quote;
+  - the quote is really on the page.
+
+Fields a website can't settle, such as `level`, `building` and reference
+numbers, are never asked about. Neither are `brand` and `branch`, which belong
+to chains.
 
 ## Why only the business's own site
 
