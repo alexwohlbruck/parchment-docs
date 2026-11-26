@@ -19,7 +19,14 @@ site it read and which fields it kept or dropped. The lookup:
    sites (Google, Yelp, Foursquare, Tripadvisor, Facebook and the like) are
    never used as a source.
 2. Reads the site. Its schema.org JSON-LD comes first; the homepage and up to
-   two contact or location pages on the same site are checked. If the site has
+   two pages on the same site are checked, locations, visit, hours and contact
+   pages ahead of an about page.
+
+   When a site lists several locations, the model is told what was searched
+   ("La Cabra, Chelsea") and where, and reads only the location its
+   neighbourhood or city names, else the nearest one. That location's own name
+   goes into OSM's `branch` tag (`branch=Chelsea`), and only if the page
+   states it. If the site has
    no structured data, the model reads the page text (see
    [Checking what the model reads](#checking-what-the-model-reads)).
    Pages that ship as a script-unpacked bundle (their markup as a JSON string
@@ -42,7 +49,9 @@ site it read and which fields it kept or dropped. The lookup:
    way the geocoder spells it ("215 UNION ST" becomes "215 Union Street"),
    keeping the city the site gives.
    The place is named the way the site names itself, taking the fullest form
-   among its declared site name, logo and page title, not the way you typed it, and is placed at the geocoded point for its
+   among its declared site name, logo and page title, not the way you typed it,
+   without a country or company form the site appends ("La Cabra USA" and
+   "Joe's Pizza LLC" become "La Cabra" and "Joe's Pizza"), and is placed at the geocoded point for its
    house number, falling back to the coordinates the site gives.
 4. Looks for the same name in OpenStreetMap within 300 m. If it's there, Ask
    cites that place instead.
