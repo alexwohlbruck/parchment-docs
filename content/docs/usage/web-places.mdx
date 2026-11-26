@@ -37,6 +37,15 @@ and its page says **Not on the map yet**, with two actions:
 - **Add to map** opens the add-a-place form with the type, name, address,
   phone, email, opening hours and website already filled in. You check them and
   submit under your own OpenStreetMap account.
+- **Update map** takes its place when OpenStreetMap already has a node or way
+  at the same house number and street within 60 m with no business on it now:
+  a plain address point, a `shop=vacant`, or a closed business under
+  `disused:*` or `old_name`. Named buildings and entrances are never taken
+  over. The edit form opens on that element with the former tenant's tags
+  removed (lifecycle prefixes, `old_name`, name, contact, hours, cuisine,
+  brand and operator), the mapped address kept as it is, and the business's
+  tags added. If the element has been deleted since, the add-a-place form opens
+  instead.
 - **Tell mappers** opens a new OpenStreetMap note at the place, pre-filled with
   its name, address and website, for someone else to map it.
 
