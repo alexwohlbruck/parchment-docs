@@ -22,9 +22,25 @@ site it read and which fields it kept or dropped. The lookup:
    two contact or location pages on the same site are checked. If the site has
    no structured data, the model reads the page text (see
    [Checking what the model reads](#checking-what-the-model-reads)).
+   Pages that ship as a script-unpacked bundle (their markup as a JSON string
+   and their images inline) are unpacked first, so their text and images can
+   be read like any other page.
+
+   If the text gives no street address, up to two of the site's images are
+   read by the model: ones whose alt text, file name or class mentions a logo,
+   sign, location, map, hours or contact details, ahead of those in the header
+   or footer. Icons, social badges and photos are skipped. Each image is shrunk
+   to 1000 px across. Models that can't read images skip this step.
+
+   An address you give Ask yourself ("it's at 215 Union St, Brooklyn") stands
+   in for one the site doesn't state.
 3. Checks the result: the name must match, allowing one slipped or swapped
    letter in a word of five or more ("bookie lab" finds Boogie Lab), the address must be within 60 km of
    where you're looking, and the site must not say the business has closed.
+   An address read off an image or given by you only counts when the
+   geocoder finds that exact house number, and the address is then spelt the
+   way the geocoder spells it ("215 UNION ST" becomes "215 Union Street"),
+   keeping the city the site gives.
    The place is named the way the site names itself, taking the fullest form
    among its declared site name, logo and page title, not the way you typed it, and is placed at the geocoded point for its
    house number, falling back to the coordinates the site gives.
@@ -37,6 +53,9 @@ and its page says **Not on the map yet**, with two actions:
 - **Add to map** opens the add-a-place form with the type, name, address,
   phone, email, opening hours and website already filled in. You check them and
   submit under your own OpenStreetMap account.
+- A site that says it hasn't opened yet ("coming soon", "opening this fall")
+  shows **Opening soon** on the card, and the business goes to OpenStreetMap
+  under the `construction:` lifecycle prefix, e.g. `construction:amenity=cafe`.
 - **Update map** takes its place when OpenStreetMap already has a node or way
   at the same house number and street within 60 m with no business on it now:
   a plain address point, a `shop=vacant`, or a closed business under
