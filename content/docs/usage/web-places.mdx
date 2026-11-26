@@ -26,7 +26,13 @@ site it read and which fields it kept or dropped. The lookup:
    ("La Cabra, Chelsea") and where, and reads only the location its
    neighbourhood or city names, else the nearest one. That location's own name
    goes into OSM's `branch` tag (`branch=Chelsea`), and only if the page
-   states it. If the site has
+   states it. Among several locations in the site's JSON-LD, one in the
+   named area comes first.
+
+   When those pages don't give the named location's street ("Joe Coffee,
+   Upper West Side" finding only the Village cafe), the model opens the site's
+   locations page if it hasn't yet, picks that location's own page from the
+   site's links, subdomains included, and reads it. If the site has
    no structured data, the model reads the page text (see
    [Checking what the model reads](#checking-what-the-model-reads)).
    Pages that ship as a script-unpacked bundle (their markup as a JSON string
@@ -40,17 +46,27 @@ site it read and which fields it kept or dropped. The lookup:
    to 1000 px across. Models that can't read images skip this step.
 
    An address you give Ask yourself ("it's at 215 Union St, Brooklyn") stands
-   in for one the site doesn't state.
+   in for one the site doesn't state. Only an address you typed counts: Ask
+   can't pass one it found on another website.
 3. Checks the result: the name must match, allowing one slipped or swapped
-   letter in a word of five or more ("bookie lab" finds Boogie Lab), the address must be within 60 km of
+   letter in a word of five or more ("bookie lab" finds Boogie Lab) and a
+   kind of place typed after the name ("Ruby's cafe" finds Ruby's), the address must be within 60 km of
    where you're looking, and the site must not say the business has closed.
-   An address read off an image or given by you only counts when the
-   geocoder finds that exact house number, and the address is then spelt the
-   way the geocoder spells it ("215 UNION ST" becomes "215 Union Street"),
-   keeping the city the site gives.
-   The place is named the way the site names itself, taking the fullest form
-   among its declared site name, logo and page title, not the way you typed it,
-   without a country or company form the site appends ("La Cabra USA" and
+   The address only counts when a geocoder finds that house number on that
+   street, so 119 Avenue A never lands on 119 New York Avenue. Each geocoder
+   is tried in turn until one does, searching near where you're looking. A
+   floor and door after the house number ("Århusgade 48 st. th") are left
+   out of the search. The address is then spelt the way the geocoder spells
+   it ("215 UNION ST" becomes "215 Union Street"), keeping the city the site
+   gives.
+   The place is named the way the site names itself, not the way you typed
+   it. Its JSON-LD name comes first, then its declared site name, logo and
+   page title, taking the fullest form when the added words are more name
+   ("Boogie Lab Bakery & Bistro") rather than a description ("coffee cup").
+   A logo linking home ("Fairfax Home") and titles that describe the place
+   ("Bakery in New York, NY") don't count, and a name in capitals takes the
+   site's other spelling or title case ("SMOR Bakery" becomes "Smør Bakery").
+   It drops a country or company form the site appends ("La Cabra USA" and
    "Joe's Pizza LLC" become "La Cabra" and "Joe's Pizza"), and is placed at the geocoded point for its
    house number, falling back to the coordinates the site gives.
 4. Looks for the same name in OpenStreetMap within 300 m. If it's there, Ask
@@ -94,7 +110,10 @@ and the page text before it reaches the edit:
   Phone numbers are compared digit by digit.
 - **Opening hours.** These need a quote from the page and must be valid
   `opening_hours` syntax that the parser reads without correcting anything.
-  Ranges that overlap within a day are rejected.
+  Ranges that overlap within a day are rejected. Days with the same hours are
+  merged (`Mo-Su 08:00-17:00`), a day with a second sitting keeps both ranges
+  (`We-Sa 08:30-15:30,17:30-22:00`), and a JSON-LD day that opens and closes
+  at midnight is read as closed.
 - **Other details.** The model is given every field of the chosen preset, with
   the values the schema allows, and has to answer each one. The answer is
   either null or a value with the exact words from the page that state it.
