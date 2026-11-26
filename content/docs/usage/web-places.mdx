@@ -6,7 +6,10 @@ description: When Ask can't find a business on the map, it looks for the busines
 Ask searches the map first. When a business you name isn't there, it calls
 `find_place_on_web`. You can also start it from search: under text results
 (or on their own when there are none), **Find “…” on the web** opens a new Ask
-chat that asks for it.
+chat headed **Find on the web** and the name you searched. The prompt behind it
+is written on the server; the app sends only the name and the `find-on-web`
+skill. When the lookup finds the place, its page opens on its own, and Back
+returns to the chat.
 
 Each stage shows as a step in the chat while it runs, with details like the
 site it read and which fields it kept or dropped. The lookup:
@@ -19,10 +22,11 @@ site it read and which fields it kept or dropped. The lookup:
    two contact or location pages on the same site are checked. If the site has
    no structured data, the model reads the page text (see
    [Checking what the model reads](#checking-what-the-model-reads)).
-3. Checks the result: the name must match, the address must be within 60 km of
+3. Checks the result: the name must match, allowing one slipped or swapped
+   letter in a word of five or more ("bookie lab" finds Boogie Lab), the address must be within 60 km of
    where you're looking, and the site must not say the business has closed.
-   The place is named the way the site names itself (its declared site name or
-   logo), not the way you typed it, and is placed at the geocoded point for its
+   The place is named the way the site names itself, taking the fullest form
+   among its declared site name, logo and page title, not the way you typed it, and is placed at the geocoded point for its
    house number, falling back to the coordinates the site gives.
 4. Looks for the same name in OpenStreetMap within 300 m. If it's there, Ask
    cites that place instead.
