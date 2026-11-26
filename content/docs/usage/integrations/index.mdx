@@ -74,6 +74,20 @@ When a connected integration's own service starts failing (for example, a self-h
 
 ---
 
+## Matched business listings
+
+For users with premium data access, a place opened from OpenStreetMap is matched to its listing at Google Maps and Foursquare, which supply photos, hours, ratings and reviews. The first open finds the listing by searching near the place by name. Parchment then saves the matched listing id in Barrelman, against the OpenStreetMap element, so the match is shared by everyone and survives map data updates.
+
+Later opens fetch the saved listing directly, so they skip the search, cost fewer provider requests, and always show the same listing. If a provider no longer returns a saved listing (it closed, or its id changed), Parchment searches again and saves the new match, or forgets the old one if nothing matches. A saved id for a provider that isn't configured is kept for when it is.
+
+### Correcting a listing
+
+Admins see a **Business listings** section at the bottom of a place. **Change** lists nearby listings at that provider, with a search box for when the name differs. Pick the right one, or **Not on** that site when the place has no listing there. A correction applies for every user, and automatic matching never replaces it unless the chosen listing disappears. A place marked as having no listing is never searched at that provider again.
+
+Other roles can be allowed to correct listings by granting them the **Correct business listings** permission (`places:listings:write`).
+
+---
+
 ## Available integrations
 
 Parchment has two types of integrations:
