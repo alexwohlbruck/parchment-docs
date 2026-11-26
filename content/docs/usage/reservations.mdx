@@ -1,0 +1,67 @@
+---
+title: Reservations
+description: Book a table, compare hotel prices, or order delivery from a place's page.
+---
+
+Places you can book show a card at the top of the overview:
+
+- **Book a table** for restaurants, cafés and bars that take reservations.
+- **Compare prices** for hotels and other lodging, when hotel prices are set up on your server. Otherwise **Book a room**.
+- **Book ahead** for other places that take reservations, like campsites or tours.
+
+Pick the day, the number of people and, for a stay, the number of nights. The card starts at tonight, 2 people, 1 night. Every link opens with those filled in.
+
+## Restaurants
+
+When Parchment knows a restaurant's page on a booking site, the link goes straight to it:
+
+| Site | Example page |
+|---|---|
+| OpenTable | `opentable.com/r/<restaurant>` |
+| Resy | `resy.com/cities/<city>/venues/<restaurant>` |
+| Tock | `exploretock.com/<restaurant>` |
+| SevenRooms | `sevenrooms.com/reservations/<restaurant>` |
+
+A booking page on any other site is listed under that site's name.
+
+When no booking page is known, the card offers searches instead, labelled as such: **Search OpenTable**, **Search Resy** (US cities) and **Search the web**. Searches never appear next to a known page, so a button with a site's name always opens the restaurant's own page there.
+
+If the place delivers, the card also links to order from it on Uber Eats, DoorDash, Grubhub and similar services.
+
+## Hotels
+
+With hotel prices configured, **Compare prices** lists every seller of the room for your dates. Each row shows:
+
+- the seller, marked **Official site** when it's the hotel's own
+- the nightly price before taxes
+- the total with taxes and fees
+- whether it cancels free
+
+Tap a row to book with that seller. The **Parchment** row, marked **Book in app**, is booked through the server's own booking partner. Turn on **Free cancellation only** to hide the rest.
+
+Below the prices, **More on Google Hotels** opens the full comparison. Without prices, the card links to the hotel's pages on Booking.com, Expedia and Hotels.com when they're known, and otherwise offers searches.
+
+## Where the data comes from
+
+A place's booking pages are kept per site, in this order of trust:
+
+1. A choice someone made in **Business listings** (below). Nothing automatic replaces it.
+2. The place's own OpenStreetMap tags: `reservation:website`, `website:booking`, `website:reservation` or `website:reservations`.
+3. Its Wikidata item, for lodging: Booking.com hotel ID (P3607), Expedia hotel ID (P5651) and Hotels.com hotel ID (P3898).
+4. Reservation links from Foursquare, when your server has premium place data.
+
+Once a page is known it's stored for the place, so later visits, including on free plans, link straight to it.
+
+The card appears for places tagged `reservation=yes`, `recommended` or `required`, for lodging, and for restaurants with a known booking page. Places tagged `reservation=no` show no booking links.
+
+## Correcting a booking page
+
+People with permission to edit listings see a **Business listings** section on the place page. For each booking site:
+
+- **OpenTable, Resy, Tock, SevenRooms, Booking.com, Expedia, Hotels.com:** choose **Change**, then paste the place's page from that site. A search results page isn't accepted.
+- **Google Hotels and LiteAPI:** choose **Change** and pick the hotel from the nearby list. The hotel's name is kept, so the listing reads as the hotel rather than an id.
+- **Not on …** says the site doesn't list the place, so it isn't searched there again.
+
+A correction applies for everyone.
+
+Every link opens in your browser. Parchment doesn't sign you in to these services or see your booking.

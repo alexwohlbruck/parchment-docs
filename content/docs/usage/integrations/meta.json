@@ -20,6 +20,8 @@
     "axiom",
     "openstreetmap",
     "openrouter",
+    "serpapi",
+    "liteapi",
     "---User Integrations---",
     "openstreetmap-account",
     "dawarich"

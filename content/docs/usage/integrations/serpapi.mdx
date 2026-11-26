@@ -1,0 +1,37 @@
+---
+title: SerpApi
+description: Every seller's price for a hotel, from Google Hotels.
+---
+
+SerpApi reads Google Hotels, so the **Compare prices** card on a hotel can list each seller's price for the chosen dates and link straight to that seller's booking page.
+
+---
+
+## Capabilities
+
+| Capability | Description |
+|---|---|
+| **Hotel price comparison** | One price per seller for a hotel and stay: nightly before taxes, total with taxes and fees, free cancellation, and the seller's page |
+
+---
+
+## Configuration
+
+In **Settings → Integrations**, click the settings icon on the SerpApi card.
+
+| Field | Value |
+|---|---|
+| **API key** | From your [SerpApi dashboard](https://serpapi.com/manage-api-key). |
+
+A hosted deployment can set `SERPAPI_API_KEY` in the server environment instead.
+
+---
+
+## Notes
+
+- Every price check is one SerpApi search. The free plan has 250 a month, and the $25 plan 1,000.
+- To make the most of that budget:
+  - A hotel is matched to Google Hotels once, by name within 250 m of the place, and the match is stored. Later checks are a single search.
+  - A hotel Google Hotels doesn't list is stored as such and never searched again, unless someone corrects it in **Business listings**.
+  - Prices are cached for 30 minutes per hotel, dates and guests.
+- In development, `STAY_PRICE_FIXTURES=1` serves recorded prices without a key. It does nothing outside `NODE_ENV=development`.

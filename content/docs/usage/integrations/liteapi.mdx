@@ -1,0 +1,36 @@
+---
+title: LiteAPI
+description: Live hotel rooms and prices, booked on your own white-label site.
+---
+
+LiteAPI (by Nuitée) aggregates hotel rooms from many suppliers. In the **Compare prices** card it's the **Book here** row: the cheapest room for the dates, linking to your LiteAPI white-label site, which takes payment and confirms the booking. You earn LiteAPI's commission on each booking.
+
+---
+
+## Capabilities
+
+| Capability | Description |
+|---|---|
+| **Hotel rates** | Live room rates for a hotel and stay, with free cancellation and fees paid at the hotel |
+
+---
+
+## Configuration
+
+In **Settings → Integrations**, click the settings icon on the LiteAPI card.
+
+| Field | Value |
+|---|---|
+| **API key** | From **Developer tools → API Keys** in the [Nuitée Connect dashboard](https://connect.nuitee.com). A sandbox key prices real hotels but can't book. |
+| **White-label site** | The https address of your LiteAPI white-label booking site. |
+
+A hosted deployment can set `LITEAPI_API_KEY` and `LITEAPI_WHITELABEL_URL` instead.
+
+To take real bookings, add a card in the dashboard to unlock the production key, and set a payout method.
+
+---
+
+## Notes
+
+- A hotel is matched to LiteAPI once, by name near the place, and stored. A shorter form of the name ("EVEN Hotel" for "EVEN Hotel Brooklyn by IHG") matches within 75 m.
+- A price is never shown below the hotel's suggested selling price, as LiteAPI's rate-parity terms require for public listings.
