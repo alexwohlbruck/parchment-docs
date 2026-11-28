@@ -21,50 +21,70 @@ A stateless [Streamable HTTP](https://modelcontextprotocol.io/specification/2025
 
 ## Access
 
-Every request needs a signed-in user with the `premium:ask` permission (the Premium role) and Ask turned on in their settings. A request without a valid session gets `401`; a user without the permission gets `403`. Both carry a JSON-RPC error body.
+Every request needs a user with the `premium:ask` permission (the Premium role) and Ask turned on in their settings. A request without valid credentials gets `401`, and a user without the permission gets `403`. Both come with a JSON-RPC error body.
 
-Authenticate with a session token in the `Authorization` header:
+There are two ways to connect. Both hand the client a token limited to the [scopes](#scopes) you choose:
+
+- **Sign in with OAuth.** Hosted connectors in claude.ai and ChatGPT, and any client that follows the [MCP authorization spec](https://modelcontextprotocol.io/specification/2025-06-18/basic/authorization), find Parchment's sign-in by themselves. Add the server URL, sign in to Parchment when the client asks, and choose what it can do.
+- **An access token.** Create one in **Settings → Account → Access tokens**, choose its scopes and how long it lasts, and send it as a header:
 
 ```
-Authorization: Bearer <session token>
+Authorization: Bearer pat_…
 ```
 
-### Getting a token
+The token is shown once. Parchment stores only a hash of it, so a lost token can't be recovered. Revoke it and create a new one.
 
-Parchment has no personal access tokens yet. A token is an ordinary sign-in session, so the cleanest way to get one is to sign in once from the command line. That makes a separate session for the assistant, which you can revoke without signing out anywhere else.
+Apps you signed in to show up under **Settings → Account → Connected apps**, and tokens under **Access tokens**. Revoking either one cuts off access at once.
 
-```bash
-# 1. Email yourself a sign-in code
-curl -X POST https://<your server>/auth/verify \
-  -H 'Content-Type: application/json' \
-  -d '{"email":"you@example.com"}'
+### Scopes
 
-# 2. Exchange the code for a session token
-curl -X POST https://<your server>/auth/sessions \
-  -H 'Content-Type: application/json' \
-  -d '{"method":"otp","email":"you@example.com","token":"<code from the email>"}'
-```
+| Scope | What it allows | Tools |
+|---|---|---|
+| `places:read` | Search places and see their details | `find_places`, `find_categories`, `browse_category`, `get_place`, `locate`, `what_is_here`, `places_within_reach`, `search_along_route`, `find_place_on_web` |
+| `trips:read` | Directions, transit departures and bike share | `plan_trip`, `travel_times`, `transit_trips`, `transit_departures`, `transit_line`, `bikeshare_nearby` |
+| `weather:read` | Weather, air quality and wildfires | `weather`, `wildfires` |
+| `library:read` | Your saved places, collections, routes, canvases and vehicles | `saved_places`, `my_collections`, `my_routes`, `my_canvases`, `my_vehicles` |
+| `library:write` | Save places, and build, share and archive routes and canvases | `save_place`, `create_route`, `edit_route`, `create_canvas`, `share_canvas`, `archive` |
 
-The response's `token` field is the session token.
+`tools/list` shows only the tools a token's scopes cover. Calling any other tool answers `403` with `WWW-Authenticate: Bearer error="insufficient_scope", scope="<the scope it needs>"`, so the client knows what to ask for. The same scopes limit the token on the [REST API](/docs/api). A scoped token can never manage tokens, sessions or your account.
 
-- It expires after 30 days without use. Each use within that time extends it.
-- It shows up under **Settings → Account → Sessions**, where you can revoke it.
-- It is a full sign-in for your account, not a token limited to search. Keep it as private as a password.
+### How the OAuth sign-in works
 
-<Callout type="warn">
-Hosted connectors in claude.ai and ChatGPT expect to sign in with OAuth, which Parchment does not offer yet. Use a client that lets you set a request header, like Claude Code, or a bridge such as `mcp-remote`.
-</Callout>
+A `401` from `/mcp` carries `WWW-Authenticate: Bearer resource_metadata="https://<your server>/.well-known/oauth-protected-resource/mcp"`. From there a client follows the standard steps:
+
+| Step | Endpoint |
+|---|---|
+| Protected resource metadata ([RFC 9728](https://www.rfc-editor.org/rfc/rfc9728)) | `GET /.well-known/oauth-protected-resource/mcp` |
+| Authorization server metadata ([RFC 8414](https://www.rfc-editor.org/rfc/rfc8414)) | `GET /.well-known/oauth-authorization-server` |
+| Client registration ([RFC 7591](https://www.rfc-editor.org/rfc/rfc7591)) | `POST /oauth/register` |
+| Authorization, with the consent screen in the web app | `GET /oauth/authorize` |
+| Code exchange and refresh | `POST /oauth/token` |
+| Revocation ([RFC 7009](https://www.rfc-editor.org/rfc/rfc7009)) | `POST /oauth/revoke` |
+
+- Every client is public. PKCE with `S256` is required, and `resource` must name this server ([RFC 8707](https://www.rfc-editor.org/rfc/rfc8707)).
+- Redirect URIs must be HTTPS, loopback HTTP (any port) or an app's own scheme.
+- Codes work once, within 5 minutes. Access tokens last an hour.
+- Each refresh returns a new pair of tokens and retires the old pair. A grant that isn't refreshed for 90 days expires.
+
+### A session token still works
+
+A full sign-in session is accepted too (`Authorization: Bearer <session token>`), with no scope limits. Prefer an access token: it can't reach your account, and revoking it signs nothing else out.
 
 ---
 
 ## Connecting a client
 
+### claude.ai and ChatGPT
+
+Add a custom connector with the URL `https://<your server>/mcp`. The first time you use it, the connector opens Parchment's sign-in and asks what it may do.
+
 ### Claude Code
 
 ```bash
-claude mcp add --transport http parchment https://<your server>/mcp \
-  --header "Authorization: Bearer <session token>"
+claude mcp add --transport http parchment https://<your server>/mcp
 ```
+
+Run `/mcp` in Claude Code to sign in. To use an access token instead, add `--header "Authorization: Bearer <token>"`.
 
 ### Claude Desktop
 
@@ -82,16 +102,16 @@ Claude Desktop's config file cannot set headers on a remote server, so bridge it
         "Authorization:${PARCHMENT_AUTH}"
       ],
       "env": {
-        "PARCHMENT_AUTH": "Bearer <session token>"
+        "PARCHMENT_AUTH": "Bearer <access token>"
       }
     }
   }
 }
 ```
 
-The header goes through an environment variable because some platforms split arguments that contain a space.
+The header goes through an environment variable because some platforms split arguments that contain a space. Leave out `--header` and `env`, and `mcp-remote` signs in with OAuth in your browser.
 
-Any other client that speaks Streamable HTTP and can send a header works the same way.
+Any other client that speaks Streamable HTTP works the same way.
 
 ---
 
@@ -136,4 +156,4 @@ There is no map here, so a tool needs a point. Pass coordinates, a place id anot
 
 Times are written and read in the trip's own time zone: give `depart_at` as local time, like `2026-11-20T18:30`, and results come back as `Fri 18:42`.
 
-Searches run as your account, in the language your client sends in `Accept-Language`, with your unit system and your active vehicles. The assistant sees only what the tools return, and changes your library only through the tools above. Saved places in private collections, private routes, the names you give routes, friends' locations and location history are end-to-end encrypted, so the server cannot hand them over. A route the assistant builds is named by the assistant until you rename it.
+Searches run as your account, within the token's scopes, in the language your client sends in `Accept-Language`, with your unit system and your active vehicles. The assistant sees only what the tools return, and changes your library only through the tools above. Saved places in private collections, private routes, the names you give routes, friends' locations and location history are end-to-end encrypted, so the server cannot hand them over. A route the assistant builds is named by the assistant until you rename it.
