@@ -9,4 +9,16 @@ In development the API is at `http://localhost:5000`. In production, use your in
 
 ## Authentication
 
-Most endpoints require authentication. Send credentials as a **session cookie** or an **API token** in the `Authorization: Bearer <token>` header. See [Auth](/api/auth) for details.
+Most endpoints require authentication. Send credentials as a **session cookie**, or as a token in the `Authorization: Bearer <token>` header. See [Auth](/api/auth) for details.
+
+A token is either a sign-in session, with full access, or a scoped token: an access token from **Settings → Account**, or one an app got through OAuth. A scoped token reaches only the routes its scopes cover:
+
+| Scope | Routes |
+|---|---|
+| `places:read` | `GET /places/*`, `/search/*`, `GET /geocoding/*` |
+| `trips:read` | `/directions/*` (except saving a trip), `GET /transit/*`, `GET /gbfs/*`, `GET /isochrone` |
+| `weather:read` | `GET /weather`, `GET /environment/*` |
+| `library:read` | `GET /library/*`, `GET /vehicles` |
+| `library:write` | `POST`, `PUT`, `PATCH` and `DELETE` on `/library/*` |
+
+Any scoped token can reach `POST /mcp`, which checks each tool's scope itself (see [AI assistants](/docs/usage/mcp#scopes)). Anything else answers `403` with `WWW-Authenticate: Bearer error="insufficient_scope"`, plus the `scope` it needs when one would help. Tokens, sessions, account settings and OAuth consent always need a sign-in session.
