@@ -1,0 +1,75 @@
+---
+title: Data export
+description: Download a copy of everything you've saved, all at once or one part at a time.
+---
+
+Go to **Settings → Account → Export your data**. Every part of your data is selected to begin with. Untick what you don't want and press **Download**.
+
+Your browser builds the export, not the server. Private collections, routes and canvases are end-to-end encrypted, and only your devices can open them, so they are decrypted on the device you export from. The download contains them in plain text, so keep it somewhere safe.
+
+---
+
+## What's included
+
+| Part | Contents | Also as |
+|---|---|---|
+| Library | Your collections and the places in them, saved places, and canvases | GeoJSON, KML |
+| Saved routes | Routes you built, with waypoints, path and elevation | GPX |
+| Vehicles | Your vehicles and where they were last parked | |
+| Preferences | Language, units, navigation, Ask and other settings that follow your account | |
+| Search history | Recent searches and places you've looked at | |
+| Friends | Friends, pending invitations, and who you share your location with | |
+| Connected services | Each service you connected and which features are on. Passwords, API keys and tokens are left out | |
+| Map edits | Every edit you've made to OpenStreetMap through Parchment | |
+| Profile | Your name, email, username and photo | |
+
+Collections that friends shared with you aren't included, because they belong to them.
+
+GeoJSON and KML open in most map apps and GIS tools, including Google Earth, Organic Maps, OsmAnd and QGIS. GPX works with GPS devices and fitness apps.
+
+## Files
+
+Selecting several parts downloads `parchment-export-<date>.zip`. A single part downloads on its own: one JSON file, or a zip when it also comes in an open format.
+
+```
+parchment-export-2026-11-27.zip
+├── manifest.json
+├── library.json
+├── library-places.geojson
+├── library-places.kml
+├── routes.json
+├── routes.gpx
+├── vehicles.json
+├── preferences.json
+├── history.json
+├── friends.json
+├── integrations.json
+├── osm-edits.json
+└── account.json
+```
+
+If a private item can't be opened on this device (for example, a device that hasn't been set up with your recovery key), a message tells you how many items are affected. Locked items are left out. An item whose name is locked but whose contents can still be read is exported without its name. Export from a device that has your keys to include everything.
+
+## Format
+
+The JSON files are Parchment's own format. They are complete enough to import back exactly, and versioned so that future versions can still read old exports. Each one describes itself and can be read without the rest of the archive:
+
+```json
+{
+  "format": "parchment-export",
+  "version": 1,
+  "module": "library",
+  "exportedAt": "2026-11-27T12:00:00.000Z",
+  "appVersion": "0.27.2",
+  "data": { "collections": [], "bookmarks": [], "canvases": [] }
+}
+```
+
+`module` is one of `library`, `routes`, `vehicles`, `preferences`, `history`, `friends`, `integrations`, `osmEdits` or `account`. Ids, timestamps, archive state and each record's encryption scheme are kept, so an import can rebuild records as they were. Ciphertext, share links and owner ids are not exported.
+
+- **Collections** carry `scheme`. A `user-e2ee` collection keeps its places in its own `points` array. Other collections' places are in `bookmarks`, and each bookmark lists its `collectionIds`, most recently added first.
+- **Routes and canvases** carry their full `body`: waypoints, path, elevation and stats for a route, and layers, annotations and camera for a canvas.
+
+`manifest.json` lists every file in the zip and its format. Its `issues` array lists anything this device couldn't decrypt: `locked` (left out) or `nameLocked` (exported without its name, icon and description).
+
+A reader should check `format`, and refuse a `version` newer than it understands. Fields are only added within a version; a change that would break an older reader gets a new version.
